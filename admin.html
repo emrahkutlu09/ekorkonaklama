@@ -43,10 +43,13 @@
             <button onclick="switchView('staff')" id="nav-staff" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
                 <i data-lucide="users" class="w-5 h-5"></i> Personel Yönetimi
             </button>
-            <!-- YENİ EKLENEN: YORUM YÖNETİMİ MENÜSÜ -->
             <button onclick="switchView('reviews')" id="nav-reviews" class="w-full flex items-center justify-between px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
                 <div class="flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5"></i> Yorum Yönetimi</div>
                 <span id="pendingReviewBadge" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+            <!-- YENİ EKLENEN: FİNANS YÖNETİMİ MENÜSÜ -->
+            <button onclick="switchView('finance')" id="nav-finance" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
+                <i data-lucide="wallet" class="w-5 h-5"></i> Finans Yönetimi
             </button>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-slate-950/50">
@@ -94,8 +97,8 @@
                         <h3 class="text-3xl font-bold text-gray-900 mt-2" id="statRoomCount">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <p class="text-sm font-medium text-gray-500">Aktif Personel</p>
-                        <h3 class="text-3xl font-bold text-gray-900 mt-2" id="statStaffCount">0</h3>
+                        <p class="text-sm font-medium text-gray-500">Net Kasa (Kâr)</p>
+                        <h3 class="text-3xl font-bold text-emerald-600 mt-2" id="statNetBalance">₺0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <p class="text-sm font-medium text-gray-500">Onay Bekleyen Yorum</p>
@@ -108,14 +111,13 @@
                         <i data-lucide="shield-check" class="w-8 h-8"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800 mb-2">Sahra Apart Yönetim Sistemine Hoş Geldiniz</h3>
-                    <p class="text-gray-500 max-w-md mx-auto mb-6">Mutlak kontrol felsefesiyle tasarlanmış bu panelden tesisinizi, personelinizi ve misafir yorumlarınızı yönetebilirsiniz.</p>
+                    <p class="text-gray-500 max-w-md mx-auto mb-6">Mutlak kontrol felsefesiyle tasarlanmış bu panelden tesisinizi, personelinizi, finansınızı ve misafir yorumlarınızı yönetebilirsiniz.</p>
                 </div>
             </div>
 
             <!-- VIEW 2: FACILITIES (APART & ODA) -->
             <div id="view-facilities" class="space-y-8 fade-in hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Apart Ekleme Formu -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
                         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i> Yeni Apart Ekle</h3>
                         <form id="apartmentForm" class="space-y-4">
@@ -131,7 +133,6 @@
                         </form>
                     </div>
 
-                    <!-- Oda Ekleme Formu -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2 h-fit">
                         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="bed-double" class="w-5 h-5 text-emerald-500"></i> Yeni Oda Ekle</h3>
                         <form id="roomForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -160,7 +161,6 @@
                     </div>
                 </div>
 
-                <!-- Listeler -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <h3 class="text-lg font-bold text-gray-900 mb-4">Kayıtlı Apartlar</h3>
@@ -180,7 +180,6 @@
             <!-- VIEW 3: STAFF MANAGEMENT -->
             <div id="view-staff" class="space-y-8 fade-in hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Personel Ekleme Formu -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
                         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5 text-indigo-500"></i> Yeni Personel Ekle</h3>
                         <form id="staffForm" class="space-y-4">
@@ -207,7 +206,6 @@
                         </form>
                     </div>
 
-                    <!-- Personel Listesi -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
                         <h3 class="text-lg font-bold text-gray-900 mb-4">Sistem Personelleri</h3>
                         <div class="overflow-x-auto">
@@ -229,7 +227,7 @@
                 </div>
             </div>
 
-            <!-- VIEW 4: REVIEW MANAGEMENT (YORUMLAR) -->
+            <!-- VIEW 4: REVIEW MANAGEMENT -->
             <div id="view-reviews" class="space-y-6 fade-in hidden">
                 <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <div>
@@ -245,6 +243,100 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviewsContainer">
                     <div class="col-span-full text-center py-12 text-gray-500">Yorumlar yükleniyor...</div>
+                </div>
+            </div>
+
+            <!-- VIEW 5: FINANCE MANAGEMENT (MUHASEBE) -->
+            <div id="view-finance" class="space-y-6 fade-in hidden">
+                <!-- Finans Özet Kartları -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                            <i data-lucide="trending-up" class="w-6 h-6 text-emerald-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Toplam Gelir</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="financeTotalIncome">₺0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                            <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Toplam Gider</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="financeTotalExpense">₺0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 p-6 rounded-xl shadow-lg border border-slate-800 flex items-center gap-4 text-white">
+                        <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                            <i data-lucide="wallet" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-300">Net Kasa Durumu</p>
+                            <h3 class="text-3xl font-bold mt-1" id="financeNetBalance">₺0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- İşlem Ekleme Formu -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i> Manuel Kasa İşlemi</h3>
+                        <form id="financeForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">İşlem Türü</label>
+                                <select id="finType" required class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                                    <option value="INCOME">Gelir (+)</option>
+                                    <option value="EXPENSE">Gider (-)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                                <select id="finCategory" required class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                                    <option value="RESERVATION">Konaklama / Rezervasyon</option>
+                                    <option value="BILLS">Fatura (Elektrik, Su, İnternet)</option>
+                                    <option value="SUPPLIES">Temizlik / Sarf Malzemesi</option>
+                                    <option value="SALARY">Personel Maaş/Avans</option>
+                                    <option value="MAINTENANCE">Bakım & Onarım</option>
+                                    <option value="OTHER">Diğer</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tutar (₺)</label>
+                                <input type="number" id="finAmount" required placeholder="Örn: 500" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
+                                <input type="text" id="finDesc" required placeholder="Örn: 101 Nolu oda konaklama" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition shadow-md">Kayıt Ekle</button>
+                        </form>
+                    </div>
+
+                    <!-- Kasa Hareketleri Listesi -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-900">Son Kasa Hareketleri</h3>
+                            <p class="text-xs text-gray-500">Rezervasyonlar kasaya otomatik işlenir.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 text-gray-700 uppercase text-xs">
+                                    <tr>
+                                        <th class="p-3">Tarih</th>
+                                        <th class="p-3">Açıklama</th>
+                                        <th class="p-3">Kategori</th>
+                                        <th class="p-3">Tutar</th>
+                                        <th class="p-3 text-right">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="financeTableBody" class="divide-y divide-gray-100">
+                                    <tr><td colspan="5" class="p-4 text-center text-gray-400">Yükleniyor...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -279,7 +371,7 @@
         };
 
         window.switchView = function(viewName) {
-            const views = ['dashboard', 'facilities', 'staff', 'reviews'];
+            const views = ['dashboard', 'facilities', 'staff', 'reviews', 'finance'];
             views.forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 document.getElementById(`view-${v}`).classList.remove('block');
@@ -296,7 +388,7 @@
             activeNav.classList.remove('text-slate-300', 'hover:bg-slate-800');
             activeNav.classList.add('bg-blue-600', 'text-white');
 
-            const titles = { 'dashboard': 'Dashboard', 'facilities': 'Tesis Yönetimi', 'staff': 'Personel Yönetimi', 'reviews': 'Yorum Yönetimi' };
+            const titles = { 'dashboard': 'Dashboard', 'facilities': 'Tesis Yönetimi', 'staff': 'Personel Yönetimi', 'reviews': 'Yorum Yönetimi', 'finance': 'Finans & Muhasebe' };
             document.getElementById('pageTitle').textContent = titles[viewName];
             
             if(window.innerWidth < 768) toggleSidebar();
@@ -322,9 +414,10 @@
         let roomsData = [];
         let staffData = [];
         let reviewsData = [];
+        let financeData = [];
         let currentReviewFilter = 'ALL';
 
-        // Listeners
+        // Listeners: Apart & Oda
         onSnapshot(collection(db, "apartments"), (snapshot) => {
             apartmentsData = [];
             let html = '';
@@ -395,11 +488,10 @@
                     </tr>`;
             });
             document.getElementById('staffTableBody').innerHTML = html || '<tr><td colspan="4" class="p-8 text-center text-gray-400">Kayıtlı personel bulunmuyor.</td></tr>';
-            document.getElementById('statStaffCount').textContent = staffData.length;
             lucide.createIcons();
         });
 
-        // Reviews Listener
+        // Listeners: Yorumlar
         const qReviews = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
         onSnapshot(qReviews, (snapshot) => {
             reviewsData = [];
@@ -410,7 +502,6 @@
                 if(r.status === 'PENDING') pendingCount++;
             });
             
-            // İstatistik ve Badge güncellemeleri
             document.getElementById('statPendingReviews').textContent = pendingCount;
             const badge = document.getElementById('pendingReviewBadge');
             if(pendingCount > 0) {
@@ -419,7 +510,6 @@
             } else {
                 badge.classList.add('hidden');
             }
-            
             renderReviews();
         });
 
@@ -447,13 +537,9 @@
 
             let html = '';
             filtered.forEach(r => {
-                // Yıldızları oluştur
                 let stars = '';
-                for(let i=0; i<5; i++) {
-                    stars += `<i data-lucide="star" class="w-4 h-4 ${i < r.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}"></i>`;
-                }
+                for(let i=0; i<5; i++) { stars += `<i data-lucide="star" class="w-4 h-4 ${i < r.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}"></i>`; }
 
-                // Status Badge ve Aksiyon Butonları
                 let statusBadge = '';
                 let actionBtns = '';
                 
@@ -497,11 +583,105 @@
             try {
                 await updateDoc(doc(db, "reviews", id), { status: newStatus });
                 showToast(`Yorum durumu güncellendi: ${newStatus === 'APPROVED' ? 'Yayında' : 'Gizlendi'}`);
-            } catch (error) {
-                console.error("Yorum güncelleme hatası:", error);
-                showToast("Yorum güncellenirken hata oluştu.", "error");
-            }
+            } catch (error) { showToast("Yorum güncellenirken hata oluştu.", "error"); }
         };
+
+        // Listeners: FİNANS / MUHASEBE
+        const qFinance = query(collection(db, "finances"), orderBy("createdAt", "desc"));
+        onSnapshot(qFinance, (snapshot) => {
+            financeData = [];
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let html = '';
+
+            const catMap = {
+                'RESERVATION': 'Konaklama / Rzv',
+                'BILLS': 'Fatura',
+                'SUPPLIES': 'Sarf Malzemesi',
+                'SALARY': 'Personel',
+                'MAINTENANCE': 'Bakım Onarım',
+                'OTHER': 'Diğer'
+            };
+
+            snapshot.forEach(docSnap => {
+                const f = { id: docSnap.id, ...docSnap.data() };
+                financeData.push(f);
+                
+                const isIncome = f.type === 'INCOME';
+                if(isIncome) totalIncome += Number(f.amount);
+                else totalExpense += Number(f.amount);
+
+                const dateStr = f.createdAt ? new Date(f.createdAt.toMillis()).toLocaleDateString('tr-TR') : 'Tarih Yok';
+                const typeBadge = isIncome 
+                    ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold">GELİR</span>'
+                    : '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[10px] font-bold">GİDER</span>';
+                
+                const amountClass = isIncome ? 'text-emerald-600' : 'text-red-600';
+                const sign = isIncome ? '+' : '-';
+
+                html += `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-50">
+                        <td class="p-3 text-xs text-gray-500">${dateStr}</td>
+                        <td class="p-3 font-medium text-gray-800">${f.description}</td>
+                        <td class="p-3">
+                            <div class="flex items-center gap-2">
+                                ${typeBadge}
+                                <span class="text-xs text-gray-500">${catMap[f.category] || f.category}</span>
+                            </div>
+                        </td>
+                        <td class="p-3 font-bold ${amountClass}">${sign}₺${f.amount}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteItem('finances', '${f.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Sil"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            const netBalance = totalIncome - totalExpense;
+
+            document.getElementById('financeTableBody').innerHTML = html || '<tr><td colspan="5" class="p-8 text-center text-gray-400">Henüz kasa hareketi bulunmuyor.</td></tr>';
+            
+            // Update Dashboard and Finance Stats
+            document.getElementById('financeTotalIncome').textContent = `₺${totalIncome.toLocaleString('tr-TR')}`;
+            document.getElementById('financeTotalExpense').textContent = `₺${totalExpense.toLocaleString('tr-TR')}`;
+            
+            const balElement = document.getElementById('financeNetBalance');
+            const dashBalElement = document.getElementById('statNetBalance');
+            
+            balElement.textContent = `₺${netBalance.toLocaleString('tr-TR')}`;
+            dashBalElement.textContent = `₺${netBalance.toLocaleString('tr-TR')}`;
+            
+            if(netBalance < 0) {
+                balElement.classList.add('text-red-400');
+                balElement.classList.remove('text-white', 'text-emerald-400');
+                dashBalElement.classList.add('text-red-600');
+                dashBalElement.classList.remove('text-emerald-600');
+            } else {
+                balElement.classList.add('text-emerald-400');
+                balElement.classList.remove('text-white', 'text-red-400');
+                dashBalElement.classList.add('text-emerald-600');
+                dashBalElement.classList.remove('text-red-600');
+            }
+
+            lucide.createIcons();
+        });
+
+        // Form Submissions
+        document.getElementById('financeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "finances"), {
+                    type: document.getElementById('finType').value,
+                    category: document.getElementById('finCategory').value,
+                    amount: Number(document.getElementById('finAmount').value),
+                    description: document.getElementById('finDesc').value,
+                    addedBy: 'ADMIN',
+                    createdAt: serverTimestamp()
+                });
+                document.getElementById('financeForm').reset();
+                showToast("Kasa işlemi başarıyla kaydedildi.");
+            } catch(err) { showToast("Kasa işlemi eklenirken hata oluştu.", "error"); }
+        });
 
         document.getElementById('apartmentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -547,7 +727,6 @@
         });
 
         window.deleteItem = async function(collectionName, id) {
-            // Güvenlik ve akıcılık gereği özel modal açılabilir ama şimdilik hızlı siliyoruz
             try {
                 await deleteDoc(doc(db, collectionName, id));
                 showToast("Kayıt başarıyla silindi!");

@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sahra Apart | Evinizin Konforunda Premium Konaklama</title>
     <meta name="description" content="Merkezi konum, modern tasarım ve kusursuz temizlik anlayışıyla konaklamalarınız için ideal adresiniz. Sahra Apart'ta rezervasyon yapın.">
     
@@ -41,35 +41,27 @@
     </script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; overflow-x: hidden; }
         h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
-        
-        /* Animasyonlar */
         .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-        
-        /* Modal Animasyonu */
-        .modal-enter { animation: modalIn 0.25s ease-out forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        
-        /* Navigasyon efekti */
         .nav-scrolled { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .nav-scrolled .text-white { color: #1e293b; }
-        .nav-scrolled .bg-white\/20 { background-color: #f1f5f9; color: #1e293b; }
+        .nav-scrolled .bg-white\/20 { background-color: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
 
     <!-- Toast Message Container -->
-    <div id="global-toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4">
-        <i data-lucide="info" id="toast-icon" class="w-5 h-5"></i>
+    <div id="global-toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-md px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4 text-center justify-center">
+        <i data-lucide="info" id="toast-icon" class="w-5 h-5 shrink-0"></i>
         <p id="toast-message" class="font-medium text-sm"></p>
     </div>
 
     <!-- Navbar -->
-    <nav id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 py-4 px-6 md:px-12 w-full flex justify-between items-center text-white">
-        <a href="#" class="text-2xl md:text-3xl font-bold tracking-tighter flex items-center gap-2 drop-shadow-md z-10 font-serif">
-            <i data-lucide="home" class="w-8 h-8 text-gold-400"></i> Sahra Apart
+    <nav id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 py-4 px-4 sm:px-6 md:px-12 w-full flex justify-between items-center text-white">
+        <a href="#" class="text-xl sm:text-2xl md:text-3xl font-bold tracking-tighter flex items-center gap-2 drop-shadow-md z-10 font-serif">
+            <i data-lucide="home" class="w-6 h-6 sm:w-8 sm:h-8 text-gold-400"></i> Sahra Apart
         </a>
         
         <!-- Desktop Menu -->
@@ -78,7 +70,6 @@
             <a href="#features" class="hover:text-gold-400 transition-colors drop-shadow-md">Özellikler</a>
             <a href="#reviews" class="hover:text-gold-400 transition-colors drop-shadow-md">Yorumlar</a>
             <a href="#contact" class="hover:text-gold-400 transition-colors drop-shadow-md">İletişim</a>
-            <!-- Yetkili Girişleri Menüsü -->
             <div class="relative group ml-4">
                 <button class="bg-white/20 hover:bg-white/30 backdrop-blur-md px-5 py-2.5 text-sm rounded-full transition-colors shadow-sm flex items-center gap-2 border border-white/30">
                     <i data-lucide="shield" class="w-4 h-4"></i> Personel Girişi
@@ -91,167 +82,169 @@
         </div>
 
         <!-- Mobile Menu Button -->
-        <button class="md:hidden text-white drop-shadow-md z-10" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
-            <i data-lucide="menu" class="w-6 h-6"></i>
+        <button class="md:hidden text-white drop-shadow-md z-10 p-2 focus:outline-none" onclick="toggleMobileMenu()">
+            <i data-lucide="menu" class="w-7 h-7"></i>
         </button>
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-slate-900/95 backdrop-blur-sm flex flex-col justify-center items-center gap-6 text-white text-xl">
-        <a href="#rooms" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Odalarımız</a>
-        <a href="#features" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Özellikler</a>
-        <div class="h-px w-1/2 bg-white/20 my-2"></div>
-        <a href="admin.html" class="text-brand-400 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5"></i> Admin Paneli</a>
-        <a href="login.html" class="text-emerald-400 flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5"></i> Personel Girişi</a>
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-slate-900/98 backdrop-blur-lg flex flex-col justify-center items-center gap-6 text-white text-lg transform translate-x-full transition-transform duration-300 md:hidden">
+        <a href="#rooms" onclick="toggleMobileMenu()" class="hover:text-gold-400 font-medium">Odalarımız</a>
+        <a href="#features" onclick="toggleMobileMenu()" class="hover:text-gold-400 font-medium">Özellikler</a>
+        <a href="#reviews" onclick="toggleMobileMenu()" class="hover:text-gold-400 font-medium">Yorumlar</a>
+        <a href="#contact" onclick="toggleMobileMenu()" class="hover:text-gold-400 font-medium">İletişim</a>
+        <div class="h-px w-1/3 bg-white/20 my-2"></div>
+        <a href="admin.html" class="text-gold-400 flex items-center gap-2 font-semibold"><i data-lucide="settings" class="w-5 h-5"></i> Admin Paneli</a>
+        <a href="login.html" class="text-emerald-400 flex items-center gap-2 font-semibold"><i data-lucide="calendar-check" class="w-5 h-5"></i> Personel Girişi</a>
         
-        <button class="absolute top-6 right-6" onclick="document.getElementById('mobile-menu').classList.add('hidden')">
+        <button class="absolute top-6 right-6 p-2 text-white" onclick="toggleMobileMenu()">
             <i data-lucide="x" class="w-8 h-8"></i>
         </button>
     </div>
 
     <!-- Hero Section -->
-    <header class="relative h-[90vh] min-h-[600px] flex flex-col items-center justify-center w-full overflow-hidden">
+    <header class="relative min-h-[85vh] sm:h-[90vh] flex flex-col items-center justify-center w-full overflow-hidden pb-16 sm:pb-0">
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2000&auto=format&fit=crop" alt="Sahra Apart Premium Oda" class="w-full h-full object-cover object-center" />
-            <div class="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/40 to-slate-950/80"></div>
+            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2000&auto=format&fit=crop" alt="Sahra Apart" class="w-full h-full object-cover object-center" />
+            <div class="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/50 to-slate-950/85"></div>
         </div>
 
-        <div class="relative z-10 text-center text-white px-4 mt-12 w-full max-w-5xl mx-auto flex flex-col items-center fade-in-up">
-            <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-black/30 backdrop-blur-md border border-white/20 mb-8 shadow-2xl">
-                <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-gold-400"></i>
-                <span class="text-xs md:text-sm font-medium tracking-widest uppercase text-gold-100">Premium Konaklama Deneyimi</span>
-                <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-gold-400"></i>
+        <div class="relative z-10 text-center text-white px-4 mt-16 sm:mt-12 w-full max-w-5xl mx-auto flex flex-col items-center fade-in-up">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 mb-6 shadow-xl">
+                <i data-lucide="star" class="w-3.5 h-3.5 text-gold-400 fill-gold-400"></i>
+                <span class="text-[11px] sm:text-xs font-medium tracking-widest uppercase text-gold-100">Premium Konaklama Deneyimi</span>
+                <i data-lucide="star" class="w-3.5 h-3.5 text-gold-400 fill-gold-400"></i>
             </div>
             
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 drop-shadow-2xl leading-tight">
+            <h1 class="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-4 sm:mb-6 drop-shadow-2xl leading-tight">
                 Evinizin Konforu, <br />
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-600 italic">Sahra'nın</span> Lüksü.
             </h1>
             
-            <p class="text-lg md:text-2xl font-light mb-12 max-w-2xl mx-auto drop-shadow-md text-slate-200">
+            <p class="text-sm sm:text-lg md:text-xl font-light mb-8 max-w-xl mx-auto drop-shadow-md text-slate-200 px-2">
                 Şehrin kalbinde, modern tasarım ve kusursuz hijyen ile unutulmaz bir deneyim yaşayın.
             </p>
         </div>
 
-        <!-- Booking Widget -->
-        <div class="absolute -bottom-6 w-full px-4 z-20 flex justify-center fade-in-up" style="animation-delay: 0.3s;">
-            <div class="bg-white rounded-3xl shadow-2xl p-4 md:p-6 w-full max-w-5xl flex flex-col md:flex-row gap-4 items-end border border-slate-100/50 backdrop-blur-xl">
+        <!-- Booking Widget (Mobilde dikey, masaüstünde yatay esnek yapı) -->
+        <div class="w-full px-4 z-20 flex justify-center mt-4 sm:absolute sm:-bottom-8 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="bg-white rounded-3xl shadow-2xl p-4 sm:p-6 w-full max-w-5xl flex flex-col md:flex-row gap-3 sm:gap-4 items-stretch md:items-end border border-slate-100 backdrop-blur-xl">
                 <div class="flex-1 w-full relative">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Giriş Tarihi</label>
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Giriş Tarihi</label>
                     <div class="relative">
-                        <i data-lucide="calendar-arrow-down" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                        <input type="date" id="search-checkin" class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent focus:border-brand-500 rounded-2xl outline-none font-medium text-slate-700 transition-colors" />
+                        <i data-lucide="calendar" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400"></i>
+                        <input type="date" id="search-checkin" class="w-full pl-11 sm:pl-12 pr-4 py-3.5 sm:py-4 bg-slate-50 border border-slate-200 focus:border-brand-500 rounded-2xl outline-none font-medium text-slate-700 text-sm sm:text-base" />
                     </div>
                 </div>
                 
                 <div class="flex-1 w-full relative">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Çıkış Tarihi</label>
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Çıkış Tarihi</label>
                     <div class="relative">
-                        <i data-lucide="calendar-arrow-up" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                        <input type="date" id="search-checkout" class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent focus:border-brand-500 rounded-2xl outline-none font-medium text-slate-700 transition-colors" />
+                        <i data-lucide="calendar" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400"></i>
+                        <input type="date" id="search-checkout" class="w-full pl-11 sm:pl-12 pr-4 py-3.5 sm:py-4 bg-slate-50 border border-slate-200 focus:border-brand-500 rounded-2xl outline-none font-medium text-slate-700 text-sm sm:text-base" />
                     </div>
                 </div>
                 
                 <div class="flex-1 w-full relative">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Misafir</label>
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Misafir</label>
                     <div class="relative">
-                        <i data-lucide="users" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                        <select id="search-guests" class="w-full pl-12 pr-10 py-4 bg-slate-50 border-2 border-transparent focus:border-brand-500 rounded-2xl outline-none font-medium text-slate-700 transition-colors appearance-none cursor-pointer">
+                        <i data-lucide="users" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400"></i>
+                        <select id="search-guests" class="w-full pl-11 sm:pl-12 pr-10 py-3.5 sm:py-4 bg-slate-50 border border-slate-200 focus:border-brand-500 rounded-2xl outline-none font-medium text-slate-700 text-sm sm:text-base appearance-none cursor-pointer">
                             <option value="1">1 Yetişkin</option>
                             <option value="2" selected>2 Yetişkin</option>
                             <option value="3">2 Yetişkin, 1 Çocuk</option>
                             <option value="4">3 Yetişkin</option>
                             <option value="5">Aile (4+ Kişi)</option>
                         </select>
-                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"></i>
+                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                     </div>
                 </div>
                 
-                <button id="btn-search-rooms" class="w-full md:w-auto px-8 py-4 h-[56px] bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl transition-all shadow-[0_0_20px_rgba(124,58,237,0.4)] flex items-center justify-center gap-2">
+                <button id="btn-search-rooms" class="w-full md:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 text-sm sm:text-base shrink-0">
                     <i data-lucide="search" class="w-5 h-5"></i> Müsait Odaları Bul
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Odalarımız Section (Firebase Dinamik Veri) -->
-    <section id="rooms" class="py-24 pt-32 bg-slate-50">
+    <!-- Odalarımız Section -->
+    <section id="rooms" class="py-20 sm:py-24 pt-28 sm:pt-32 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Sizin İçin Tasarlandı</h2>
-                <div class="w-24 h-1 bg-gold-400 mx-auto rounded-full mb-6"></div>
-                <p class="text-slate-500 max-w-2xl mx-auto text-lg">Admin panelinden eklenen en güncel odalarımız ve konforlu apartlarımız.</p>
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-3 font-serif">Sizin İçin Tasarlandı</h2>
+                <div class="w-20 h-1 bg-gold-400 mx-auto rounded-full mb-4"></div>
+                <p class="text-slate-500 max-w-xl mx-auto text-sm sm:text-base px-2">Admin panelinden eklenen en güncel odalarımız ve konforlu apartlarımız.</p>
             </div>
 
             <!-- Dynamic Rooms Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="dynamic-rooms-grid">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" id="dynamic-rooms-grid">
                 <div class="col-span-full text-center py-12 text-gray-400">Odalar yükleniyor...</div>
             </div>
         </div>
     </section>
 
-    <!-- REZERVASYON MODALI (MÜŞTERİ KAYIT EKRANI) -->
-    <div id="bookingModal" class="fixed inset-0 bg-slate-950/60 z-[999] hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden modal-enter border border-slate-100">
-            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+    <!-- REZERVASYON MODALI (Mobil Uyumlu) -->
+    <div id="bookingModal" class="fixed inset-0 bg-slate-950/70 z-[999] hidden items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                 <div>
-                    <h3 class="font-bold text-slate-900 text-xl font-serif">Rezervasyon Oluştur</h3>
-                    <p class="text-xs text-slate-500 mt-0.5" id="modalRoomTitle">Oda Bilgisi Yükleniyor...</p>
+                    <h3 class="font-bold text-slate-900 text-lg sm:text-xl font-serif">Rezervasyon Oluştur</h3>
+                    <p class="text-xs text-slate-500 mt-0.5" id="modalRoomTitle">Oda Bilgisi...</p>
                 </div>
-                <button onclick="closeBookingModal()" class="w-9 h-9 rounded-full bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors">
+                <button onclick="closeBookingModal()" class="w-8 h-8 rounded-full bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-600">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <form id="bookingForm" onsubmit="submitCustomerReservation(event)" class="p-6 space-y-4">
+            <form id="bookingForm" onsubmit="submitCustomerReservation(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
                 <input type="hidden" id="modalRoomId">
                 <input type="hidden" id="modalRoomPrice">
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Adınız *</label>
-                        <input type="text" id="custName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="Adınız">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Adınız *</label>
+                        <input type="text" id="custName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Soyadınız *</label>
-                        <input type="text" id="custSurname" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="Soyadınız">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">TC Kimlik No *</label>
-                        <input type="text" id="custTc" required maxlength="11" minlength="11" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="11 haneli TC No">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Telefon Numarası *</label>
-                        <input type="tel" id="custPhone" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="05XX XXX XX XX">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Soyadınız *</label>
+                        <input type="text" id="custSurname" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Giriş Tarihi *</label>
-                        <input type="date" id="custCheckin" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">TC Kimlik No *</label>
+                        <input type="text" id="custTc" required maxlength="11" minlength="11" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm" placeholder="11 haneli TC">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Çıkış Tarihi *</label>
-                        <input type="date" id="custCheckout" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Telefon Numarası *</label>
+                        <input type="tel" id="custPhone" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm" placeholder="05XX XXX XX XX">
                     </div>
                 </div>
 
-                <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100 flex justify-between items-center mt-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Giriş Tarihi *</label>
+                        <input type="date" id="custCheckin" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Çıkış Tarihi *</label>
+                        <input type="date" id="custCheckout" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                </div>
+
+                <div class="bg-brand-50 p-4 rounded-2xl border border-brand-100 flex justify-between items-center">
                     <div>
                         <span class="text-xs text-slate-500 font-medium block">Toplam Tutar</span>
-                        <span class="text-2xl font-bold text-brand-600 font-serif" id="modalTotalPriceDisplay">₺0</span>
+                        <span class="text-xl sm:text-2xl font-bold text-brand-600 font-serif" id="modalTotalPriceDisplay">₺0</span>
                     </div>
                     <div class="text-right text-xs text-slate-500">
                         <span id="modalNightCount">1</span> Gece Konaklama
                     </div>
                 </div>
 
-                <div class="pt-3">
-                    <button type="submit" id="btnSubmitBooking" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2">
+                <div class="pt-2 pb-4">
+                    <button type="submit" id="btnSubmitBooking" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2">
                         <i data-lucide="check-circle" class="w-5 h-5"></i> Rezervasyonu Tamamla
                     </button>
                 </div>
@@ -259,94 +252,48 @@
         </div>
     </div>
 
-    <!-- Özellikler (Neden Biz?) -->
-    <section id="features" class="py-24 bg-white border-y border-slate-100">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div>
-                    <h2 class="text-4xl font-bold text-slate-900 mb-6 font-serif">Neden Sahra Apart?</h2>
-                    <p class="text-slate-500 mb-10 text-lg leading-relaxed">Sıradan bir konaklamanın ötesinde, size kendinizi özel hissettirecek detaylarla dolu bir yaşam alanı sunuyoruz. Önceliğimiz güvenliğiniz, konforunuz ve hijyen.</p>
-                    
-                    <div class="space-y-8">
-                        <div class="flex gap-5">
-                            <div class="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center shrink-0">
-                                <i data-lucide="shield-check" class="w-7 h-7 text-brand-600"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-bold text-slate-800 mb-2">Üst Düzey Güvenlik</h4>
-                                <p class="text-slate-500 text-sm">7/24 aktif kamera sistemi, şifreli ana giriş kapısı ve güvenli kilit sistemleri ile huzur içindesiniz.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex gap-5">
-                            <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
-                                <i data-lucide="sparkles" class="w-7 h-7 text-emerald-600"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-bold text-slate-800 mb-2">Kusursuz Hijyen</h4>
-                                <p class="text-slate-500 text-sm">Profesyonel temizlik ekibimiz her misafir değişiminde detaylı dezenfeksiyon işlemleri uygulamaktadır.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 h-[500px]">
-                    <div class="flex flex-col gap-4 h-full">
-                        <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800&auto=format&fit=crop" class="w-full h-2/3 object-cover rounded-3xl shadow-lg" alt="Banyo" />
-                        <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=800&auto=format&fit=crop" class="w-full h-1/3 object-cover rounded-3xl shadow-lg" alt="Mutfak" />
-                    </div>
-                    <div class="flex flex-col gap-4 h-full pt-8">
-                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=800&auto=format&fit=crop" class="w-full h-1/3 object-cover rounded-3xl shadow-lg" alt="Lobi" />
-                        <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=800&auto=format&fit=crop" class="w-full h-2/3 object-cover rounded-3xl shadow-lg" alt="Yatak Odası" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
-    <footer id="contact" class="bg-slate-950 text-slate-400 pt-20 pb-10 border-t border-slate-900">
-        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-            <div class="lg:col-span-1">
-                <a href="#" class="text-2xl font-bold tracking-tighter flex items-center gap-2 mb-6 font-serif text-white">
-                    <i data-lucide="home" class="w-6 h-6 text-gold-400"></i> Sahra Apart
+    <footer id="contact" class="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+            <div>
+                <a href="#" class="text-xl font-bold tracking-tighter flex items-center gap-2 mb-4 font-serif text-white">
+                    <i data-lucide="home" class="w-5 h-5 text-gold-400"></i> Sahra Apart
                 </a>
-                <p class="text-sm leading-relaxed mb-6">Şehrin kalbinde, ev konforunda lüks apart deneyimi. Modern mimari ve kusursuz hizmet anlayışıyla sizleri bekliyoruz.</p>
+                <p class="text-xs sm:text-sm leading-relaxed mb-4">Şehrin kalbinde, ev konforunda lüks apart deneyimi.</p>
             </div>
             <div>
-                <h4 class="text-white font-bold mb-6 text-lg">İletişim</h4>
-                <ul class="space-y-4 text-sm">
-                    <li class="flex items-start gap-3"><i data-lucide="map-pin" class="w-5 h-5 text-gold-400 shrink-0 mt-0.5"></i> Sahra Mah. Konak Sok. No:12</li>
-                    <li class="flex items-center gap-3"><i data-lucide="phone" class="w-5 h-5 text-gold-400 shrink-0"></i> +90 (555) 123 45 67</li>
+                <h4 class="text-white font-bold mb-4 text-base">İletişim</h4>
+                <ul class="space-y-3 text-xs sm:text-sm">
+                    <li class="flex items-start gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-gold-400 shrink-0 mt-0.5"></i> Sahra Mah. Konak Sok. No:12</li>
+                    <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-gold-400 shrink-0"></i> +90 (555) 123 45 67</li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-bold mb-6 text-lg">Hızlı Bağlantılar</h4>
-                <ul class="space-y-3 text-sm">
-                    <li><a href="#rooms" class="hover:text-gold-400 transition-colors">Odalarımız</a></li>
-                    <li><a href="#features" class="hover:text-gold-400 transition-colors">Neden Biz?</a></li>
+                <h4 class="text-white font-bold mb-4 text-base">Hızlı Bağlantılar</h4>
+                <ul class="space-y-2 text-xs sm:text-sm">
+                    <li><a href="#rooms" class="hover:text-gold-400">Odalarımız</a></li>
+                    <li><a href="#features" class="hover:text-gold-400">Neden Biz?</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-bold mb-6 text-lg">Bülten</h4>
-                <p class="text-sm mb-4">Özel indirimler için e-posta listemize katılın.</p>
+                <h4 class="text-white font-bold mb-4 text-base">Bülten</h4>
                 <form class="flex gap-2" onsubmit="event.preventDefault(); showToast('Bültene başarıyla kayıt oldunuz!', 'success');">
-                    <input type="email" placeholder="E-posta adresiniz" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-sm outline-none text-white" />
-                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
+                    <input type="email" placeholder="E-posta" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none" />
+                    <button type="submit" class="bg-brand-600 text-white px-3 py-2 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
                 </form>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 pt-8 border-t border-slate-900/50 text-center text-xs md:text-sm">
+        <div class="max-w-7xl mx-auto px-4 pt-6 border-t border-slate-900 text-center text-xs">
             &copy; 2026 Sahra Apart. Tüm hakları saklıdır.
         </div>
     </footer>
 
-    <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/905551234567" target="_blank" class="fixed bottom-6 right-6 w-14 h-14 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 hover:bg-emerald-600 hover:scale-110 transition-all z-50">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/905551234567" target="_blank" class="fixed bottom-5 right-5 w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all z-50">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
     </a>
 
-    <!-- Firebase & Realtime Render Script -->
+    <!-- Firebase ve Mantık Scripti -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -365,30 +312,26 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        signInAnonymously(auth).then(() => {
-            initListeners();
-        }).catch((err) => {
-            console.error("Auth Error:", err);
-            initListeners();
-        });
-
+        signInAnonymously(auth).then(() => initListeners()).catch(() => initListeners());
         lucide.createIcons();
 
-        // Navbar Scroll Effect
+        window.toggleMobileMenu = () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('translate-x-full');
+            menu.classList.toggle('translate-x-0');
+        };
+
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             if (window.scrollY > 50) {
-                nav.classList.add('nav-scrolled');
+                nav.classList.add('nav-scrolled', 'py-2');
                 nav.classList.remove('py-4');
-                nav.classList.add('py-2');
             } else {
-                nav.classList.remove('nav-scrolled');
+                nav.classList.remove('nav-scrolled', 'py-2');
                 nav.classList.add('py-4');
-                nav.classList.remove('py-2');
             }
         });
 
-        // Set default dates
         const todayStr = new Date().toISOString().split('T')[0];
         const tmrw = new Date();
         tmrw.setDate(tmrw.getDate() + 1);
@@ -397,7 +340,6 @@
         document.getElementById('search-checkin').value = todayStr;
         document.getElementById('search-checkout').value = tomorrowStr;
 
-        // Toast System
         let toastTimeout;
         window.showToast = (message, type = 'info') => {
             const toast = document.getElementById('global-toast');
@@ -405,18 +347,11 @@
             const text = document.getElementById('toast-message');
             
             text.textContent = message;
-            toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100 text-white`;
+            toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-md px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100 text-white text-center justify-center`;
             
-            if(type === 'success') {
-                toast.classList.add('bg-emerald-600');
-                icon.setAttribute('data-lucide', 'check-circle');
-            } else if(type === 'error') {
-                toast.classList.add('bg-red-600');
-                icon.setAttribute('data-lucide', 'alert-circle');
-            } else {
-                toast.classList.add('bg-slate-900');
-                icon.setAttribute('data-lucide', 'info');
-            }
+            if(type === 'success') { toast.classList.add('bg-emerald-600'); icon.setAttribute('data-lucide', 'check-circle'); }
+            else if(type === 'error') { toast.classList.add('bg-red-600'); icon.setAttribute('data-lucide', 'alert-circle'); }
+            else { toast.classList.add('bg-slate-900'); icon.setAttribute('data-lucide', 'info'); }
             lucide.createIcons();
             
             clearTimeout(toastTimeout);
@@ -426,7 +361,6 @@
             }, 3000);
         };
 
-        // Realtime Data Sync
         let apartmentsList = [];
         let roomsList = [];
 
@@ -448,11 +382,10 @@
             const grid = document.getElementById('dynamic-rooms-grid');
             if(!grid) return;
 
-            // Sadece Müsait olan odaları müşteriye gösterelim
             const availableRooms = roomsList.filter(r => !r.status || r.status === 'AVAILABLE');
 
             if(availableRooms.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">Şu an müsait oda bulunmuyor veya odalar rezerve edilmiş.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-sm">Şu an müsait oda bulunmuyor.</div>`;
                 return;
             }
 
@@ -466,28 +399,28 @@
 
                 html += `
                 <div class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 group border border-slate-100 flex flex-col">
-                    <div class="relative h-64 overflow-hidden">
+                    <div class="relative h-56 sm:h-64 overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1000&auto=format&fit=crop" alt="Oda ${roomNo}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                         <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm">
                             ${aptName}
                         </div>
                     </div>
-                    <div class="p-6 flex flex-col flex-1">
+                    <div class="p-5 sm:p-6 flex flex-col flex-1">
                         <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-2xl font-bold text-slate-900 font-serif">Oda ${roomNo}</h3>
+                            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 font-serif">Oda ${roomNo}</h3>
                             <div class="text-right">
-                                <div class="text-xl font-bold text-brand-600">₺${price}<span class="text-xs text-slate-400 font-normal">/gece</span></div>
+                                <div class="text-lg sm:text-xl font-bold text-brand-600">₺${price}<span class="text-xs text-slate-400 font-normal">/gece</span></div>
                             </div>
                         </div>
-                        <p class="text-slate-500 text-sm mb-6 flex-1">${roomType} konseptiyle konforlu ve huzurlu konaklama.</p>
+                        <p class="text-slate-500 text-xs sm:text-sm mb-6 flex-1">${roomType} konseptiyle konforlu ve huzurlu konaklama.</p>
                         
                         <div class="flex items-center gap-4 mb-6 text-slate-400 text-sm">
                             <span class="flex items-center gap-1.5" title="Klima"><i data-lucide="wind" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Ücretsiz Wi-Fi"><i data-lucide="wifi" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Akıllı TV"><i data-lucide="tv" class="w-4 h-4"></i></span>
+                            <span class="flex items-center gap-1.5" title="Wi-Fi"><i data-lucide="wifi" class="w-4 h-4"></i></span>
+                            <span class="flex items-center gap-1.5" title="TV"><i data-lucide="tv" class="w-4 h-4"></i></span>
                         </div>
                         
-                        <button onclick="openBookingModal('${room.id}', '${roomNo}', '${aptName}', ${price})" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-brand-500/20">Hemen Rezerve Et</button>
+                        <button onclick="openBookingModal('${room.id}', '${roomNo}', '${aptName}', ${price})" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-brand-500/20 text-sm sm:text-base">Hemen Rezerve Et</button>
                     </div>
                 </div>`;
             });
@@ -495,15 +428,11 @@
             lucide.createIcons();
         }
 
-        // -------------------------------------------------------------
-        // REZERVASYON MODAL İŞLEMLERİ
-        // -------------------------------------------------------------
         window.openBookingModal = (roomId, roomNo, aptName, basePrice) => {
             document.getElementById('modalRoomId').value = roomId;
             document.getElementById('modalRoomPrice').value = basePrice;
             document.getElementById('modalRoomTitle').textContent = `${aptName} - Oda ${roomNo}`;
             
-            // Tarihleri hero widget'ından al veya varsayılan yap
             document.getElementById('custCheckin').value = document.getElementById('search-checkin').value || todayStr;
             document.getElementById('custCheckout').value = document.getElementById('search-checkout').value || tomorrowStr;
             
@@ -567,28 +496,19 @@
             };
 
             try {
-                // 1. Veritabanına rezervasyon kaydı ekle
                 await addDoc(collection(db, "reservations"), reservationData);
+                await updateDoc(doc(db, "rooms", roomId), { status: 'RESERVED' });
 
-                // 2. Odanın durumunu RESERVED olarak güncelle (Resepsiyon ekranına düşmesi için)
-                await updateDoc(doc(db, "rooms", roomId), {
-                    status: 'RESERVED'
-                });
-
-                showToast("Rezervasyonunuz başarıyla alındı! Resepsiyonumuz sizinle iletişime geçecektir.", "success");
+                showToast("Rezervasyonunuz başarıyla alındı!", "success");
                 closeBookingModal();
             } catch (err) {
-                console.error("Rezervasyon hatası:", err);
-                showToast("Rezervasyon sırasında bir hata oluştu.", "error");
+                console.error("Hata:", err);
+                showToast("Rezervasyon sırasında hata oluştu.", "error");
             } finally {
                 btn.innerHTML = originalHtml;
                 lucide.createIcons();
             }
         };
-
-        document.getElementById('btn-search-rooms').addEventListener('click', () => {
-            showToast("Tarihleriniz filtrelendi. Müsait odalar aşağıda listelenmektedir.", "success");
-        });
     </script>
 </body>
 </html>

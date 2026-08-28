@@ -81,8 +81,7 @@
                 </button>
                 <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden text-slate-700">
                     <a href="admin.html" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-medium"><i data-lucide="settings" class="w-4 h-4 text-slate-400"></i> Admin Paneli</a>
-                    <a href="resepsiyon.html" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-medium border-t border-slate-50"><i data-lucide="calendar-check" class="w-4 h-4 text-slate-400"></i> Resepsiyon</a>
-                    <a href="katgorevlisi.html" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-medium border-t border-slate-50"><i data-lucide="spray-can" class="w-4 h-4 text-slate-400"></i> Kat Görevlisi</a>
+                    <a href="login.html" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-medium border-t border-slate-50"><i data-lucide="calendar-check" class="w-4 h-4 text-slate-400"></i> Resepsiyon / Kat Girişi</a>
                 </div>
             </div>
         </div>
@@ -98,9 +97,8 @@
         <a href="#rooms" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Odalarımız</a>
         <a href="#features" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Özellikler</a>
         <div class="h-px w-1/2 bg-white/20 my-2"></div>
-        <a href="admin.html" class="text-brand-400 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5"></i> Admin Girişi</a>
-        <a href="resepsiyon.html" class="text-emerald-400 flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5"></i> Resepsiyon Girişi</a>
-        <a href="katgorevlisi.html" class="text-blue-400 flex items-center gap-2"><i data-lucide="spray-can" class="w-5 h-5"></i> Kat Görevlisi Girişi</a>
+        <a href="admin.html" class="text-brand-400 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5"></i> Admin Paneli</a>
+        <a href="login.html" class="text-emerald-400 flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5"></i> Personel Girişi</a>
         
         <button class="absolute top-6 right-6" onclick="document.getElementById('mobile-menu').classList.add('hidden')">
             <i data-lucide="x" class="w-8 h-8"></i>
@@ -173,108 +171,19 @@
         </div>
     </header>
 
-    <!-- Odalarımız Section -->
+    <!-- Odalarımız Section (Firebase Dinamik Veri) -->
     <section id="rooms" class="py-24 pt-32 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Sizin İçin Tasarlandı</h2>
                 <div class="w-24 h-1 bg-gold-400 mx-auto rounded-full mb-6"></div>
-                <p class="text-slate-500 max-w-2xl mx-auto text-lg">İhtiyacınıza uygun, özenle dekore edilmiş farklı oda seçeneklerimizle ev konforunu yaşayın.</p>
+                <p class="text-slate-500 max-w-2xl mx-auto text-lg">Admin panelinden eklenen en güncel odalarımız ve konforlu apartlarımız.</p>
             </div>
 
-            <!-- Rooms Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="featured-rooms">
-                
-                <!-- Oda Kartı 1 -->
-                <div class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 group border border-slate-100 flex flex-col">
-                    <div class="relative h-64 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1000&auto=format&fit=crop" alt="Standart Oda" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm">
-                            2 Kişilik
-                        </div>
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-2xl font-bold text-slate-900 font-serif">Standart Süit</h3>
-                            <div class="text-right">
-                                <div class="text-sm text-slate-400 line-through">1.200 ₺</div>
-                                <div class="text-xl font-bold text-brand-600">950 ₺<span class="text-xs text-slate-400 font-normal">/gece</span></div>
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-sm mb-6 flex-1">Modern tasarımı ve rahat yatağı ile kısa konaklamalarınız için ideal seçim. Şehir manzaralı.</p>
-                        
-                        <div class="flex items-center gap-4 mb-6 text-slate-400 text-sm">
-                            <span class="flex items-center gap-1.5" title="Klima"><i data-lucide="wind" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Ücretsiz Wi-Fi"><i data-lucide="wifi" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Akıllı TV"><i data-lucide="tv" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Mini Mutfak"><i data-lucide="coffee" class="w-4 h-4"></i></span>
-                        </div>
-                        
-                        <button class="w-full py-3 bg-slate-100 hover:bg-brand-600 hover:text-white text-slate-800 font-semibold rounded-xl transition-colors">Detayları İncele</button>
-                    </div>
-                </div>
-
-                <!-- Oda Kartı 2 -->
-                <div class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 group border border-slate-100 flex flex-col relative">
-                    <!-- Popüler Rozeti -->
-                    <div class="absolute -right-12 top-6 bg-gold-400 text-white font-bold text-xs py-1 px-12 rotate-45 z-10 shadow-md">En Popüler</div>
-                    
-                    <div class="relative h-64 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1000&auto=format&fit=crop" alt="Deluxe Teraslı" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm z-10">
-                            3 Kişilik
-                        </div>
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-2xl font-bold text-slate-900 font-serif">Deluxe Teraslı</h3>
-                            <div class="text-right">
-                                <div class="text-xl font-bold text-brand-600">1.450 ₺<span class="text-xs text-slate-400 font-normal">/gece</span></div>
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-sm mb-6 flex-1">Geniş yaşam alanı, tam donanımlı mutfak ve özel terasıyla evinizden farksız uzun konaklamalar.</p>
-                        
-                        <div class="flex items-center gap-4 mb-6 text-slate-400 text-sm">
-                            <span class="flex items-center gap-1.5" title="Klima"><i data-lucide="wind" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Ücretsiz Wi-Fi"><i data-lucide="wifi" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Tam Donanımlı Mutfak"><i data-lucide="chef-hat" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Özel Teras"><i data-lucide="sun" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Çamaşır Makinesi"><i data-lucide="shirt" class="w-4 h-4"></i></span>
-                        </div>
-                        
-                        <button class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-brand-500/20">Hemen Rezerve Et</button>
-                    </div>
-                </div>
-
-                <!-- Oda Kartı 3 -->
-                <div class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 group border border-slate-100 flex flex-col">
-                    <div class="relative h-64 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1000&auto=format&fit=crop" alt="Aile Apartı" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm">
-                            5 Kişilik
-                        </div>
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-2xl font-bold text-slate-900 font-serif">Aile Grand Apart</h3>
-                            <div class="text-right">
-                                <div class="text-xl font-bold text-brand-600">2.100 ₺<span class="text-xs text-slate-400 font-normal">/gece</span></div>
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-sm mb-6 flex-1">İki ayrı yatak odası, geniş salon ve iki banyosu ile kalabalık aileler için ferah ve konforlu.</p>
-                        
-                        <div class="flex items-center gap-4 mb-6 text-slate-400 text-sm">
-                            <span class="flex items-center gap-1.5" title="Klima"><i data-lucide="wind" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Ücretsiz Wi-Fi"><i data-lucide="wifi" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Akıllı TV"><i data-lucide="tv" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="Tam Donanımlı Mutfak"><i data-lucide="chef-hat" class="w-4 h-4"></i></span>
-                            <span class="flex items-center gap-1.5" title="2 Banyo"><i data-lucide="bath" class="w-4 h-4"></i></span>
-                        </div>
-                        
-                        <button class="w-full py-3 bg-slate-100 hover:bg-brand-600 hover:text-white text-slate-800 font-semibold rounded-xl transition-colors">Detayları İncele</button>
-                    </div>
-                </div>
-
+            <!-- Dynamic Rooms Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="dynamic-rooms-grid">
+                <!-- Javascript will populate rooms from Firestore here -->
+                <div class="col-span-full text-center py-12 text-gray-400">Odalar yükleniyor...</div>
             </div>
         </div>
     </section>
@@ -441,7 +350,7 @@
             <div>
                 <h4 class="text-white font-bold mb-6 text-lg">Bülten</h4>
                 <p class="text-sm mb-4">Özel indirimler ve kampanyalardan haberdar olmak için e-posta listemize katılın.</p>
-                <form class="flex gap-2" onsubmit="event.preventDefault(); showToast('Bültene başarıyla kayıt oldunuz!', 'success');">
+                <form class="flex gap-2" onsubmit="event.preventDefault(); showToast('Bültene başarıyla kayıt oldugunuz!', 'success');">
                     <input type="email" placeholder="E-posta adresiniz" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-brand-500 text-white" />
                     <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-lg transition-colors">
                         <i data-lucide="send" class="w-4 h-4"></i>
@@ -464,12 +373,12 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
     </a>
 
+    <!-- Firebase & Realtime Render Script -->
     <script type="module">
-        // Firebase Core and Firestore
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Firebase Configuration (ekorkonaklama-web)
         const firebaseConfig = {
             apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
             authDomain: "ekorkonaklama-web.firebaseapp.com",
@@ -479,12 +388,19 @@
             appId: "1:485785040258:web:96e201063459beed388b9b"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
-        console.log("🔥 Firebase bağlandı (index.html)");
 
-        // Initialize Icons
+        // Anonim kimlik doğrulama ekleyerek Firestore izin (permission-denied) hatalarını çözüyoruz
+        signInAnonymously(auth).then(() => {
+            console.log("🔥 Anonim oturum açıldı, veriler yükleniyor...");
+            initListeners();
+        }).catch((err) => {
+            console.error("Auth Error:", err);
+            initListeners(); // Hata olsa bile dinleyicileri başlatmayı dene
+        });
+
         lucide.createIcons();
 
         // Navbar Scroll Effect
@@ -501,15 +417,14 @@
             }
         });
 
-        // Set default dates for search widget
+        // Set default dates
         const today = new Date();
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
         document.getElementById('search-checkin').valueAsDate = today;
         document.getElementById('search-checkout').valueAsDate = tomorrow;
 
-        // Toast Notification System
+        // Toast System
         let toastTimeout;
         window.showToast = (message, type = 'info') => {
             const toast = document.getElementById('global-toast');
@@ -517,8 +432,6 @@
             const text = document.getElementById('toast-message');
             
             text.textContent = message;
-            
-            // Stiller
             toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100 text-white`;
             
             if(type === 'success') {
@@ -531,7 +444,6 @@
                 toast.classList.add('bg-slate-900');
                 icon.setAttribute('data-lucide', 'info');
             }
-            
             lucide.createIcons();
             
             clearTimeout(toastTimeout);
@@ -541,30 +453,79 @@
             }, 3000);
         };
 
-        // Search Form Submit Handling
-        document.getElementById('btn-search-rooms').addEventListener('click', async () => {
-            const checkin = document.getElementById('search-checkin').value;
-            const checkout = document.getElementById('search-checkout').value;
-            
-            if(new Date(checkin) >= new Date(checkout)) {
-                showToast("Çıkış tarihi giriş tarihinden sonra olmalıdır.", "error");
+        // Realtime Data Sync: Apartlar ve Odalar
+        let apartmentsList = [];
+        let roomsList = [];
+
+        function initListeners() {
+            onSnapshot(collection(db, "apartments"), (snap) => {
+                apartmentsList = [];
+                snap.forEach(d => apartmentsList.push({ id: d.id, ...d.data() }));
+                renderPublicRooms();
+            }, (error) => {
+                console.error("Apartments snapshot error:", error);
+            });
+
+            onSnapshot(collection(db, "rooms"), (snap) => {
+                roomsList = [];
+                snap.forEach(d => roomsList.push({ id: d.id, ...d.data() }));
+                renderPublicRooms();
+            }, (error) => {
+                console.error("Rooms snapshot error:", error);
+            });
+        }
+
+        function renderPublicRooms() {
+            const grid = document.getElementById('dynamic-rooms-grid');
+            if(!grid) return;
+
+            if(roomsList.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">Henüz aktif oda bulunmuyor. Admin panelinden oda ekleyin.</div>`;
                 return;
             }
 
-            const btn = document.getElementById('btn-search-rooms');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Aranıyor...`;
-            lucide.createIcons();
-            
-            // Burada Faz 3'te Firestore sorgusu çalıştırılacak
-            // Şimdilik demo bekleme süresi ve toast gösteriyoruz
-            setTimeout(() => {
-                showToast("Bu özellik Faz 3 (Rezervasyon Motoru) ile aktifleşecektir. Tarihleriniz uygun görünüyor.", "success");
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-            }, 1500);
-        });
+            let html = '';
+            roomsList.forEach(room => {
+                const apt = apartmentsList.find(a => a.id === room.apartmentId);
+                const aptName = apt ? apt.name : 'Sahra Apart';
+                const price = room.basePrice || 1000;
+                const roomType = room.type || 'Standart Daire';
+                const roomNo = room.roomNumber || '101';
 
+                html += `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 group border border-slate-100 flex flex-col">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1000&auto=format&fit=crop" alt="Oda ${roomNo}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm">
+                            ${aptName}
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-2xl font-bold text-slate-900 font-serif">Oda ${roomNo}</h3>
+                            <div class="text-right">
+                                <div class="text-xl font-bold text-brand-600">₺${price}<span class="text-xs text-slate-400 font-normal">/gece</span></div>
+                            </div>
+                        </div>
+                        <p class="text-slate-500 text-sm mb-6 flex-1">${roomType} konseptiyle konforlu ve huzurlu konaklama.</p>
+                        
+                        <div class="flex items-center gap-4 mb-6 text-slate-400 text-sm">
+                            <span class="flex items-center gap-1.5" title="Klima"><i data-lucide="wind" class="w-4 h-4"></i></span>
+                            <span class="flex items-center gap-1.5" title="Ücretsiz Wi-Fi"><i data-lucide="wifi" class="w-4 h-4"></i></span>
+                            <span class="flex items-center gap-1.5" title="Akıllı TV"><i data-lucide="tv" class="w-4 h-4"></i></span>
+                        </div>
+                        
+                        <button onclick="showToast('Rezervasyon ve müsaitlik için resepsiyonumuzla iletişime geçin.', 'success')" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-brand-500/20">Hemen Rezerve Et</button>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        document.getElementById('btn-search-rooms').addEventListener('click', () => {
+            showToast("Müsaitlik arama motoru aktif. Tüm odalar aşağıda listelenmektedir.", "success");
+        });
     </script>
 </body>
 </html>

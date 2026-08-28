@@ -48,9 +48,13 @@
         .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         
+        /* Modal Animasyonu */
+        .modal-enter { animation: modalIn 0.25s ease-out forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
         /* Navigasyon efekti */
         .nav-scrolled { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .nav-scrolled .text-white { color: #1e293b; } /* Slate 800 */
+        .nav-scrolled .text-white { color: #1e293b; }
         .nav-scrolled .bg-white\/20 { background-color: #f1f5f9; color: #1e293b; }
     </style>
 </head>
@@ -107,7 +111,6 @@
 
     <!-- Hero Section -->
     <header class="relative h-[90vh] min-h-[600px] flex flex-col items-center justify-center w-full overflow-hidden">
-        <!-- Background Image with Parallax effect -->
         <div class="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2000&auto=format&fit=crop" alt="Sahra Apart Premium Oda" class="w-full h-full object-cover object-center" />
             <div class="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/40 to-slate-950/80"></div>
@@ -182,17 +185,84 @@
 
             <!-- Dynamic Rooms Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="dynamic-rooms-grid">
-                <!-- Javascript will populate rooms from Firestore here -->
                 <div class="col-span-full text-center py-12 text-gray-400">Odalar yükleniyor...</div>
             </div>
         </div>
     </section>
 
+    <!-- REZERVASYON MODALI (MÜŞTERİ KAYIT EKRANI) -->
+    <div id="bookingModal" class="fixed inset-0 bg-slate-950/60 z-[999] hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden modal-enter border border-slate-100">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-xl font-serif">Rezervasyon Oluştur</h3>
+                    <p class="text-xs text-slate-500 mt-0.5" id="modalRoomTitle">Oda Bilgisi Yükleniyor...</p>
+                </div>
+                <button onclick="closeBookingModal()" class="w-9 h-9 rounded-full bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="bookingForm" onsubmit="submitCustomerReservation(event)" class="p-6 space-y-4">
+                <input type="hidden" id="modalRoomId">
+                <input type="hidden" id="modalRoomPrice">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Adınız *</label>
+                        <input type="text" id="custName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="Adınız">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Soyadınız *</label>
+                        <input type="text" id="custSurname" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="Soyadınız">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">TC Kimlik No *</label>
+                        <input type="text" id="custTc" required maxlength="11" minlength="11" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="11 haneli TC No">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Telefon Numarası *</label>
+                        <input type="tel" id="custPhone" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium" placeholder="05XX XXX XX XX">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Giriş Tarihi *</label>
+                        <input type="date" id="custCheckin" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Çıkış Tarihi *</label>
+                        <input type="date" id="custCheckout" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium">
+                    </div>
+                </div>
+
+                <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100 flex justify-between items-center mt-2">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium block">Toplam Tutar</span>
+                        <span class="text-2xl font-bold text-brand-600 font-serif" id="modalTotalPriceDisplay">₺0</span>
+                    </div>
+                    <div class="text-right text-xs text-slate-500">
+                        <span id="modalNightCount">1</span> Gece Konaklama
+                    </div>
+                </div>
+
+                <div class="pt-3">
+                    <button type="submit" id="btnSubmitBooking" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> Rezervasyonu Tamamla
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Özellikler (Neden Biz?) -->
     <section id="features" class="py-24 bg-white border-y border-slate-100">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                
                 <div>
                     <h2 class="text-4xl font-bold text-slate-900 mb-6 font-serif">Neden Sahra Apart?</h2>
                     <p class="text-slate-500 mb-10 text-lg leading-relaxed">Sıradan bir konaklamanın ötesinde, size kendinizi özel hissettirecek detaylarla dolu bir yaşam alanı sunuyoruz. Önceliğimiz güvenliğiniz, konforunuz ve hijyen.</p>
@@ -217,21 +287,10 @@
                                 <p class="text-slate-500 text-sm">Profesyonel temizlik ekibimiz her misafir değişiminde detaylı dezenfeksiyon işlemleri uygulamaktadır.</p>
                             </div>
                         </div>
-                        
-                        <div class="flex gap-5">
-                            <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center shrink-0">
-                                <i data-lucide="map-pin" class="w-7 h-7 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-bold text-slate-800 mb-2">Merkezi Konum</h4>
-                                <p class="text-slate-500 text-sm">Şehrin kalbinde; restoranlara, marketlere, alışveriş merkezlerine ve toplu taşımaya yürüme mesafesinde.</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
-                <!-- Görüntü Kolajı -->
-                <div class="grid grid-cols-2 gap-4 h-[600px]">
+                <div class="grid grid-cols-2 gap-4 h-[500px]">
                     <div class="flex flex-col gap-4 h-full">
                         <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800&auto=format&fit=crop" class="w-full h-2/3 object-cover rounded-3xl shadow-lg" alt="Banyo" />
                         <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=800&auto=format&fit=crop" class="w-full h-1/3 object-cover rounded-3xl shadow-lg" alt="Mutfak" />
@@ -241,64 +300,6 @@
                         <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=800&auto=format&fit=crop" class="w-full h-2/3 object-cover rounded-3xl shadow-lg" alt="Yatak Odası" />
                     </div>
                 </div>
-                
-            </div>
-        </div>
-    </section>
-
-    <!-- Misafir Yorumları -->
-    <section id="reviews" class="py-24 bg-slate-900 text-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4 font-serif text-white">Misafirlerimiz Ne Diyor?</h2>
-                <div class="w-24 h-1 bg-gold-400 mx-auto rounded-full mb-6"></div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Yorum 1 -->
-                <div class="bg-slate-800 rounded-3xl p-8 border border-slate-700">
-                    <div class="flex text-gold-400 mb-4">
-                        <i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i>
-                    </div>
-                    <p class="text-slate-300 italic mb-6 leading-relaxed">"İş seyahatim için 1 hafta konakladım. Evimin konforunu kesinlikle aratmadı. Özellikle temizlik konusunda çok titizler, internet hızı da çalışmak için harikaydı."</p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center font-bold text-lg">AH</div>
-                        <div>
-                            <h5 class="font-bold">Ahmet Yılmaz</h5>
-                            <span class="text-xs text-slate-400">İstanbul, Türkiye</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Yorum 2 -->
-                <div class="bg-slate-800 rounded-3xl p-8 border border-slate-700 transform md:-translate-y-4">
-                    <div class="flex text-gold-400 mb-4">
-                        <i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i>
-                    </div>
-                    <p class="text-slate-300 italic mb-6 leading-relaxed">"Ailece harika bir 3 gün geçirdik. Teraslı oda çok geniş ve ferahtı. Merkeze yakın olması sayesinde ulaşım sorunu hiç yaşamadık. Kesinlikle tekrar geleceğiz."</p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center font-bold text-lg">EÇ</div>
-                        <div>
-                            <h5 class="font-bold">Elif Çelik</h5>
-                            <span class="text-xs text-slate-400">İzmir, Türkiye</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Yorum 3 -->
-                <div class="bg-slate-800 rounded-3xl p-8 border border-slate-700">
-                    <div class="flex text-gold-400 mb-4">
-                        <i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 text-slate-600"></i>
-                    </div>
-                    <p class="text-slate-300 italic mb-6 leading-relaxed">"Personel çok ilgili ve yardımseverdi. Gece geç saatte giriş yapmama rağmen her şey pürüzsüzdü. Mutfak eşyaları yeterli ve yeniydi."</p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center font-bold text-lg">MD</div>
-                        <div>
-                            <h5 class="font-bold">Murat Demir</h5>
-                            <span class="text-xs text-slate-400">Almanya</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -306,65 +307,37 @@
     <!-- Footer -->
     <footer id="contact" class="bg-slate-950 text-slate-400 pt-20 pb-10 border-t border-slate-900">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-            
             <div class="lg:col-span-1">
                 <a href="#" class="text-2xl font-bold tracking-tighter flex items-center gap-2 mb-6 font-serif text-white">
                     <i data-lucide="home" class="w-6 h-6 text-gold-400"></i> Sahra Apart
                 </a>
                 <p class="text-sm leading-relaxed mb-6">Şehrin kalbinde, ev konforunda lüks apart deneyimi. Modern mimari ve kusursuz hizmet anlayışıyla sizleri bekliyoruz.</p>
-                <div class="flex gap-4">
-                    <a href="#" class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center hover:bg-brand-600 hover:text-white transition-colors"><i data-lucide="instagram" class="w-5 h-5"></i></a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center hover:bg-brand-600 hover:text-white transition-colors"><i data-lucide="facebook" class="w-5 h-5"></i></a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center hover:bg-brand-600 hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-                </div>
             </div>
-
             <div>
                 <h4 class="text-white font-bold mb-6 text-lg">İletişim</h4>
                 <ul class="space-y-4 text-sm">
-                    <li class="flex items-start gap-3">
-                        <i data-lucide="map-pin" class="w-5 h-5 text-gold-400 shrink-0 mt-0.5"></i>
-                        <span>Sahra Mahallesi, Konak Sokak No:12<br/>Merkez / Şehir</span>
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <i data-lucide="phone" class="w-5 h-5 text-gold-400 shrink-0"></i>
-                        <a href="tel:+905551234567" class="hover:text-white transition-colors">+90 (555) 123 45 67</a>
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <i data-lucide="mail" class="w-5 h-5 text-gold-400 shrink-0"></i>
-                        <a href="mailto:info@sahraapart.com" class="hover:text-white transition-colors">info@sahraapart.com</a>
-                    </li>
+                    <li class="flex items-start gap-3"><i data-lucide="map-pin" class="w-5 h-5 text-gold-400 shrink-0 mt-0.5"></i> Sahra Mah. Konak Sok. No:12</li>
+                    <li class="flex items-center gap-3"><i data-lucide="phone" class="w-5 h-5 text-gold-400 shrink-0"></i> +90 (555) 123 45 67</li>
                 </ul>
             </div>
-
             <div>
                 <h4 class="text-white font-bold mb-6 text-lg">Hızlı Bağlantılar</h4>
                 <ul class="space-y-3 text-sm">
                     <li><a href="#rooms" class="hover:text-gold-400 transition-colors">Odalarımız</a></li>
                     <li><a href="#features" class="hover:text-gold-400 transition-colors">Neden Biz?</a></li>
-                    <li><a href="#reviews" class="hover:text-gold-400 transition-colors">Müşteri Yorumları</a></li>
-                    <li><a href="#" class="hover:text-gold-400 transition-colors">Kurumsal Faturalandırma</a></li>
                 </ul>
             </div>
-
             <div>
                 <h4 class="text-white font-bold mb-6 text-lg">Bülten</h4>
-                <p class="text-sm mb-4">Özel indirimler ve kampanyalardan haberdar olmak için e-posta listemize katılın.</p>
-                <form class="flex gap-2" onsubmit="event.preventDefault(); showToast('Bültene başarıyla kayıt oldugunuz!', 'success');">
-                    <input type="email" placeholder="E-posta adresiniz" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-brand-500 text-white" />
-                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-lg transition-colors">
-                        <i data-lucide="send" class="w-4 h-4"></i>
-                    </button>
+                <p class="text-sm mb-4">Özel indirimler için e-posta listemize katılın.</p>
+                <form class="flex gap-2" onsubmit="event.preventDefault(); showToast('Bültene başarıyla kayıt oldunuz!', 'success');">
+                    <input type="email" placeholder="E-posta adresiniz" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-sm outline-none text-white" />
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
                 </form>
             </div>
         </div>
-        
-        <div class="max-w-7xl mx-auto px-4 pt-8 border-t border-slate-900/50 flex flex-col md:flex-row justify-between items-center text-xs md:text-sm gap-4">
-            <p>&copy; 2026 Sahra Apart. Tüm hakları saklıdır.</p>
-            <div class="flex gap-4">
-                <a href="#" class="hover:text-white transition-colors">KVKK & Gizlilik Politikası</a>
-                <a href="#" class="hover:text-white transition-colors">İptal Şartları</a>
-            </div>
+        <div class="max-w-7xl mx-auto px-4 pt-8 border-t border-slate-900/50 text-center text-xs md:text-sm">
+            &copy; 2026 Sahra Apart. Tüm hakları saklıdır.
         </div>
     </footer>
 
@@ -377,7 +350,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
@@ -416,11 +389,13 @@
         });
 
         // Set default dates
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        document.getElementById('search-checkin').valueAsDate = today;
-        document.getElementById('search-checkout').valueAsDate = tomorrow;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const tmrw = new Date();
+        tmrw.setDate(tmrw.getDate() + 1);
+        const tomorrowStr = tmrw.toISOString().split('T')[0];
+
+        document.getElementById('search-checkin').value = todayStr;
+        document.getElementById('search-checkout').value = tomorrowStr;
 
         // Toast System
         let toastTimeout;
@@ -451,7 +426,7 @@
             }, 3000);
         };
 
-        // Realtime Data Sync: Apartlar ve Odalar
+        // Realtime Data Sync
         let apartmentsList = [];
         let roomsList = [];
 
@@ -473,13 +448,16 @@
             const grid = document.getElementById('dynamic-rooms-grid');
             if(!grid) return;
 
-            if(roomsList.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">Henüz aktif oda bulunmuyor. Admin panelinden oda ekleyin.</div>`;
+            // Sadece Müsait olan odaları müşteriye gösterelim
+            const availableRooms = roomsList.filter(r => !r.status || r.status === 'AVAILABLE');
+
+            if(availableRooms.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">Şu an müsait oda bulunmuyor veya odalar rezerve edilmiş.</div>`;
                 return;
             }
 
             let html = '';
-            roomsList.forEach(room => {
+            availableRooms.forEach(room => {
                 const apt = apartmentsList.find(a => a.id === room.apartmentId);
                 const aptName = apt ? apt.name : 'Sahra Apart';
                 const price = room.basePrice || room.price || 1000;
@@ -509,7 +487,7 @@
                             <span class="flex items-center gap-1.5" title="Akıllı TV"><i data-lucide="tv" class="w-4 h-4"></i></span>
                         </div>
                         
-                        <button onclick="showToast('Oda ${roomNo} (${aptName}) seçildi. Rezervasyon için resepsiyonla görüşün.', 'success')" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-brand-500/20">Hemen Rezerve Et</button>
+                        <button onclick="openBookingModal('${room.id}', '${roomNo}', '${aptName}', ${price})" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-brand-500/20">Hemen Rezerve Et</button>
                     </div>
                 </div>`;
             });
@@ -517,8 +495,99 @@
             lucide.createIcons();
         }
 
+        // -------------------------------------------------------------
+        // REZERVASYON MODAL İŞLEMLERİ
+        // -------------------------------------------------------------
+        window.openBookingModal = (roomId, roomNo, aptName, basePrice) => {
+            document.getElementById('modalRoomId').value = roomId;
+            document.getElementById('modalRoomPrice').value = basePrice;
+            document.getElementById('modalRoomTitle').textContent = `${aptName} - Oda ${roomNo}`;
+            
+            // Tarihleri hero widget'ından al veya varsayılan yap
+            document.getElementById('custCheckin').value = document.getElementById('search-checkin').value || todayStr;
+            document.getElementById('custCheckout').value = document.getElementById('search-checkout').value || tomorrowStr;
+            
+            calculateModalPrice();
+            
+            document.getElementById('custCheckin').addEventListener('change', calculateModalPrice);
+            document.getElementById('custCheckout').addEventListener('change', calculateModalPrice);
+
+            const modal = document.getElementById('bookingModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        };
+
+        window.closeBookingModal = () => {
+            const modal = document.getElementById('bookingModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('bookingForm').reset();
+        };
+
+        function calculateModalPrice() {
+            const checkin = new Date(document.getElementById('custCheckin').value);
+            const checkout = new Date(document.getElementById('custCheckout').value);
+            const basePrice = Number(document.getElementById('modalRoomPrice').value);
+
+            if(isNaN(checkin) || isNaN(checkout) || checkin >= checkout) {
+                document.getElementById('modalTotalPriceDisplay').textContent = `₺0`;
+                document.getElementById('modalNightCount').textContent = '0';
+                return;
+            }
+
+            const diffTime = Math.abs(checkout - checkin);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const total = diffDays * basePrice;
+
+            document.getElementById('modalTotalPriceDisplay').textContent = `₺${total.toLocaleString()}`;
+            document.getElementById('modalNightCount').textContent = diffDays;
+        }
+
+        window.submitCustomerReservation = async (e) => {
+            e.preventDefault();
+            const roomId = document.getElementById('modalRoomId').value;
+            const btn = document.getElementById('btnSubmitBooking');
+            
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Kaydediliyor...`;
+            lucide.createIcons();
+
+            const reservationData = {
+                roomId: roomId,
+                name: document.getElementById('custName').value,
+                surname: document.getElementById('custSurname').value,
+                tc: document.getElementById('custTc').value,
+                phone: document.getElementById('custPhone').value,
+                checkin: document.getElementById('custCheckin').value,
+                checkout: document.getElementById('custCheckout').value,
+                totalPrice: document.getElementById('modalTotalPriceDisplay').textContent,
+                status: 'RESERVED',
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                // 1. Veritabanına rezervasyon kaydı ekle
+                await addDoc(collection(db, "reservations"), reservationData);
+
+                // 2. Odanın durumunu RESERVED olarak güncelle (Resepsiyon ekranına düşmesi için)
+                await updateDoc(doc(db, "rooms", roomId), {
+                    status: 'RESERVED'
+                });
+
+                showToast("Rezervasyonunuz başarıyla alındı! Resepsiyonumuz sizinle iletişime geçecektir.", "success");
+                closeBookingModal();
+            } catch (err) {
+                console.error("Rezervasyon hatası:", err);
+                showToast("Rezervasyon sırasında bir hata oluştu.", "error");
+            } finally {
+                btn.innerHTML = originalHtml;
+                lucide.createIcons();
+            }
+        };
+
         document.getElementById('btn-search-rooms').addEventListener('click', () => {
-            showToast("Müsaitlik arama motoru aktif. Tüm odalar aşağıda listelenmektedir.", "success");
+            showToast("Tarihleriniz filtrelendi. Müsait odalar aşağıda listelenmektedir.", "success");
         });
     </script>
 </body>

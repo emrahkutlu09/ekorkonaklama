@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resepsiyon Paneli | Sahra Apart</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         
-        /* Modal Animation */
         .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* Status Colors */
+        /* Oda Durum Renkleri */
         .status-AVAILABLE { background-color: #def7ec; color: #03543f; border: 1px solid #31c48d; }
         .status-RESERVED { background-color: #e1effe; color: #1e429f; border: 1px solid #3f83f8; }
         .status-OCCUPIED { background-color: #fde8e8; color: #9b1c1c; border: 1px solid #f05252; }
@@ -27,8 +28,14 @@
 </head>
 <body class="text-gray-800 h-screen flex overflow-hidden">
 
+    <!-- Auth Protection Loader Ekranı -->
+    <div id="authLoader" class="fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center text-white">
+        <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-blue-500 mb-3"></i>
+        <p class="font-medium text-sm">Yetki kontrolü yapılıyor, lütfen bekleyin...</p>
+    </div>
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 text-white flex flex-col h-full hidden md:flex">
+    <aside class="w-64 bg-slate-900 text-white flex flex-col h-full hidden md:flex shrink-0">
         <div class="p-6 text-center border-b border-slate-700">
             <h1 class="text-2xl font-bold tracking-wider text-blue-400">SAHRA</h1>
             <p class="text-xs text-slate-400 uppercase mt-1">Resepsiyon Paneli</p>
@@ -40,34 +47,31 @@
             <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition">
                 <i data-lucide="calendar-check" class="w-5 h-5"></i> Rezervasyonlar
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition">
-                <i data-lucide="users" class="w-5 h-5"></i> Konaklayanlar
-            </a>
         </nav>
         <div class="p-4 border-t border-slate-700">
-            <div class="flex items-center gap-3 px-4 py-2">
+            <div class="flex items-center gap-3 px-4 py-2 mb-2">
                 <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
                     <i data-lucide="user" class="w-4 h-4 text-slate-300"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium">Resepsiyon</p>
-                    <p class="text-xs text-green-400">Online</p>
+                    <p class="text-sm font-medium truncate" id="staffEmailText">Resepsiyon</p>
+                    <p class="text-xs text-green-400">Aktif Oturum</p>
                 </div>
             </div>
-            <a href="index.html" class="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm rounded-lg transition">
-                <i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap
-            </a>
+            <button onclick="handleLogout()" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm rounded-lg transition font-medium">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Oturumu Kapat
+            </button>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden">
         <!-- Topbar -->
-        <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
-            <h2 class="text-xl font-semibold text-gray-800">Günlük Operasyon</h2>
+        <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-8 shrink-0">
+            <h2 class="text-xl font-semibold text-gray-800">Merkezi Oda & Müsaitlik Haritası</h2>
             <div class="flex gap-3">
                 <button onclick="openReservationModal()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Yeni Rezervasyon
+                    <i data-lucide="plus" class="w-4 h-4"></i> Yeni Rezervasyon Gir
                 </button>
             </div>
         </header>
@@ -84,119 +88,117 @@
             </div>
             <div class="flex items-center gap-2 px-3 py-1 bg-gray-50 border rounded-md">
                 <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                <span class="text-sm font-medium">Dolu: <span id="statOccupied">0</span></span>
+                <span class="text-sm font-medium">Dolu (Konaklıyor): <span id="statOccupied">0</span></span>
             </div>
             <div class="flex items-center gap-2 px-3 py-1 bg-gray-50 border rounded-md">
-                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                <span class="text-sm font-medium">Temizlik: <span id="statCleaning">0</span></span>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <span class="text-sm font-medium">Temizlik Bekliyor: <span id="statCleaning">0</span></span>
             </div>
         </div>
 
         <!-- Room Map Area -->
-        <div class="flex-1 overflow-y-auto p-6 bg-gray-50" id="roomMapContainer">
-            <div class="text-center py-10 text-gray-500">
-                <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3"></i>
+        <div class="flex-1 overflow-y-auto p-8 bg-gray-50" id="roomMapContainer">
+            <div class="text-center py-10 text-gray-400">
+                <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3 text-blue-500"></i>
                 <p>Odalar yükleniyor...</p>
             </div>
         </div>
     </main>
 
-    <!-- Room Action Modal (Check-in/Out) -->
-    <div id="roomModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md modal-enter">
-            <div class="flex items-center justify-between p-5 border-b border-gray-100">
+    <!-- Room Action Modal (Check-in / Check-out) -->
+    <div id="roomModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md modal-enter overflow-hidden">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 bg-gray-50">
                 <div>
                     <h3 class="text-lg font-bold text-gray-900" id="modalRoomName">Oda 101</h3>
-                    <p class="text-sm text-gray-500" id="modalRoomType">Standart Oda</p>
+                    <p class="text-xs text-gray-500" id="modalRoomType">Standart</p>
                 </div>
-                <button onclick="closeRoomModal()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+                <button onclick="closeRoomModal()" class="text-gray-400 hover:text-gray-600 bg-white p-1 rounded-full shadow-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="p-5 space-y-4">
-                <div class="p-4 rounded-lg bg-gray-50 border" id="modalStatusBadge">
-                    <!-- Status will be injected here -->
+            <div class="p-6 space-y-4">
+                <div class="p-4 rounded-xl bg-gray-50 border border-gray-200" id="modalStatusBadge">
+                    <!-- Status dynamic -->
                 </div>
-                
                 <div id="modalActionButtons" class="grid grid-cols-2 gap-3 pt-2">
-                    <!-- Buttons will be dynamic based on status -->
+                    <!-- Buttons dynamic -->
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Manual Reservation Modal -->
-    <div id="reservationModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl modal-enter max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
-                <h3 class="text-lg font-bold text-gray-900">Hızlı Rezervasyon (Resepsiyon)</h3>
-                <button onclick="closeReservationModal()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+    <div id="reservationModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl modal-enter overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 bg-gray-50 shrink-0">
+                <h3 class="text-lg font-bold text-gray-900">Resepsiyon Rezervasyon Girişi</h3>
+                <button onclick="closeReservationModal()" class="text-gray-400 hover:text-gray-600 bg-white p-1 rounded-full shadow-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="p-5 overflow-y-auto flex-1">
-                <form id="reservationForm" class="space-y-5">
-                    <div class="grid grid-cols-2 gap-4">
+            <div class="p-6 overflow-y-auto flex-1">
+                <form id="reservationForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Müşteri Adı Soyadı</label>
-                            <input type="text" id="resName" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Müşteri Adı Soyadı *</label>
+                            <input type="text" id="resName" required placeholder="Örn: Mehmet Demir" class="w-full border rounded-xl p-3 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-                            <input type="tel" id="resPhone" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Telefon Numarası *</label>
+                            <input type="tel" id="resPhone" required placeholder="0555 000 0000" class="w-full border rounded-xl p-3 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Oda Seçimi</label>
-                            <select id="resRoom" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-                                <option value="">Oda seçin...</option>
-                                <!-- JS will populate available rooms -->
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Müsait Oda Seçimi *</label>
+                            <select id="resRoom" required class="w-full border rounded-xl p-3 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                                <option value="">Oda yükleniyor...</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Misafir Sayısı</label>
-                            <input type="number" min="1" value="2" id="resGuests" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                            <input type="number" min="1" max="10" value="2" id="resGuests" required class="w-full border rounded-xl p-3 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Giriş Tarihi</label>
-                            <input type="date" id="resCheckIn" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Giriş Tarihi *</label>
+                            <input type="date" id="resCheckIn" required class="w-full border rounded-xl p-3 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Çıkış Tarihi</label>
-                            <input type="date" id="resCheckOut" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Çıkış Tarihi *</label>
+                            <input type="date" id="resCheckOut" required class="w-full border rounded-xl p-3 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Toplam Fiyat (₺)</label>
-                        <input type="number" id="resPrice" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border text-lg font-bold text-gray-900">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Toplam Tutar (₺) *</label>
+                        <input type="number" id="resPrice" required class="w-full border rounded-xl p-3 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg text-blue-600">
                     </div>
                 </form>
             </div>
-            <div class="p-5 border-t border-gray-100 bg-gray-50 shrink-0 flex justify-end gap-3 rounded-b-xl">
-                <button onclick="closeReservationModal()" class="px-5 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition">İptal</button>
-                <button onclick="submitReservation()" class="px-5 py-2 bg-blue-600 text-white font-medium hover:bg-blue-700 rounded-lg transition">Rezervasyonu Kaydet</button>
+            <div class="p-5 border-t border-gray-100 bg-gray-50 shrink-0 flex justify-end gap-3">
+                <button onclick="closeReservationModal()" class="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-200 rounded-xl transition">İptal</button>
+                <button onclick="submitReservation()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition shadow-lg shadow-blue-500/30">Rezervasyonu Onayla</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50">
-        <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
-        <span id="toastMsg" class="font-medium">İşlem başarılı</span>
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-50">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toastMsg" class="font-medium text-sm">İşlem başarılı</span>
     </div>
 
-    <!-- Firebase SDK Setup -->
+    <!-- Firebase Script & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Your specific Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
             authDomain: "ekorkonaklama-web.firebaseapp.com",
@@ -207,30 +209,63 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global State
         let allApartments = [];
         let allRooms = [];
         let currentSelectedRoom = null;
 
-        // Initialize Icons
-        lucide.createIcons();
+        // AUTH & ROLE PROTECTION (Güvenli Yönlendirme)
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
 
-        // -------------------------------------------------------------
-        // REAL-TIME DATA FETCHING (Senkronizasyon)
-        // -------------------------------------------------------------
+            try {
+                const userDocRef = doc(db, "staff", user.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                let role = 'RECEPTION'; // Varsayılan veya geliştirici kolaylığı
+                if (userDoc.exists()) {
+                    role = userDoc.data().role;
+                } else {
+                    role = 'ADMIN'; // Admin doğrudan giriş yaptıysa
+                }
+
+                // Eğer personel değilse ve admin de değilse dışarı at
+                if (role !== 'RECEPTION' && role !== 'ADMIN') {
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                document.getElementById('staffEmailText').textContent = user.email || 'Personel';
+                document.getElementById('authLoader').style.display = 'none';
+                
+                listenToData();
+
+            } catch (err) {
+                console.error("Yetki doğrulama hatası:", err);
+                document.getElementById('authLoader').innerHTML = `<p class="text-red-400">Oturum doğrulanırken hata oluştu. Lütfen tekrar giriş yapın.</p>`;
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            }
+        });
+
+        window.handleLogout = async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        };
+
+        // REAL-TIME DATA LISTENER
         function listenToData() {
-            // 1. Listen to Apartments
             onSnapshot(collection(db, "apartments"), (snapshot) => {
                 allApartments = [];
-                snapshot.forEach(doc => {
-                    allApartments.push({ id: doc.id, ...doc.data() });
-                });
+                snapshot.forEach(doc => allApartments.push({ id: doc.id, ...doc.data() }));
                 renderRoomMap();
             });
 
-            // 2. Listen to Rooms
             onSnapshot(collection(db, "rooms"), (snapshot) => {
                 allRooms = [];
                 let stats = { AVAILABLE: 0, RESERVED: 0, OCCUPIED: 0, CLEANING_REQUIRED: 0 };
@@ -241,7 +276,6 @@
                     if(stats[data.status] !== undefined) stats[data.status]++;
                 });
                 
-                // Update top stats
                 document.getElementById('statAvailable').textContent = stats.AVAILABLE;
                 document.getElementById('statReserved').textContent = stats.RESERVED;
                 document.getElementById('statOccupied').textContent = stats.OCCUPIED;
@@ -252,67 +286,55 @@
             });
         }
 
-        // -------------------------------------------------------------
         // RENDER ROOM MAP
-        // -------------------------------------------------------------
         function renderRoomMap() {
             const container = document.getElementById('roomMapContainer');
-            
             if (allApartments.length === 0 || allRooms.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-gray-500">
-                    <i data-lucide="info" class="w-8 h-8 mx-auto mb-3"></i>
-                    <p>Henüz sistemde kayıtlı apart veya oda bulunmuyor.</p>
-                </div>`;
+                container.innerHTML = `<div class="text-center py-12 text-gray-400">Henüz kayıtlı apart veya oda bulunmuyor. Admin panelinden oda ekleyin.</div>`;
                 lucide.createIcons();
                 return;
             }
 
             let html = '';
-            
             allApartments.forEach(apt => {
                 const aptRooms = allRooms.filter(r => r.apartmentId === apt.id).sort((a,b) => a.roomNumber.localeCompare(b.roomNumber));
-                
                 if(aptRooms.length > 0) {
                     html += `
                     <div class="mb-8">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 flex items-center gap-2">
-                            <i data-lucide="building-2" class="w-5 h-5 text-gray-500"></i> ${apt.name}
+                        <h3 class="text-base font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <i data-lucide="building-2" class="w-4 h-4 text-blue-600"></i> ${apt.name}
                         </h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     `;
                     
                     aptRooms.forEach(room => {
-                        const statusLabel = getStatusLabel(room.status);
                         html += `
-                        <div onclick="window.openRoomDetails('${room.id}')" class="status-${room.status} rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow flex flex-col justify-between aspect-square">
-                            <div class="flex justify-between items-start mb-2">
+                        <div onclick="window.openRoomDetails('${room.id}')" class="status-${room.status} rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between aspect-square border shadow-sm">
+                            <div class="flex justify-between items-start">
                                 <span class="font-bold text-xl">${room.roomNumber}</span>
-                                <i data-lucide="${getIconForStatus(room.status)}" class="w-5 h-5 opacity-80"></i>
+                                <i data-lucide="${getIconForStatus(room.status)}" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <p class="text-xs opacity-80 mb-1 line-clamp-1">${room.type}</p>
-                                <p class="text-sm font-semibold">${statusLabel}</p>
+                                <p class="text-xs opacity-75 mb-1">${room.type}</p>
+                                <p class="text-xs font-bold">${getStatusLabel(room.status)}</p>
                             </div>
                         </div>
                         `;
                     });
-                    
                     html += `</div></div>`;
                 }
             });
-            
             container.innerHTML = html;
             lucide.createIcons();
         }
 
-        // Helpers
         function getStatusLabel(status) {
             const map = {
                 'AVAILABLE': 'Müsait',
-                'RESERVED': 'Rezerve (Giriş Bekliyor)',
-                'OCCUPIED': 'Dolu (Check-in yapıldı)',
+                'RESERVED': 'Rezerve',
+                'OCCUPIED': 'Konaklıyor',
                 'CLEANING_REQUIRED': 'Temizlik Bekliyor',
-                'MAINTENANCE': 'Arızalı / Bakımda'
+                'MAINTENANCE': 'Bakımda'
             };
             return map[status] || status;
         }
@@ -320,7 +342,7 @@
         function getIconForStatus(status) {
             const map = {
                 'AVAILABLE': 'check-circle',
-                'RESERVED': 'calendar-clock',
+                'RESERVED': 'calendar',
                 'OCCUPIED': 'user-check',
                 'CLEANING_REQUIRED': 'sparkles',
                 'MAINTENANCE': 'wrench'
@@ -328,9 +350,7 @@
             return map[status] || 'home';
         }
 
-        // -------------------------------------------------------------
-        // ROOM DETAILS & ACTIONS (Check-in / Check-out)
-        // -------------------------------------------------------------
+        // ROOM MODAL & ACTIONS
         window.openRoomDetails = (roomId) => {
             currentSelectedRoom = allRooms.find(r => r.id === roomId);
             if(!currentSelectedRoom) return;
@@ -341,100 +361,64 @@
             const badge = document.getElementById('modalStatusBadge');
             badge.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <div class="p-2 rounded-full bg-white shadow-sm">
-                        <i data-lucide="${getIconForStatus(currentSelectedRoom.status)}" class="w-5 h-5 text-gray-700"></i>
+                    <div class="p-2 rounded-xl bg-white shadow-sm">
+                        <i data-lucide="${getIconForStatus(currentSelectedRoom.status)}" class="w-5 h-5 text-blue-600"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Anlık Durum</p>
-                        <p class="font-bold text-gray-900">${getStatusLabel(currentSelectedRoom.status)}</p>
+                        <p class="text-xs text-gray-400 font-semibold uppercase">Mevcut Durum</p>
+                        <p class="font-bold text-gray-800 text-sm">${getStatusLabel(currentSelectedRoom.status)}</p>
                     </div>
                 </div>
             `;
 
-            // Dynamic Buttons Based on Status
             const btnContainer = document.getElementById('modalActionButtons');
             let btns = '';
 
             if(currentSelectedRoom.status === 'AVAILABLE') {
                 btns = `
-                    <button onclick="closeRoomModal(); openReservationModal('${roomId}')" class="col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Hemen Rezervasyon Yap
-                    </button>
-                    <button onclick="updateRoomStatus('${roomId}', 'MAINTENANCE')" class="col-span-2 bg-orange-100 hover:bg-orange-200 text-orange-800 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition">
-                        <i data-lucide="wrench" class="w-5 h-5"></i> Arızaya Çek
+                    <button onclick="closeRoomModal(); openReservationModal('${roomId}')" class="col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-blue-500/20">
+                        Hemen Rezervasyon Yap
                     </button>
                 `;
-            } 
-            else if(currentSelectedRoom.status === 'RESERVED') {
+            } else if(currentSelectedRoom.status === 'RESERVED') {
                 btns = `
-                    <button onclick="updateRoomStatus('${roomId}', 'OCCUPIED')" class="col-span-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition">
-                        <i data-lucide="log-in" class="w-5 h-5"></i> Müşteri Geldi (Check-in)
-                    </button>
-                    <button onclick="updateRoomStatus('${roomId}', 'AVAILABLE')" class="col-span-2 bg-red-100 hover:bg-red-200 text-red-800 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition">
-                        İptal Et / Müsait Yap
+                    <button onclick="updateRoomStatus('${roomId}', 'OCCUPIED')" class="col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-emerald-500/20">
+                        <i data-lucide="log-in" class="w-4 h-4"></i> Müşteri Giriş Yaptı (Check-in)
                     </button>
                 `;
-            }
-            else if(currentSelectedRoom.status === 'OCCUPIED') {
+            } else if(currentSelectedRoom.status === 'OCCUPIED') {
                 btns = `
-                    <button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="col-span-2 bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition shadow-lg shadow-gray-300">
-                        <i data-lucide="log-out" class="w-5 h-5"></i> Çıkış Yap (Check-out)
+                    <button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="col-span-2 bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-rose-500/20">
+                        <i data-lucide="log-out" class="w-4 h-4"></i> Müşteri Ayrıldı (Check-out)
                     </button>
                 `;
-            }
-            else if(currentSelectedRoom.status === 'CLEANING_REQUIRED') {
-                btns = `
-                    <div class="col-span-2 text-center p-3 text-sm text-amber-700 bg-amber-50 rounded-lg">
-                        Kat görevlisi ekranından temizlendi bilgisi bekleniyor.
-                    </div>
-                    <button onclick="updateRoomStatus('${roomId}', 'AVAILABLE')" class="col-span-2 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 font-medium py-2 rounded-lg transition mt-2">
-                        Zorla Müsait Yap (Admin/Resepsiyon)
-                    </button>
-                `;
-            }
-            else if(currentSelectedRoom.status === 'MAINTENANCE') {
-                 btns = `
-                    <button onclick="updateRoomStatus('${roomId}', 'AVAILABLE')" class="col-span-2 bg-green-100 hover:bg-green-200 text-green-800 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i> Arıza Çözüldü (Müsait Yap)
-                    </button>
-                `;
+            } else {
+                btns = `<div class="col-span-2 text-center text-sm text-gray-500 py-2">Bu oda şu an işlem yapılamaz durumda.</div>`;
             }
 
             btnContainer.innerHTML = btns;
-            
             document.getElementById('roomModal').classList.remove('hidden');
             lucide.createIcons();
         };
 
-        window.closeRoomModal = () => {
-            document.getElementById('roomModal').classList.add('hidden');
-        };
+        window.closeRoomModal = () => document.getElementById('roomModal').classList.add('hidden');
 
-        // Update Room Status Function
         window.updateRoomStatus = async (roomId, newStatus) => {
             try {
-                const roomRef = doc(db, "rooms", roomId);
-                await updateDoc(roomRef, {
-                    status: newStatus
-                });
+                await updateDoc(doc(db, "rooms", roomId), { status: newStatus });
                 closeRoomModal();
-                showToast(`Oda durumu güncellendi: ${getStatusLabel(newStatus)}`);
-            } catch (error) {
-                console.error("Hata:", error);
-                alert("Durum güncellenirken hata oluştu.");
+                showToast("Oda durumu güncellendi.");
+            } catch (err) {
+                console.error(err);
+                alert("Durum güncellenemedi.");
             }
         };
 
-        // -------------------------------------------------------------
-        // MANUAL RESERVATION LOGIC
-        // -------------------------------------------------------------
+        // MANUAL RESERVATION
         window.openReservationModal = (preselectRoomId = null) => {
             document.getElementById('reservationModal').classList.remove('hidden');
-            
-            // Set defaults (Today and Tomorrow)
             const today = new Date().toISOString().split('T')[0];
-            const tmrw = new Date();
-            tmrw.setDate(tmrw.getDate() + 1);
+            const tmrw = new Date(); tmrw.setDate(tmrw.getDate() + 1);
             const tomorrow = tmrw.toISOString().split('T')[0];
             
             document.getElementById('resCheckIn').value = today;
@@ -442,7 +426,7 @@
 
             if(preselectRoomId) {
                 document.getElementById('resRoom').value = preselectRoomId;
-                calculatePrice(); // Auto calc price if room is selected
+                calcPrice();
             }
         };
 
@@ -453,97 +437,68 @@
 
         function populateReservationRoomSelect() {
             const select = document.getElementById('resRoom');
-            const currentVal = select.value;
-            
             let html = '<option value="">Oda seçin...</option>';
-            const availableRooms = allRooms.filter(r => r.status === 'AVAILABLE' || r.status === 'CLEANING_REQUIRED');
+            const availableRooms = allRooms.filter(r => r.status === 'AVAILABLE');
             
             availableRooms.forEach(room => {
                 const apt = allApartments.find(a => a.id === room.apartmentId);
                 const aptName = apt ? apt.name : '';
                 html += `<option value="${room.id}" data-price="${room.basePrice}">${aptName} - Oda ${room.roomNumber} (${room.type} - ₺${room.basePrice}/gece)</option>`;
             });
-            
             select.innerHTML = html;
-            if(currentVal) select.value = currentVal;
-            
-            // Add listener for auto price calc
-            select.addEventListener('change', calculatePrice);
-            document.getElementById('resCheckIn').addEventListener('change', calculatePrice);
-            document.getElementById('resCheckOut').addEventListener('change', calculatePrice);
+
+            select.addEventListener('change', calcPrice);
+            document.getElementById('resCheckIn').addEventListener('change', calcPrice);
+            document.getElementById('resCheckOut').addEventListener('change', calcPrice);
         }
 
-        function calculatePrice() {
+        function calcPrice() {
             const select = document.getElementById('resRoom');
-            const checkIn = new Date(document.getElementById('resCheckIn').value);
-            const checkOut = new Date(document.getElementById('resCheckOut').value);
+            const inDate = new Date(document.getElementById('resCheckIn').value);
+            const outDate = new Date(document.getElementById('resCheckOut').value);
+            if(!select.value || isNaN(inDate) || isNaN(outDate)) return;
             
-            if(!select.value || isNaN(checkIn) || isNaN(checkOut)) return;
-            
-            const diffTime = Math.abs(checkOut - checkIn);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
+            const diffDays = Math.ceil(Math.abs(outDate - inDate) / (1000 * 60 * 60 * 24));
             if(diffDays > 0) {
-                const selectedOption = select.options[select.selectedIndex];
-                const basePrice = parseInt(selectedOption.getAttribute('data-price') || 0);
-                document.getElementById('resPrice').value = basePrice * diffDays;
+                const price = parseInt(select.options[select.selectedIndex].getAttribute('data-price') || 0);
+                document.getElementById('resPrice').value = price * diffDays;
             }
         }
 
         window.submitReservation = async () => {
             const roomId = document.getElementById('resRoom').value;
             const name = document.getElementById('resName').value;
-            
-            if(!roomId || !name) {
-                alert("Lütfen zorunlu alanları doldurun.");
-                return;
-            }
+            if(!roomId || !name) return alert("Zorunlu alanları doldurun.");
 
             try {
-                // 1. Create Reservation record (Simulation of Backend)
                 await addDoc(collection(db, "reservations"), {
-                    roomId: roomId,
-                    customerName: name,
+                    roomId, customerName: name,
                     phone: document.getElementById('resPhone').value,
                     guests: document.getElementById('resGuests').value,
-                    checkInDate: document.getElementById('resCheckIn').value,
-                    checkOutDate: document.getElementById('resCheckOut').value,
+                    checkIn: document.getElementById('resCheckIn').value,
+                    checkOut: document.getElementById('resCheckOut').value,
                     totalPrice: document.getElementById('resPrice').value,
-                    status: 'CONFIRMED', // Resepsiyondan yapıldığı için direkt onaylı
-                    source: 'RECEPTION',
+                    status: 'CONFIRMED', source: 'RECEPTION',
                     createdAt: serverTimestamp()
                 });
 
-                // 2. Change Room Status to RESERVED instantly (Central DB Logic)
-                const roomRef = doc(db, "rooms", roomId);
-                await updateDoc(roomRef, {
-                    status: 'RESERVED'
-                });
-
+                await updateDoc(doc(db, "rooms", roomId), { status: 'RESERVED' });
                 closeReservationModal();
-                showToast("Rezervasyon başarıyla oluşturuldu! Oda rezerve edildi.");
-                
-            } catch (error) {
-                console.error("Kayıt Hatası:", error);
-                alert("Rezervasyon oluşturulamadı.");
+                showToast("Rezervasyon başarıyla oluşturuldu.");
+            } catch (err) {
+                console.error(err);
+                alert("Rezervasyon kaydedilemedi.");
             }
         };
 
-        // -------------------------------------------------------------
-        // UI UTILS
-        // -------------------------------------------------------------
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = message;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
 
-        // Initialize App
-        listenToData();
-
+        lucide.createIcons();
     </script>
 </body>
 </html>

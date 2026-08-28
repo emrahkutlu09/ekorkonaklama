@@ -520,6 +520,7 @@
             try {
                 await updateDoc(doc(db, "reservations", resId), { status: 'CHECKED_IN' });
                 if (roomId) await updateDoc(doc(db, "rooms", roomId), { status: 'OCCUPIED' });
+                closeRoomModal();
                 showToast("Giriş işlemi başarılı. Oda 'Dolu' olarak güncellendi.");
             } catch (e) { showToast("Giriş işlemi sırasında hata oluştu.", "error"); }
         };
@@ -527,13 +528,15 @@
         // ÇIKIŞ YAP (Akıllı Çıkış)
         window.checkoutGuest = async (resId, roomId, remainingAmount, name) => {
             if (remainingAmount > 0) {
-                showToast(`${name} isimli müşterinin ödenmemiş bakiyesi var. Lütfen önce "Kalanı Tahsil Et" butonuna basarak hesabı kapatın!`, "error");
+                closeRoomModal();
+                showToast(`${name} isimli müşterinin ödenmemiş bakiyesi var. Lütfen önce "Rezervasyonlar" sekmesinden "Kalanı Tahsil Et" butonuna basarak hesabı kapatın!`, "error");
                 return;
             }
             if(!confirm(`${name} adlı müşterinin çıkışını yapmak ve odayı temizliğe göndermek istediğinize emin misiniz?`)) return;
             try {
                 await updateDoc(doc(db, "reservations", resId), { status: 'CHECKED_OUT' });
                 if (roomId) await updateDoc(doc(db, "rooms", roomId), { status: 'CLEANING_REQUIRED' });
+                closeRoomModal();
                 showToast("Çıkış yapıldı. Oda temizliğe gönderildi.");
             } catch (e) { showToast("Çıkış işlemi sırasında bir hata oluştu.", "error"); }
         };
@@ -642,10 +645,21 @@
                 btns = `<button onclick="closeRoomModal(); openReservationModal('${roomId}')" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 flex justify-center items-center gap-2 mb-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> Yeni Rezervasyon</button>
                         <button onclick="updateRoomStatus('${roomId}', 'MAINTENANCE')" class="w-full bg-slate-100 text-slate-700 font-bold py-3.5 rounded-xl border border-slate-200">Arızaya Çek</button>`;
             } else if(currentSelectedRoom.status === 'RESERVED') {
-                btns = `<button onclick="updateRoomStatus('${roomId}', 'OCCUPIED')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2 mb-2"><i data-lucide="log-in" class="w-5 h-5"></i> Müşteri Geldi (Check-in)</button>
-                        <button onclick="updateRoomStatus('${roomId}', 'AVAILABLE')" class="w-full bg-slate-100 text-slate-700 font-bold py-3.5 rounded-xl border border-slate-200">İptal Et / Müsait Yap</button>`;
+                const pendingRes = allReservations.find(r => r.roomId === roomId && r.status === 'CONFIRMED');
+                if (pendingRes) {
+                    btns = `<button onclick="checkinGuest('${pendingRes.id}', '${roomId}', '${pendingRes.customerName}')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2 mb-2"><i data-lucide="log-in" class="w-5 h-5"></i> Müşteri Geldi (Check-in)</button>
+                            <button onclick="updateRoomStatus('${roomId}', 'AVAILABLE')" class="w-full bg-slate-100 text-slate-700 font-bold py-3.5 rounded-xl border border-slate-200">İptal Et / Müsait Yap</button>`;
+                } else {
+                    btns = `<button onclick="updateRoomStatus('${roomId}', 'OCCUPIED')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2 mb-2"><i data-lucide="log-in" class="w-5 h-5"></i> Müşteri Geldi (Manuel)</button>
+                            <button onclick="updateRoomStatus('${roomId}', 'AVAILABLE')" class="w-full bg-slate-100 text-slate-700 font-bold py-3.5 rounded-xl border border-slate-200">İptal Et / Müsait Yap</button>`;
+                }
             } else if(currentSelectedRoom.status === 'OCCUPIED') {
-                btns = `<button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-500/30 flex justify-center items-center gap-2"><i data-lucide="log-out" class="w-5 h-5"></i> Çıkış Yap (Check-out)</button>`;
+                const activeRes = allReservations.find(r => r.roomId === roomId && r.status === 'CHECKED_IN');
+                if (activeRes) {
+                    btns = `<button onclick="checkoutGuest('${activeRes.id}', '${roomId}', ${activeRes.remainingAmount || 0}, '${activeRes.customerName}')" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-500/30 flex justify-center items-center gap-2"><i data-lucide="log-out" class="w-5 h-5"></i> Akıllı Çıkış Yap (Check-out)</button>`;
+                } else {
+                    btns = `<button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-500/30 flex justify-center items-center gap-2"><i data-lucide="log-out" class="w-5 h-5"></i> Çıkış Yap (Manuel)</button>`;
+                }
             } else if(currentSelectedRoom.status === 'CLEANING_REQUIRED') {
                 btns = `<div class="text-center p-3 text-sm text-amber-700 bg-amber-50 rounded-xl mb-3 font-medium">Kat görevlisi ekranından temizlendi bilgisi bekleniyor.</div>
                         <button onclick="updateRoomStatus('${roomId}', 'AVAILABLE')" class="w-full bg-white text-slate-600 font-bold py-3 rounded-xl border-2 border-slate-200">Zorla Müsait Yap</button>`;

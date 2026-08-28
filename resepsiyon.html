@@ -148,7 +148,7 @@
                                 <th class="p-4">Oda</th>
                                 <th class="p-4">Giriş / Çıkış</th>
                                 <th class="p-4">Bakiye Durumu</th>
-                                <th class="p-4 text-right">Durum</th>
+                                <th class="p-4 text-right">Durum / İşlem</th>
                             </tr>
                         </thead>
                         <tbody id="reservationsTableBody" class="divide-y divide-slate-100">
@@ -457,6 +457,7 @@
                 else if (r.status === 'CHECKED_IN') {
                     badgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                     statusLabel = 'KONAKLIYOR';
+                    // AKILLI ÇIKIŞ BUTONU: Bakiye varsa izin verme.
                     actionBtnHtml = `<button onclick="checkoutGuest('${r.id}', '${r.roomId}', ${remP}, '${fullName}')" class="mt-2 w-full px-2 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[10px] font-bold transition shadow-sm flex items-center justify-center gap-1"><i data-lucide="log-out" class="w-4 h-4"></i> ÇIKIŞ YAP</button>`;
                 } 
                 else if (r.status === 'CHECKED_OUT') {
@@ -504,6 +505,7 @@
         window.collectRemaining = async (resId, amount, totalAmount, name, roomNo) => {
             if(!confirm(`${name} adlı müşteriden kalan ₺${amount} tutarı tahsil edip kasaya işlemek istediğinize emin misiniz?`)) return;
             try {
+                // DİKKAT: Veritabanına "finances" (Çoğul) olarak yazılıyor! Admin paneliyle aynı.
                 await addDoc(collection(db, "finances"), {
                     type: 'INCOME', category: 'RESERVATION', amount: amount, description: `${name} - Oda ${roomNo} (Kalan Bakiye Tahsilatı)`, addedBy: 'RECEPTION', createdAt: serverTimestamp()
                 });
@@ -731,14 +733,14 @@
             e.currentTarget.disabled = true; e.currentTarget.innerHTML = 'Kaydediliyor...';
 
             try {
-                // 1. Rezervasyon Kaydı (GİRİŞ BEKLEYEN STATÜDE: CONFIRMED)
+                // 1. Rezervasyon Kaydı
                 await addDoc(collection(db, "reservations"), {
                     roomId: roomId, customerName: name, tc: document.getElementById('resTC').value, phone: document.getElementById('resPhone').value,
                     guests: document.getElementById('resGuests').value, checkInDate: document.getElementById('resCheckIn').value, checkOutDate: document.getElementById('resCheckOut').value,
                     totalPrice: price, paidAmount: deposit, remainingAmount: remaining, status: 'CONFIRMED', source: 'RECEPTION', createdAt: serverTimestamp()
                 });
 
-                // 2. Kasa Geliri (SADECE KAPORA VARSA)
+                // 2. Kasa Geliri (SADECE KAPORA VARSA) - DİKKAT: finances KULLANILIYOR
                 if (deposit > 0) {
                     const roomNo = allRooms.find(r => r.id === roomId)?.roomNumber || '';
                     await addDoc(collection(db, "finances"), {
@@ -762,6 +764,7 @@
         document.getElementById('financeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
+                // DİKKAT: finances KULLANILIYOR
                 await addDoc(collection(db, "finances"), {
                     type: 'EXPENSE', category: document.getElementById('finCategory').value, amount: Number(document.getElementById('finAmount').value),
                     description: document.getElementById('finDesc').value, addedBy: 'RECEPTION', createdAt: serverTimestamp()

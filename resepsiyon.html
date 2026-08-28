@@ -124,21 +124,21 @@
 
         <!-- CONTENT 2: RESERVATIONS LIST -->
         <div class="flex-1 overflow-y-auto p-4 md:p-6 hidden" id="view-reservations">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <i data-lucide="calendar-clock" class="w-5 h-5 text-blue-500"></i> Tüm Rezervasyonlar
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-slate-50 shrink-0">
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2 shrink-0">
+                        <i data-lucide="calendar-clock" class="w-5 h-5 text-blue-500"></i> Rezervasyon Listesi
                     </h3>
+                    
+                    <!-- FİLTRELEME BUTONLARI -->
+                    <div class="flex bg-slate-200/70 p-1 rounded-lg w-full xl:w-auto text-xs font-bold overflow-x-auto shrink-0">
+                        <button onclick="filterReservations('ALL')" id="res-filter-ALL" class="flex-1 sm:px-4 px-3 py-2 bg-white text-slate-800 shadow-sm rounded-md transition whitespace-nowrap">Tümü</button>
+                        <button onclick="filterReservations('CONFIRMED')" id="res-filter-CONFIRMED" class="flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap">Giriş Bekleyen</button>
+                        <button onclick="filterReservations('CHECKED_IN')" id="res-filter-CHECKED_IN" class="flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap">Konaklayan (İçeride)</button>
+                        <button onclick="filterReservations('CHECKED_OUT')" id="res-filter-CHECKED_OUT" class="flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap">Geçmiş (Çıkış)</button>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-slate-600">
-                        <thead class="bg-slate-50/50 text-slate-500 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
-                            <tr>
-                                <th class="p-4">Tarih</th>
-                                <th class="p-4">Misafir</th>
-                                <th class="p-4">İletişim / TC</th>
-                                <th class="p-4">Oda Seçimi</th>
-                                <th class="p-4">Giriş / Çıkış</th>
+                <div class="overflow-x-auto flex-1">
                                 <th class="p-4">Bakiye Durumu</th>
                                 <th class="p-4 text-right">Durum</th>
                             </tr>
@@ -351,6 +351,8 @@
         let allApartments = [];
         let allRooms = [];
         let currentSelectedRoom = null;
+        let allReservations = []; // YENİ
+        let currentResFilter = 'ALL'; // YENİ
 
         function listenToData() {
             onSnapshot(collection(db, "apartments"), (snap) => {
@@ -377,73 +379,121 @@
             // YENİ: REZERVASYONLARI DİNLE VE LİSTELE
             const qRes = query(collection(db, "reservations"), orderBy("createdAt", "desc"));
             onSnapshot(qRes, (snapshot) => {
-                let html = '';
-                let count = 0;
+                allReservations = [];
+                snapshot.forEach(d => allReservations.push({ id: d.id, ...d.data() }));
                 
-                snapshot.forEach(d => {
-                    count++;
-                    const r = d.data();
-                    const room = allRooms.find(rm => rm.id === r.roomId);
-                    const roomNo = room ? room.roomNumber : '?';
-                    const aptName = room ? (allApartments.find(a => a.id === room.apartmentId)?.name || '') : '';
-                    
-                    const fullName = r.customerName || '';
-                    const dateAdded = r.createdAt ? new Date(r.createdAt.toMillis()).toLocaleDateString('tr-TR') : '-';
-
-                    const totalP = r.totalPrice || 0;
-                    const paidP = r.paidAmount || 0;
-                    const remP = r.remainingAmount || 0;
-
-                    let balanceHtml = `
-                        <p class="font-bold text-slate-800 text-sm">₺${totalP}</p>
-                        <p class="text-[10px] text-emerald-600 font-bold uppercase mt-0.5">Ödenen: ₺${paidP}</p>
-                    `;
-                    
-                    if (remP > 0) {
-                        balanceHtml += `
-                            <p class="text-[10px] text-red-600 font-bold uppercase mt-0.5">Kalan: ₺${remP}</p>
-                            <button onclick="collectRemaining('${d.id}', ${remP}, ${totalP}, '${fullName}', '${roomNo}')" class="mt-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-bold border border-emerald-200 transition shadow-sm w-full">Kalanı Tahsil Et</button>
-                        `;
-                    } else {
-                        balanceHtml += `<div class="mt-1.5 px-2 py-1 bg-slate-100 text-slate-400 rounded text-[9px] font-bold border border-slate-200 uppercase text-center w-max">Hesap Kapandı</div>`;
-                    }
-
-                    // Durum Renklendirme
-                    const statusColors = {
-                        'CONFIRMED': 'bg-blue-50 text-blue-700 border-blue-200',
-                        'CHECKED_IN': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                        'CHECKED_OUT': 'bg-slate-100 text-slate-600 border-slate-200',
-                        'CANCELLED': 'bg-red-50 text-red-700 border-red-200'
-                    };
-                    const badgeColor = statusColors[r.status] || 'bg-gray-100 text-gray-700 border-gray-200';
-
-                    html += `
-                        <tr class="hover:bg-slate-50/50 transition border-b border-slate-50">
-                            <td class="p-4 text-[11px] text-slate-500 whitespace-nowrap">${dateAdded}</td>
-                            <td class="p-4 font-bold text-slate-800">${fullName}</td>
-                            <td class="p-4">
-                                <p class="text-xs font-semibold text-slate-700">${r.phone || '-'}</p>
-                                <p class="text-[10px] text-slate-400 mt-0.5">TC: ${r.tc || '-'}</p>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-bold text-blue-600 text-sm">Oda ${roomNo}</p>
-                                <p class="text-[10px] text-slate-500 truncate max-w-[120px] mt-0.5">${aptName}</p>
-                            </td>
-                            <td class="p-4 text-xs whitespace-nowrap">
-                                <p class="mb-1"><span class="text-slate-400 text-[10px]">GİRİŞ:</span> <strong class="text-emerald-700">${r.checkInDate || '-'}</strong></p>
-                                <p><span class="text-slate-400 text-[10px]">ÇIKIŞ:</span> <strong class="text-red-700">${r.checkOutDate || '-'}</strong></p>
-                            </td>
-                            <td class="p-4">${balanceHtml}</td>
-                            <td class="p-4 text-right">
-                                <span class="px-2.5 py-1 ${badgeColor} rounded-md text-[10px] font-bold border uppercase tracking-wider inline-block">${r.status === 'CONFIRMED' ? 'ONAYLI' : r.status}</span>
-                            </td>
-                        </tr>
-                    `;
-                });
+                // Aktif (Bekleyen + Konaklayan) sayısını menüdeki mavi rozete yaz
+                const activeCount = allReservations.filter(r => r.status === 'CONFIRMED' || r.status === 'CHECKED_IN').length;
+                document.getElementById('resCountBadge').textContent = activeCount;
                 
-                document.getElementById('reservationsTableBody').innerHTML = html || '<tr><td colspan="7" class="p-8 text-center text-slate-400">Henüz rezervasyon bulunmuyor.</td></tr>';
-                document.getElementById('resCountBadge').textContent = count;
+                renderReservations();
             });
+        }
+
+        // FİLTRELEME VE EKRANA ÇİZME FONKSİYONLARI
+        window.filterReservations = (status) => {
+            currentResFilter = status;
+            ['ALL', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT'].forEach(f => {
+                const btn = document.getElementById(`res-filter-${f}`);
+                if(!btn) return;
+                if (f === status) {
+                    btn.className = "flex-1 sm:px-4 px-3 py-2 bg-white text-slate-800 shadow-sm rounded-md transition whitespace-nowrap";
+                } else {
+                    btn.className = "flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap";
+                }
+            });
+            renderReservations();
+        };
+
+        function renderReservations() {
+            let html = '';
+            
+            // Seçili filtreye göre veriyi süz
+            let filtered = allReservations;
+            if (currentResFilter !== 'ALL') {
+                filtered = allReservations.filter(r => r.status === currentResFilter);
+            }
+
+            filtered.forEach(r => {
+                const room = allRooms.find(rm => rm.id === r.roomId);
+                const roomNo = room ? room.roomNumber : '?';
+                const aptName = room ? (allApartments.find(a => a.id === room.apartmentId)?.name || '') : '';
+                
+                const fullName = r.customerName || '';
+                const dateAdded = r.createdAt ? new Date(r.createdAt.toMillis()).toLocaleDateString('tr-TR') : '-';
+
+                const totalP = r.totalPrice || 0;
+                const paidP = r.paidAmount || 0;
+                const remP = r.remainingAmount || 0;
+
+                let balanceHtml = `
+                    <p class="font-bold text-slate-800 text-sm">₺${totalP}</p>
+                    <p class="text-[10px] text-emerald-600 font-bold uppercase mt-0.5">Ödenen: ₺${paidP}</p>
+                `;
+                
+                if (remP > 0) {
+                    balanceHtml += `
+                        <p class="text-[10px] text-red-600 font-bold uppercase mt-0.5">Kalan: ₺${remP}</p>
+                        <button onclick="collectRemaining('${r.id}', ${remP}, ${totalP}, '${fullName}', '${roomNo}')" class="mt-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-bold border border-emerald-200 transition shadow-sm w-full">Kalanı Tahsil Et</button>
+                    `;
+                } else {
+                    balanceHtml += `<div class="mt-1.5 px-2 py-1 bg-slate-100 text-slate-400 rounded text-[9px] font-bold border border-slate-200 uppercase text-center w-max">HESAP KAPANDI</div>`;
+                }
+
+                // Durum Renklendirme ve Aksiyon Butonları
+                let badgeColor = '';
+                let statusLabel = '';
+                let actionBtnHtml = '';
+
+                if (r.status === 'CONFIRMED') {
+                    badgeColor = 'bg-blue-50 text-blue-700 border-blue-200';
+                    statusLabel = 'GİRİŞ BEKLİYOR';
+                    actionBtnHtml = `<button onclick="checkinGuest('${r.id}', '${r.roomId}', '${fullName}')" class="mt-2 w-full px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold transition shadow-sm flex items-center justify-center gap-1"><i data-lucide="log-in" class="w-4 h-4"></i> GİRİŞ YAP (Check-in)</button>`;
+                } 
+                else if (r.status === 'CHECKED_IN') {
+                    badgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                    statusLabel = 'KONAKLIYOR';
+                    actionBtnHtml = `<button onclick="checkoutGuest('${r.id}', '${r.roomId}', ${remP}, '${fullName}')" class="mt-2 w-full px-2 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[10px] font-bold transition shadow-sm flex items-center justify-center gap-1"><i data-lucide="log-out" class="w-4 h-4"></i> ÇIKIŞ YAP (Check-out)</button>`;
+                } 
+                else if (r.status === 'CHECKED_OUT') {
+                    badgeColor = 'bg-slate-100 text-slate-500 border-slate-200';
+                    statusLabel = 'ÇIKIŞ YAPTI';
+                    actionBtnHtml = ``; // Geçmiş rezervasyonda buton yok
+                }
+                else {
+                    badgeColor = 'bg-red-50 text-red-700 border-red-200';
+                    statusLabel = r.status;
+                }
+
+                html += `
+                    <tr class="hover:bg-slate-50/50 transition border-b border-slate-50">
+                        <td class="p-4 text-[11px] text-slate-500 whitespace-nowrap">${dateAdded}</td>
+                        <td class="p-4 font-bold text-slate-800">${fullName}</td>
+                        <td class="p-4">
+                            <p class="text-xs font-semibold text-slate-700">${r.phone || '-'}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">TC: ${r.tc || '-'}</p>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-bold text-blue-600 text-sm">Oda ${roomNo}</p>
+                            <p class="text-[10px] text-slate-500 truncate max-w-[120px] mt-0.5">${aptName}</p>
+                        </td>
+                        <td class="p-4 text-xs whitespace-nowrap">
+                            <p class="mb-1"><span class="text-slate-400 text-[10px]">G:</span> <strong class="text-emerald-700">${r.checkInDate || '-'}</strong></p>
+                            <p><span class="text-slate-400 text-[10px]">Ç:</span> <strong class="text-red-700">${r.checkOutDate || '-'}</strong></p>
+                        </td>
+                        <td class="p-4">${balanceHtml}</td>
+                        <td class="p-4 text-right">
+                            <div class="flex flex-col items-end w-[130px]">
+                                <span class="px-2.5 py-1 ${badgeColor} rounded-md text-[10px] font-bold border uppercase tracking-wider inline-block w-full text-center">${statusLabel}</span>
+                                ${actionBtnHtml}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('reservationsTableBody').innerHTML = html || '<tr><td colspan="7" class="p-8 text-center text-slate-400">Bu kategoride rezervasyon bulunmuyor.</td></tr>';
+            lucide.createIcons();
         }
 
         // Bakiye (Kalan) Tahsilat Fonksiyonu
@@ -469,6 +519,51 @@
                 
                 showToast("Kalan bakiye tahsil edildi ve kasaya eklendi!");
             } catch(e) { console.error(e); showToast("Tahsilat hatası.", "error"); }
+        };
+
+        // YENİ: Müşteri Girişi (Check-in)
+        window.checkinGuest = async (resId, roomId, name) => {
+            if(!confirm(`${name} adlı müşterinin otele girişini (Check-in) yapmak istediğinize emin misiniz?`)) return;
+
+            try {
+                // 1. Rezervasyonu İçeride (CHECKED_IN) yap
+                await updateDoc(doc(db, "reservations", resId), { status: 'CHECKED_IN' });
+                
+                // 2. Odayı kırmızı renge (OCCUPIED) çevir
+                if (roomId) {
+                    await updateDoc(doc(db, "rooms", roomId), { status: 'OCCUPIED' });
+                }
+                
+                showToast("Giriş işlemi başarılı. Oda 'Dolu' olarak güncellendi.");
+            } catch (e) {
+                console.error(e);
+                showToast("Giriş işlemi sırasında hata oluştu.", "error");
+            }
+        };
+
+        // YENİ: Tek Tıkla Müşteri Çıkışı (Check-out) ve Güvenlik Kontrolü
+        window.checkoutGuest = async (resId, roomId, remainingAmount, name) => {
+            if (remainingAmount > 0) {
+                showToast(`${name} isimli müşterinin ödenmemiş bakiyesi var. Lütfen önce "Kalanı Tahsil Et" butonuna basarak hesabı kapatın!`, "error");
+                return;
+            }
+            
+            if(!confirm(`${name} adlı müşterinin otelden çıkışını yapmak ve odayı temizlik listesine göndermek istediğinize emin misiniz?`)) return;
+
+            try {
+                // 1. Rezervasyonu geçmiş kayıt olarak (CHECKED_OUT) kapat
+                await updateDoc(doc(db, "reservations", resId), { status: 'CHECKED_OUT' });
+                
+                // 2. Odayı sarı renge (CLEANING_REQUIRED) çevir ve kat görevlisine yolla
+                if (roomId) {
+                    await updateDoc(doc(db, "rooms", roomId), { status: 'CLEANING_REQUIRED' });
+                }
+                
+                showToast("Çıkış işlemi başarılı. Oda otomatik olarak temizliğe gönderildi.");
+            } catch (e) {
+                console.error(e);
+                showToast("Çıkış işlemi sırasında bir hata oluştu.", "error");
+            }
         };
 
         // ----------------------------------------------------------------

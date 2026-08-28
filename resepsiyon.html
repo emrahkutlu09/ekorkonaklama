@@ -730,7 +730,15 @@
         
         function updateRemaining() {
             const total = Number(document.getElementById('resPrice').value) || 0;
-            const deposit = Number(document.getElementById('resDeposit').value) || 0;
+            let deposit = Number(document.getElementById('resDeposit').value) || 0;
+            
+            // YENİ EKLENEN KONTROL: Kapora toplam tutarı geçemez!
+            if (deposit > total && total > 0) {
+                deposit = total;
+                document.getElementById('resDeposit').value = total;
+                showToast("Kapora tutarı toplam konaklama tutarını geçemez!", "error");
+            }
+            
             document.getElementById('resRemaining').value = Math.max(0, total - deposit);
         }
 
@@ -740,7 +748,18 @@
             const name = document.getElementById('resName').value;
             const price = Number(document.getElementById('resPrice').value);
             const deposit = Number(document.getElementById('resDeposit').value);
-            const remaining = Math.max(0, price - deposit);
+            
+            // KAYIT ESNASINDA SON KONTROL
+            if (deposit > price) {
+                showToast("Kapora tutarı toplam konaklama tutarından büyük olamaz!", "error");
+                return;
+            }
+            if (deposit < 0) {
+                showToast("Kapora tutarı sıfırdan küçük olamaz!", "error");
+                return;
+            }
+
+            const remaining = price - deposit;
             
             if(!roomId || !name || price <= 0) { showToast("Lütfen eksik alanları doldurun.", "error"); return; }
             

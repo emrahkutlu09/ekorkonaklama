@@ -514,6 +514,11 @@
                 
             // Styling Room button
             const btnRoom = document.getElementById('tab-rooms');
+            btnRoom.className = !isApt 
+                ? 'flex-1 sm:w-32 py-2 px-4 text-sm font-semibold rounded-lg transition-all bg-white text-slate-800 shadow-sm' 
+                : 'flex-1 sm:w-32 py-2 px-4 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700';
+        };
+
         window.openModal = (modalId, id = null) => {
             let data = null;
             if (id) {

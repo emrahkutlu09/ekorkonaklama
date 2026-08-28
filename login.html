@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Girişi | Sahra Apart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .bg-pattern {
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at top right, #1e293b, transparent),
+                              radial-gradient(circle at bottom left, #0f172a, transparent);
+        }
+    </style>
+</head>
+<body class="bg-pattern h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+
+    <div class="glass-panel w-full max-w-md rounded-3xl shadow-2xl border border-white/20 p-8 relative z-10">
+        
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/30">
+                <i data-lucide="building-2" class="w-8 h-8 text-white"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-800">Sahra Sistem</h1>
+            <p class="text-sm text-slate-500 mt-1">Personel ve Yönetim Girişi</p>
+        </div>
+
+        <div class="mb-8">
+            <button onclick="loginWithGoogle()" id="btnGoogle" class="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-semibold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-3">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Yönetici (Google) ile Giriş
+            </button>
+        </div>
+
+        <div class="relative flex items-center py-4 mb-4">
+            <div class="flex-grow border-t border-slate-200"></div>
+            <span class="flex-shrink-0 mx-4 text-slate-400 text-sm font-medium text-xs uppercase tracking-wider">veya Personel Girişi</span>
+            <div class="flex-grow border-t border-slate-200"></div>
+        </div>
+
+        <form id="staffLoginForm" onsubmit="loginWithEmail(event)" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Personel E-posta (veya Kullanıcı Adı)</label>
+                <div class="relative">
+                    <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                    <input type="email" id="staffEmail" required class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-700" placeholder="ornek@sahra.com">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Şifre</label>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                    <input type="password" id="staffPassword" required class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-700" placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="submit" id="btnStaff" class="w-full mt-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2">
+                Sisteme Giriş Yap
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-1.5">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Web Sitesine Dön
+            </a>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4">
+        <i data-lucide="info" id="toast-icon" class="w-5 h-5"></i>
+        <p id="toast-message" class="font-medium text-sm"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            signInWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            setDoc 
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
+            authDomain: "ekorkonaklama-web.firebaseapp.com",
+            projectId: "ekorkonaklama-web",
+            storageBucket: "ekorkonaklama-web.firebasestorage.app",
+            messagingSenderId: "485785040258",
+            appId: "1:485785040258:web:96e201063459beed388b9b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        lucide.createIcons();
+
+        window.showToast = (message, type = 'error') => {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-message');
+            
+            text.textContent = message;
+            toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100 text-white`;
+            
+            if(type === 'success') {
+                toast.classList.add('bg-emerald-600');
+                icon.setAttribute('data-lucide', 'check-circle');
+            } else if(type === 'error') {
+                toast.classList.add('bg-red-600');
+                icon.setAttribute('data-lucide', 'alert-circle');
+            } else {
+                toast.classList.add('bg-slate-900');
+                icon.setAttribute('data-lucide', 'loader-2', 'animate-spin');
+            }
+            
+            lucide.createIcons();
+            
+            if(type !== 'loading') {
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('-translate-y-4', 'opacity-0', 'pointer-events-none');
+                }, 4000);
+            }
+        };
+
+        async function routeUserBasedOnRole(user) {
+            try {
+                // Veritabanındaki 'users' koleksiyonunda bu kullanıcının kaydını ara
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const role = userData.role;
+
+                    showToast("Giriş başarılı, yönlendiriliyorsunuz...", "success");
+
+                    setTimeout(() => {
+                        if (role === 'ADMIN') window.location.href = 'admin.html';
+                        else if (role === 'RECEPTION') window.location.href = 'resepsiyon.html';
+                        else if (role === 'HOUSEKEEPING') window.location.href = 'katgorevlisi.html';
+                        else {
+                            auth.signOut();
+                            showToast("Sistemde geçerli bir rolünüz bulunmuyor.", "error");
+                        }
+                    }, 1000);
+
+                } else {
+                    // EĞER KULLANICI İLK DEFA GOOGLE İLE GİRİYORSA VE VERİTABANINDA YOKSA:
+                    // (Kurulumu kolaylaştırmak için Google ile giren ilk kişiyi otomatik ADMIN yapıyoruz)
+                    await setDoc(doc(db, "users", user.uid), {
+                        email: user.email,
+                        role: "ADMIN",
+                        name: user.displayName || "Yönetici",
+                        createdAt: new Date().toISOString()
+                    });
+                    
+                    showToast("Yönetici hesabı oluşturuldu, yönlendiriliyorsunuz...", "success");
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                }
+            } catch (error) {
+                console.error("Rol kontrol hatası:", error);
+                showToast("Yetki kontrolü sırasında bir hata oluştu.", "error");
+                auth.signOut();
+            }
+        }
+
+        window.loginWithGoogle = async () => {
+            const btn = document.getElementById('btnGoogle');
+            btn.classList.add('opacity-70', 'pointer-events-none');
+            showToast("Google'a bağlanılıyor...", "loading");
+            
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                await routeUserBasedOnRole(result.user);
+            } catch (error) {
+                console.error("Google Login Error:", error);
+                btn.classList.remove('opacity-70', 'pointer-events-none');
+                showToast("Google girişi iptal edildi veya başarısız oldu.", "error");
+            }
+        };
+
+        window.loginWithEmail = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnStaff');
+            const originalText = btn.innerHTML;
+            const email = document.getElementById('staffEmail').value;
+            const pass = document.getElementById('staffPassword').value;
+
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Doğrulanıyor...';
+            btn.classList.add('opacity-70', 'pointer-events-none');
+            lucide.createIcons();
+
+            try {
+                const result = await signInWithEmailAndPassword(auth, email, pass);
+                await routeUserBasedOnRole(result.user);
+            } catch (error) {
+                console.error("Email Login Error:", error);
+                btn.innerHTML = originalText;
+                btn.classList.remove('opacity-70', 'pointer-events-none');
+                lucide.createIcons();
+                
+                if(error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    showToast("E-posta veya şifre hatalı.", "error");
+                } else {
+                    showToast("Giriş yapılırken bir hata oluştu.", "error");
+                }
+            }
+        };
+    </script>
+</body>
+</html>

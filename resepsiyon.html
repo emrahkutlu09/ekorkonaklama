@@ -304,7 +304,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 transform -translate-y-20 opacity-0 transition-all duration-300 z-[9999]">
         <div class="bg-slate-900/95 backdrop-blur text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-slate-700">
-            <i data-lucide="check-circle" id="toastIcon" class="w-5 h-5 text-emerald-400"></i>
+            <span id="toastIconWrapper"><i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i></span>
             <span id="toastMsg" class="font-medium text-sm">İşlem başarılı</span>
         </div>
     </div>
@@ -777,9 +777,12 @@
         window.showToast = (msg, type = 'success') => {
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;
-            const icon = document.getElementById('toastIcon');
-            icon.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : 'check-circle');
-            icon.className = type === 'error' ? 'w-5 h-5 text-red-400' : 'w-5 h-5 text-emerald-400';
+            
+            const wrapper = document.getElementById('toastIconWrapper');
+            const iconName = type === 'error' ? 'alert-circle' : 'check-circle';
+            const iconColor = type === 'error' ? 'text-red-400' : 'text-emerald-400';
+            
+            wrapper.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 ${iconColor}"></i>`;
             lucide.createIcons();
             
             t.classList.remove('-translate-y-20', 'opacity-0');

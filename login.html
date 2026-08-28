@@ -99,15 +99,15 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, pass);
                 const user = userCredential.user;
 
-                // 2. Firestore'daki 'staff' koleksiyonundan personelin rolünü bul
-                const q = query(collection(db, "staff"), where("email", "==", email));
+                // 2. Firestore'daki 'users' koleksiyonundan personelin rolünü bul
+                const q = query(collection(db, "users"), where("email", "==", email));
                 const querySnapshot = await getDocs(q);
 
                 let userRole = 'RECEPTION'; // Varsayılan
                 if (!querySnapshot.empty) {
                     userRole = querySnapshot.docs[0].data().role;
                 } else {
-                    // Eğer staff tablosunda yoksa ama e-posta admin ise admin yapabiliriz
+                    // Eğer users tablosunda yoksa ama e-posta admin ise admin yapabiliriz
                     userRole = 'ADMIN';
                 }
 

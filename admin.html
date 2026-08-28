@@ -40,7 +40,7 @@
             <button onclick="switchView('facilities')" id="nav-facilities" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
                 <i data-lucide="building-2" class="w-5 h-5"></i> Tesis Yönetimi
             </button>
-            <button onclick="switchView('staff')" id="nav-staff" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
+            <button onclick="switchView('users')" id="nav-users" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
                 <i data-lucide="users" class="w-5 h-5"></i> Personel Yönetimi
             </button>
             <button onclick="switchView('reviews')" id="nav-reviews" class="w-full flex items-center justify-between px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
@@ -178,26 +178,26 @@
             </div>
 
             <!-- VIEW 3: STAFF MANAGEMENT -->
-            <div id="view-staff" class="space-y-8 fade-in hidden">
+            <div id="view-users" class="space-y-8 fade-in hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
                         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5 text-indigo-500"></i> Yeni Personel Ekle</h3>
-                        <form id="staffForm" class="space-y-4">
+                        <form id="usersForm" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Personel Adı Soyadı</label>
-                                <input type="text" id="staffName" required placeholder="Ahmet Yılmaz" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <input type="text" id="usersName" required placeholder="Ahmet Yılmaz" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">E-Posta (Giriş Adresi)</label>
-                                <input type="email" id="staffEmail" required placeholder="resepsiyon@sahra.com" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <input type="email" id="usersEmail" required placeholder="resepsiyon@sahra.com" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
-                                <input type="password" id="staffPassword" required placeholder="******" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <input type="password" id="usersPassword" required placeholder="******" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Görev / Rol</label>
-                                <select id="staffRole" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                                <select id="usersRole" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
                                     <option value="RECEPTION">Resepsiyon</option>
                                     <option value="HOUSEKEEPING">Kat Görevlisi</option>
                                 </select>
@@ -218,7 +218,7 @@
                                         <th class="p-3 text-right">İşlem</th>
                                     </tr>
                                 </thead>
-                                <tbody id="staffTableBody" class="divide-y divide-gray-100">
+                                <tbody id="usersTableBody" class="divide-y divide-gray-100">
                                     <tr><td colspan="4" class="p-4 text-center text-gray-400">Yükleniyor...</td></tr>
                                 </tbody>
                             </table>
@@ -371,7 +371,7 @@
         };
 
         window.switchView = function(viewName) {
-            const views = ['dashboard', 'facilities', 'staff', 'reviews', 'finance'];
+            const views = ['dashboard', 'facilities', 'users', 'reviews', 'finance'];
             views.forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 document.getElementById(`view-${v}`).classList.remove('block');
@@ -388,7 +388,7 @@
             activeNav.classList.remove('text-slate-300', 'hover:bg-slate-800');
             activeNav.classList.add('bg-blue-600', 'text-white');
 
-            const titles = { 'dashboard': 'Dashboard', 'facilities': 'Tesis Yönetimi', 'staff': 'Personel Yönetimi', 'reviews': 'Yorum Yönetimi', 'finance': 'Finans & Muhasebe' };
+            const titles = { 'dashboard': 'Dashboard', 'facilities': 'Tesis Yönetimi', 'users': 'Personel Yönetimi', 'reviews': 'Yorum Yönetimi', 'finance': 'Finans & Muhasebe' };
             document.getElementById('pageTitle').textContent = titles[viewName];
             
             if(window.innerWidth < 768) toggleSidebar();
@@ -412,7 +412,7 @@
         // Global Data States
         let apartmentsData = [];
         let roomsData = [];
-        let staffData = [];
+        let usersData = [];
         let reviewsData = [];
         let financeData = [];
         let currentReviewFilter = 'ALL';
@@ -469,12 +469,12 @@
             lucide.createIcons();
         });
 
-        onSnapshot(collection(db, "staff"), (snapshot) => {
-            staffData = [];
+        onSnapshot(collection(db, "users"), (snapshot) => {
+            usersData = [];
             let html = '';
             snapshot.forEach(docSnap => {
                 const s = { id: docSnap.id, ...docSnap.data() };
-                staffData.push(s);
+                usersData.push(s);
                 const roleColor = s.role === 'RECEPTION' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700';
                 html += `
                     <tr class="hover:bg-gray-50 transition">
@@ -484,10 +484,10 @@
                         </td>
                         <td class="p-4">${s.email}</td>
                         <td class="p-4"><span class="px-2.5 py-1 ${roleColor} rounded-full text-xs font-bold">${s.role}</span></td>
-                        <td class="p-4 text-right"><button onclick="deleteItem('staff', '${s.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                        <td class="p-4 text-right"><button onclick="deleteItem('users', '${s.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
                     </tr>`;
             });
-            document.getElementById('staffTableBody').innerHTML = html || '<tr><td colspan="4" class="p-8 text-center text-gray-400">Kayıtlı personel bulunmuyor.</td></tr>';
+            document.getElementById('usersTableBody').innerHTML = html || '<tr><td colspan="4" class="p-8 text-center text-gray-400">Kayıtlı personel bulunmuyor.</td></tr>';
             lucide.createIcons();
         });
 
@@ -712,16 +712,16 @@
             } catch(err) { showToast("Oda eklenirken hata oluştu.", "error"); }
         });
 
-        document.getElementById('staffForm').addEventListener('submit', async (e) => {
+        document.getElementById('usersForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                await addDoc(collection(db, "staff"), {
-                    name: document.getElementById('staffName').value,
-                    email: document.getElementById('staffEmail').value,
-                    role: document.getElementById('staffRole').value,
+                await addDoc(collection(db, "users"), {
+                    name: document.getElementById('usersName').value,
+                    email: document.getElementById('usersEmail').value,
+                    role: document.getElementById('usersRole').value,
                     createdAt: serverTimestamp()
                 });
-                document.getElementById('staffForm').reset();
+                document.getElementById('usersForm').reset();
                 showToast("Personel başarıyla kaydedildi!");
             } catch(err) { showToast("Personel eklenemedi.", "error"); }
         });

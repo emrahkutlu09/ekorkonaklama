@@ -9,7 +9,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- EKLENEN KISIM: Leaflet.js Harita Kütüphanesi -->
+    <!-- Leaflet.js Harita Kütüphanesi -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -23,7 +23,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .modal-enter { animation: fadeInScale 0.2s ease-out forwards; }
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        /* Harita z-index ayarı */
         .leaflet-container { z-index: 10 !important; }
     </style>
 </head>
@@ -131,7 +130,7 @@
             <!-- VIEW 2: FACILITIES (APART & ODA) -->
             <div id="view-facilities" class="space-y-8 fade-in hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Apart Ekleme Formu -->
+                    <!-- Apart Ekleme Formu (Harita Seçimli) -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
                         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i> Yeni Apart Ekle</h3>
                         <form id="apartmentForm" class="space-y-4">
@@ -144,7 +143,7 @@
                                 <input type="text" id="aptAddress" placeholder="Örn: Merkez Mah. No:1" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             
-                            <!-- EKLENEN KISIM: Harita Seçimi -->
+                            <!-- Haritadan Konum Seçme Alanı -->
                             <div class="pt-2 border-t border-gray-100">
                                 <label class="block text-sm font-bold text-blue-600 mb-2"><i data-lucide="map" class="w-4 h-4 inline"></i> Haritadan Konum İşaretle</label>
                                 <p class="text-xs text-gray-500 mb-2">Haritayı sürükleyin ve apartın bulunduğu konuma tıklayarak kırmızı iğneyi bırakın.</p>
@@ -187,7 +186,7 @@
                             <div class="md:col-span-2 bg-blue-50 p-4 rounded-xl border border-blue-100">
                                 <label class="block text-sm font-bold text-blue-800 mb-1"><i data-lucide="image" class="w-4 h-4 inline"></i> Oda Görselleri (Çoklu Seçim)</label>
                                 <input type="file" id="roomImages" multiple accept="image/*" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white mt-1">
-                                <p class="text-[10px] text-gray-500 mt-1.5 font-medium">Görselleri seçmek için CTRL (veya CMD) tuşuna basılı tutarak birden fazla resim seçebilirsiniz. Resimleriniz otomatik olarak Cloudinary sunucularına yüklenecektir.</p>
+                                <p class="text-[10px] text-gray-500 mt-1.5 font-medium">Görselleri seçmek için CTRL tuşuna basılı tutarak birden fazla resim seçebilirsiniz.</p>
                             </div>
                             <div class="md:col-span-2 mt-2">
                                 <button type="submit" id="btnSubmitRoom" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-slate-900/20">Odayı Sisteme Ekle</button>
@@ -507,18 +506,18 @@
         signInAnonymously(auth).catch(err => console.error("Auth Error:", err));
         lucide.createIcons();
 
-        // --- LEAFLET HARİTA AYARLARI ---
+        // --- LEAFLET HARİTA AYARLARI (Manuel Konum Seçme) ---
         window.mapInitialized = false;
         window.apartmentMap = null;
         window.mapMarker = null;
 
         function initMap() {
             if(window.mapInitialized) return;
-            // Nazilli Merkezi Varsayılan Koordinat:
+            // Varsayılan Merkez (Nazilli)
             window.apartmentMap = L.map('mapSelect').setView([37.9145, 28.3220], 14); 
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                attribution: '&copy; OpenStreetMap'
             }).addTo(window.apartmentMap);
 
             window.apartmentMap.on('click', function(e) {
@@ -531,7 +530,7 @@
                     window.mapMarker = L.marker(e.latlng).addTo(window.apartmentMap);
                 }
                 
-                // Seçilen konumu Google Maps linkine çevirip inputa yazdır
+                // Google Maps linki üretip inputa ata
                 document.getElementById('aptMapLink').value = `https://www.google.com/maps?q=${lat},${lng}`;
             });
 
@@ -570,7 +569,6 @@
             
             if(window.innerWidth < 768) toggleSidebar();
 
-            // Tesis yönetimine geçildiğinde haritayı oluştur/güncelle
             if (viewName === 'facilities') {
                 if(!window.mapInitialized) {
                     setTimeout(() => initMap(), 200);
@@ -598,7 +596,6 @@
         let reviewsData = [];
         let currentReviewFilter = 'ALL';
 
-        // Ayarları Dinleme
         onSnapshot(doc(db, "settings", "payments"), (docSnap) => {
             if(docSnap.exists()) {
                 const data = docSnap.data();
@@ -610,7 +607,6 @@
             }
         });
 
-        // Apart ve Odalar
         onSnapshot(collection(db, "apartments"), (snapshot) => {
             apartmentsData = [];
             let html = '';
@@ -660,9 +656,7 @@
                                 <p class="text-xs text-emerald-700 font-medium mt-1">${apt ? apt.name : 'Bilinmeyen'} • <span class="font-bold text-gray-800">₺${room.basePrice}/gece</span> • ${cap} ${imgCount}</p>
                             </div>
                         </div>
-                        
-                        <!-- GÜNCELLENEN: KESİNLİKLE KAYBOLMAYAN YAZILI BUTONLAR -->
-                        <div class="flex items-center gap-2 mt-2 md:mt-0">
+                        <div class="flex items-center gap-2">
                             <button onclick="openEditRoomModal('${room.id}')" class="flex items-center gap-1.5 px-4 py-2 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 border border-blue-200 rounded-lg text-xs font-bold transition shadow-sm">
                                 <i data-lucide="edit" class="w-4 h-4"></i> Düzenle
                             </button>
@@ -677,7 +671,6 @@
             lucide.createIcons();
         });
 
-        // ODA DÜZENLEME SİSTEMİ
         let currentEditRoomId = null;
         let currentEditImages = [];
 
@@ -842,7 +835,6 @@
             } catch(err) { showToast("Kayıt işlemi başarısız.", "error"); } finally { btn.innerHTML = originalText; btn.disabled = false; }
         });
 
-        // --- YORUMLAR YÖNETİMİ ---
         const qReviews = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
         onSnapshot(qReviews, (snapshot) => {
             reviewsData = [];
@@ -951,7 +943,6 @@
             lucide.createIcons();
         });
 
-        // FORM SUBMITS
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
@@ -980,7 +971,6 @@
             } catch(err) { showToast("Hata oluştu.", "error"); }
         });
 
-        // GÜNCELLENEN: Harita Linkini de içeriyor
         document.getElementById('apartmentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
@@ -990,21 +980,17 @@
                     mapLink: document.getElementById('aptMapLink').value || '', 
                     createdAt: serverTimestamp()
                 });
-                
                 document.getElementById('apartmentForm').reset(); 
-                
-                // Form sıfırlandığında harita markörünü de kaldır
                 if(window.mapMarker) {
                     window.apartmentMap.removeLayer(window.mapMarker);
                     window.mapMarker = null;
                 }
-                
                 showToast("Apart eklendi!");
             } catch(err) { showToast("Hata oluştu.", "error"); }
         });
 
         window.deleteItem = async function(collectionName, id) {
-            if(!confirm("Kayıt kalıcı olarak silinecek. Emin misiniz?")) return;
+            if(!confirm("Kayıt silinecek. Emin misiniz?")) return;
             try { await deleteDoc(doc(db, collectionName, id)); showToast("Kayıt silindi!"); } 
             catch(err) { showToast("Silme işlemi başarısız.", "error"); }
         };

@@ -4,57 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sahra Apart & Konaklama | Lüks Konaklama Deneyimi</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
         
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .font-serif-luxury { font-family: 'Playfair Display', serif; }
         
+        /* Hero Karartma ve Modal Animasyonları */
         .hero-overlay { background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)); }
         
-        /* Modal Animasyonları */
         .modal-enter { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(100px) scale(0.98); }
+            from { opacity: 0; transform: translateY(50px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
-        /* Galeri Animasyonları */
-        .fade-image { animation: imageFadeIn 0.3s ease-in-out; }
-        @keyframes imageFadeIn { from { opacity: 0.5; } to { opacity: 1; } }
+        /* Galeri Resim Geçişi */
+        .fade-image { animation: imageFadeIn 0.4s ease-in-out forwards; }
+        @keyframes imageFadeIn { from { opacity: 0.3; } to { opacity: 1; } }
         
+        /* Özel Kaydırma Çubuğu */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f8fafc; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Hide Netlify Badge */
+        /* Netlify Rozetini Gizle */
         #netlify-badge, iframe[src*="netlify"], .netlify-badge { display: none !important; }
         
+        /* WhatsApp Butonu Efekti */
         @keyframes pulse-whatsapp {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
             70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
         .whatsapp-btn { animation: pulse-whatsapp 2s infinite; }
-
-        /* Custom Scrollbar for hidden elements */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
 
-    <!-- Toast Notifications -->
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 transform -translate-y-20 opacity-0 transition-all duration-500 z-[9999] w-[90%] sm:w-auto max-w-md">
+    <!-- Toast Bildirimleri (Uyarılar) -->
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 transform -translate-y-24 opacity-0 transition-all duration-500 z-[9999] w-[90%] sm:w-auto max-w-md">
         <div class="bg-slate-900/95 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700/50 font-medium">
             <span id="toastIconWrapper"></span>
             <span id="toastMsg" class="tracking-wide text-sm">İşlem başarılı</span>
         </div>
     </div>
 
-    <!-- WhatsApp Floating Button -->
+    <!-- WhatsApp Yüzen Buton -->
     <a href="https://wa.me/902560000000" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] transition-transform duration-300 hover:scale-110 whatsapp-btn flex items-center justify-center group">
         <i data-lucide="message-circle" class="w-7 h-7 sm:w-8 sm:h-8"></i>
         <span class="absolute right-16 bg-slate-900 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-medium pointer-events-none shadow-lg hidden sm:block">Hemen Bize Yazın</span>
@@ -71,20 +74,20 @@
             <div class="hidden lg:flex items-center gap-10 font-medium text-slate-600 text-sm tracking-wide">
                 <a href="#rooms" class="hover:text-amber-600 transition-colors">İmza Odalarımız</a>
                 <a href="#about" class="hover:text-amber-600 transition-colors">Ayrıcalıklar</a>
-                <a href="#reviews" class="hover:text-amber-600 transition-colors">Ziyaretçi Defteri</a>
+                <a href="#reviews" class="hover:text-amber-600 transition-colors">Misafir Defteri</a>
             </div>
             <div class="flex items-center gap-3 sm:gap-5">
                 <a href="login.html" class="hidden sm:inline-flex items-center gap-2 text-slate-500 hover:text-amber-600 font-medium text-xs uppercase tracking-wider transition-colors">
                     <i data-lucide="lock" class="w-3.5 h-3.5"></i> Personel
                 </a>
                 <a href="#rooms" class="bg-slate-900 hover:bg-slate-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-slate-900/20 transition-all transform active:scale-95 whitespace-nowrap">
-                    Rezervasyon
+                    Hızlı Rezervasyon
                 </a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Ana Vitrin (Hero Section) -->
     <header class="relative bg-slate-900 text-white py-24 sm:py-32 lg:py-48 overflow-hidden flex items-center justify-center min-h-[70vh]">
         <div class="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=2000" alt="Otel Arka Plan" class="w-full h-full object-cover object-center opacity-50 transform scale-105 animate-[kenburns_20s_ease-out_forwards]">
@@ -108,7 +111,7 @@
         </div>
     </header>
 
-    <!-- Odalarımız / Vitrin -->
+    <!-- Odalarımız (Ürün Kartları) -->
     <section id="rooms" class="py-20 sm:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6">
             <div class="space-y-3 sm:space-y-4 max-w-2xl">
@@ -119,12 +122,11 @@
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif-luxury text-slate-900">İmza Odalarımız</h2>
             </div>
             <p class="text-slate-500 text-xs sm:text-sm max-w-md md:text-right font-light leading-relaxed">
-                İnce düşünülmüş detaylarla tasarlanan odalarımızda lüksün tadını çıkarın. Dairelerimizi incelemek için görsellere tıklayın.
+                İnce düşünülmüş detaylarla tasarlanan odalarımızda lüksün tadını çıkarın. Tüm resimleri ve detayları görmek için oda görseline tıklayın.
             </p>
         </div>
         
         <div id="publicRoomsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-            <!-- Loading State -->
             <div class="col-span-full text-center py-20 text-slate-400 flex flex-col items-center">
                 <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-amber-500 mb-4"></i>
                 <span class="font-serif-luxury italic text-lg">Özel odalarımız hazırlanıyor...</span>
@@ -132,101 +134,117 @@
         </div>
     </section>
 
-    <!-- ODA DETAY MODALI (ÜRÜN KARTI) -->
-    <div id="roomDetailsModal" class="fixed inset-0 bg-slate-900/90 z-50 hidden flex-col justify-end md:justify-center items-center backdrop-blur-sm p-0 md:p-6 transition-opacity duration-300">
-        <div class="bg-white md:rounded-3xl rounded-t-3xl shadow-2xl w-full max-w-4xl modal-enter overflow-hidden flex flex-col h-[90vh] md:h-auto md:max-h-[90vh] relative">
+    <!-- ODA DETAY MODALI (ÜRÜN KARTI & GALERİ) -->
+    <div id="roomDetailsModal" class="fixed inset-0 bg-slate-900/95 z-50 hidden flex-col justify-end md:justify-center items-center backdrop-blur-md p-0 md:p-6 transition-opacity duration-300">
+        <div class="bg-white md:rounded-3xl rounded-t-3xl shadow-2xl w-full max-w-5xl modal-enter overflow-hidden flex flex-col h-[92vh] md:h-auto md:max-h-[95vh] relative">
             
-            <!-- Close Btn (Floating) -->
-            <button onclick="closeRoomDetailsModal()" class="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/60 transition-colors border border-white/20">
+            <!-- Kapatma Butonu -->
+            <button onclick="closeRoomDetailsModal()" class="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/70 transition-colors border border-white/20 shadow-lg">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
 
-            <!-- Image Gallery (Slider) -->
-            <div class="relative w-full h-64 md:h-96 bg-slate-100 shrink-0 group">
-                <img id="detailMainImage" src="" alt="Oda Görseli" class="w-full h-full object-cover fade-image">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
-                
-                <!-- Gallery Navigation -->
-                <button onclick="prevGalleryImage()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition opacity-0 group-hover:opacity-100">
-                    <i data-lucide="chevron-left" class="w-6 h-6"></i>
-                </button>
-                <button onclick="nextGalleryImage()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition opacity-0 group-hover:opacity-100">
-                    <i data-lucide="chevron-right" class="w-6 h-6"></i>
-                </button>
-
-                <!-- Image Counter -->
-                <div class="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-medium tracking-widest">
-                    <span id="galleryCurrentIndex">1</span> / <span id="galleryTotalCount">1</span>
-                </div>
-            </div>
-
-            <!-- Content Area -->
-            <div class="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar pb-24 md:pb-8">
-                <!-- Title & Tags -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                    <div>
-                        <span id="detailAptName" class="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 block mb-1">Tesis Adı</span>
-                        <h2 id="detailRoomName" class="text-3xl font-serif-luxury font-bold text-slate-900">Oda Adı</h2>
-                        <p id="detailRoomType" class="text-sm font-medium text-slate-500 mt-1">Oda Tipi</p>
+            <div class="flex flex-col md:flex-row h-full">
+                <!-- Sol Kısım: Resim Galerisi (Slider) -->
+                <div class="relative w-full md:w-1/2 h-64 md:h-auto bg-slate-950 shrink-0 group flex flex-col">
+                    <div class="flex-1 relative overflow-hidden">
+                        <img id="detailMainImage" src="" alt="Oda Görseli" class="w-full h-full object-cover fade-image">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
+                        
+                        <!-- Slider Okları -->
+                        <button onclick="prevGalleryImage()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-all opacity-100 sm:opacity-0 group-hover:opacity-100 shadow-lg">
+                            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                        </button>
+                        <button onclick="nextGalleryImage()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-all opacity-100 sm:opacity-0 group-hover:opacity-100 shadow-lg">
+                            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                        </button>
+                        
+                        <!-- Sayaç -->
+                        <div class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold tracking-widest shadow-md border border-white/10">
+                            <i data-lucide="image" class="w-3 h-3 inline mr-1 text-amber-400"></i>
+                            <span id="galleryCurrentIndex">1</span> / <span id="galleryTotalCount">1</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Küçük Resimler (Thumbnails) -->
+                    <div id="detailThumbnails" class="flex gap-2 p-4 bg-slate-900 overflow-x-auto hide-scrollbar border-t border-white/10">
+                        <!-- JS ile dolacak -->
                     </div>
                 </div>
 
-                <!-- Thumbnails -->
-                <div id="detailThumbnails" class="flex gap-2 overflow-x-auto pb-4 mb-6 hide-scrollbar">
-                    <!-- Thumbnails go here via JS -->
-                </div>
+                <!-- Sağ Kısım: Oda Özellikleri ve Detay -->
+                <div class="w-full md:w-1/2 p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar pb-28 md:pb-8 bg-white flex flex-col">
+                    <div class="flex-1">
+                        <span id="detailAptName" class="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 block mb-2">Tesis Adı</span>
+                        <h2 id="detailRoomName" class="text-3xl sm:text-4xl font-serif-luxury font-bold text-slate-900 mb-1">Oda Adı</h2>
+                        <p id="detailRoomType" class="text-sm font-medium text-slate-500 mb-8">Oda Tipi</p>
 
-                <!-- Info Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 border-y border-slate-100 mb-6">
-                    <div class="flex flex-col gap-1">
-                        <i data-lucide="users" class="w-5 h-5 text-amber-500"></i>
-                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Kapasite</span>
-                        <span id="detailCapacity" class="text-sm font-semibold text-slate-800">Yükleniyor...</span>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <i data-lucide="bed-double" class="w-5 h-5 text-amber-500"></i>
-                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Yatak Tipi</span>
-                        <span class="text-sm font-semibold text-slate-800">Geniş Çift Kişilik</span>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <i data-lucide="wifi" class="w-5 h-5 text-amber-500"></i>
-                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">İnternet</span>
-                        <span class="text-sm font-semibold text-slate-800">Ücretsiz Wi-Fi</span>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <i data-lucide="tv" class="w-5 h-5 text-amber-500"></i>
-                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Eğlence</span>
-                        <span class="text-sm font-semibold text-slate-800">Smart TV / Netflix</span>
-                    </div>
-                </div>
+                        <!-- Özellikler Izgarası -->
+                        <div class="grid grid-cols-2 gap-y-6 gap-x-4 py-6 border-y border-slate-100 mb-8">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                                    <i data-lucide="users" class="w-5 h-5 text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Kapasite</p>
+                                    <p id="detailCapacity" class="text-sm font-bold text-slate-800">Yükleniyor...</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                                    <i data-lucide="bed-double" class="w-5 h-5 text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Yatak</p>
+                                    <p class="text-sm font-bold text-slate-800">Geniş Çift Kişilik</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                                    <i data-lucide="wifi" class="w-5 h-5 text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">İnternet</p>
+                                    <p class="text-sm font-bold text-slate-800">Sınırsız Wi-Fi</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                                    <i data-lucide="coffee" class="w-5 h-5 text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Mutfak</p>
+                                    <p class="text-sm font-bold text-slate-800">Tam Donanımlı</p>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Description -->
-                <div class="space-y-3">
-                    <h4 class="font-serif-luxury text-lg font-bold text-slate-900">Oda Hakkında</h4>
-                    <p class="text-sm text-slate-600 font-light leading-relaxed">
-                        Modern ve zarif dokunuşlarla tasarlanmış bu odamız, konforunuz için ihtiyaç duyabileceğiniz tüm detayları barındırmaktadır. Ferah yaşam alanı, birinci sınıf yatak takımları ve lüks banyo donanımlarıyla unutulmaz bir deneyim sizi bekliyor.
-                    </p>
+                        <div class="space-y-3 mb-6">
+                            <h4 class="font-serif-luxury text-xl font-bold text-slate-900">Oda Hakkında</h4>
+                            <p class="text-sm text-slate-600 font-light leading-relaxed">
+                                Ev konforunu aratmayan mimarisi ve lüks detaylarıyla bu odamız, konaklamanızı eşsiz kılmak için özel olarak tasarlandı. Geniş yaşam alanı, 7 yaş altı çocuklar için ücretsiz konaklama imkanı ve birinci sınıf hizmet kalitesiyle sizleri ağırlamaktan mutluluk duyacağız.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Fiyat ve Buton (Sticky Bottom on Mobile) -->
+                    <div class="absolute md:relative bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto bg-white md:bg-transparent border-t border-slate-100 md:border-none p-5 md:p-0 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.05)] md:shadow-none mt-auto z-20">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-0.5">Kişi Başı Gece</span>
+                            <span id="detailPrice" class="text-3xl font-black text-slate-900">₺0</span>
+                        </div>
+                        <button id="btnDetailBook" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-amber-500/30 transition-all transform active:scale-95">
+                            Rezervasyon
+                        </button>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Sticky Bottom Bar for Booking -->
-            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 md:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-20">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-0.5">Kişi Başı / Gecelik</span>
-                    <span id="detailPrice" class="text-2xl md:text-3xl font-black text-slate-900">₺0</span>
-                </div>
-                <button id="btnDetailBook" class="bg-amber-500 hover:bg-amber-600 text-white px-6 md:px-10 py-3.5 rounded-xl font-bold text-xs md:text-sm uppercase tracking-widest shadow-lg shadow-amber-500/30 transition-all transform active:scale-95">
-                    Hemen Rezervasyon Yap
-                </button>
             </div>
         </div>
     </div>
 
 
-    <!-- Online Rezervasyon Modalı (Lüks Tema) -->
+    <!-- Online Rezervasyon Modalı (Adım 2) -->
     <div id="bookingModal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm p-0 sm:p-4 transition-opacity duration-300">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-2xl modal-enter overflow-hidden flex flex-col h-[95vh] sm:h-auto sm:max-h-[90vh]">
-            <!-- Header -->
             <div class="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 shrink-0">
                 <div>
                     <h3 class="text-xl sm:text-2xl font-serif-luxury font-bold text-slate-900">Rezervasyon Talebi</h3>
@@ -237,7 +255,6 @@
                 </button>
             </div>
             
-            <!-- Body -->
             <div class="p-5 sm:p-8 overflow-y-auto flex-1 custom-scrollbar">
                 <form id="publicBookingForm" class="space-y-5 sm:space-y-6">
                     <input type="hidden" id="bookRoomId">
@@ -259,12 +276,12 @@
                             <input type="text" id="bookTC" required class="w-full border-b-2 border-slate-200 bg-transparent py-2 sm:py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 sm:mb-2">Yetişkin Sayısı (Kişi Başı Ücret) *</label>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 sm:mb-2">Yetişkin Sayısı (Ücretli) *</label>
                             <input type="number" id="bookAdults" min="1" value="1" required onchange="calculatePublicPrice()" class="w-full border-b-2 border-slate-200 bg-transparent py-2 sm:py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                         </div>
                     </div>
 
-                    <!-- Çocuk Bilgisi (7 Yaş Altı Ücretsiz Logic) -->
+                    <!-- 7 Yaş Altı Çocuk Sistemi -->
                     <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-100 space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
@@ -276,7 +293,9 @@
                                 <input type="text" id="bookChildrenAges" placeholder="Örn: 4, 9" oninput="calculatePublicPrice()" class="w-full border-b-2 border-slate-200 bg-white py-2 sm:py-2.5 px-2 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                             </div>
                         </div>
-                        <p class="text-[10px] text-amber-700 font-bold bg-amber-50 p-2 rounded border border-amber-100/50 inline-block"><i data-lucide="info" class="w-3 h-3 inline mr-1"></i>7 yaşından küçük konuklarımızdan ücret talep edilmez.</p>
+                        <p class="text-[10px] text-amber-700 font-bold bg-amber-50 p-2 rounded border border-amber-100/50 inline-block">
+                            <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>7 yaşından küçük konuklarımızdan konaklama ücreti alınmaz.
+                        </p>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -313,7 +332,6 @@
                 </form>
             </div>
             
-            <!-- Footer Actions -->
             <div class="p-5 sm:p-6 bg-white border-t border-slate-100 shrink-0 flex gap-3 sm:gap-4">
                 <button type="button" onclick="closeBookingModal()" class="flex-1 py-3.5 sm:py-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 rounded-xl transition-colors border border-slate-200">İptal</button>
                 <button type="submit" form="publicBookingForm" class="flex-[2] py-3.5 sm:py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all shadow-xl shadow-slate-900/20">Talebi İlet</button>
@@ -321,7 +339,7 @@
         </div>
     </div>
 
-    <!-- Müşteri Yorum Yapma Modalı -->
+    <!-- Müşteri Yorum Modalı -->
     <div id="reviewModal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm p-0 sm:p-4">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden">
             <div class="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100">
@@ -350,12 +368,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & Core Logic -->
+    <!-- Firebase SDK & Javascript Mantığı -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
             authDomain: "ekorkonaklama-web.firebaseapp.com",
@@ -367,14 +384,14 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // Initialize Icons
         lucide.createIcons();
 
         let cachedApartments = [];
         let cachedRooms = [];
+        let detailImages = [];
+        let detailImageIndex = 0;
 
-        // Fetch Global Settings (Payments)
+        // Ayarları Oku
         onSnapshot(doc(db, "settings", "payments"), (docSnap) => {
             if(docSnap.exists()) {
                 renderPaymentOptions(docSnap.data());
@@ -383,7 +400,7 @@
             }
         });
 
-        // Fetch Facilities Data
+        // Verileri Oku
         onSnapshot(collection(db, "apartments"), (snap) => {
             cachedApartments = [];
             snap.forEach(d => cachedApartments.push({ id: d.id, ...d.data() }));
@@ -396,13 +413,11 @@
             checkAndRenderRooms();
         });
 
-        // --- ROOM GALLERY STATE ---
-        let detailImages = [];
-        let detailImageIndex = 0;
-
-        // Render Rooms Grid (Main Page)
+        // 1. ODA LİSTELEME
         function checkAndRenderRooms() {
             const grid = document.getElementById('publicRoomsGrid');
+            if(!grid) return; // Güvenlik Kontrolü
+
             if(cachedApartments.length === 0 || cachedRooms.length === 0) {
                 grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400 font-medium">Sistemde kayıtlı oda bulunmuyor.</div>`;
                 return;
@@ -422,7 +437,6 @@
                 return;
             }
 
-            // Fallback luxury images if admin didn't add array of images
             const fallbackImages = [
                 "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=800",
                 "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800",
@@ -435,21 +449,19 @@
                 const roomPrice = room.basePrice || room.price || 1500;
                 const capacity = room.capacity ? `Maks. ${room.capacity} Kişi` : 'Standart Kapasite';
                 
-                // Determine cover image (First dynamic image or fallback)
                 let coverImg = fallbackImages[index % fallbackImages.length];
                 if(room.images && Array.isArray(room.images) && room.images.length > 0) {
                     coverImg = room.images[0];
                 }
 
                 html += `
-                    <div class="group bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col">
-                        <!-- Clickable Image Area (Opens Details) -->
-                        <div class="relative h-64 overflow-hidden cursor-pointer" onclick="openRoomDetailsModal('${room.id}')">
+                    <div class="group bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col" onclick="openRoomDetailsModal('${room.id}')">
+                        <div class="relative h-64 overflow-hidden">
                             <img src="${coverImg}" alt="Oda" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60"></div>
                             
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-slate-900/20 backdrop-blur-[2px]">
-                                <span class="bg-white/90 text-slate-900 px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest shadow-lg">Detayları İncele</span>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-slate-900/30 backdrop-blur-[2px]">
+                                <span class="bg-white/95 text-slate-900 px-6 py-2.5 rounded-full font-bold text-xs uppercase tracking-widest shadow-xl flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i> İncele</span>
                             </div>
                             
                             <div class="absolute top-5 left-5 bg-white/95 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] font-bold text-slate-800 shadow-sm uppercase tracking-widest">
@@ -465,7 +477,6 @@
                             </div>
                         </div>
                         
-                        <!-- Details Area -->
                         <div class="p-6 flex-1 flex flex-col justify-between bg-white relative">
                             <div class="flex items-center gap-4 text-xs font-medium text-slate-500 mb-6">
                                 <span class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md"><i data-lucide="users" class="w-3.5 h-3.5 text-amber-500"></i> ${capacity}</span>
@@ -476,23 +487,22 @@
                                 <div>
                                     <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">Kişi Başı Gecelik</span>
                                     <div class="flex items-baseline gap-1">
-                                        <span class="text-2xl font-black text-slate-900">₺${roomPrice}</span>
+                                        <span class="text-3xl font-black text-slate-900">₺${roomPrice}</span>
                                     </div>
                                 </div>
-                                <button onclick="openBookingModal('${room.id}', '${roomPrice}', '${aptName} - Oda ${room.roomNumber}', ${room.capacity})" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition-colors duration-300">
-                                    Hemen Seç
+                                <button class="bg-slate-900 group-hover:bg-amber-500 text-white px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg transition-colors duration-300">
+                                    Detay
                                 </button>
                             </div>
                         </div>
                     </div>
                 `;
             });
-
             grid.innerHTML = html;
             lucide.createIcons();
         }
 
-        // --- ROOM DETAILS MODAL LOGIC (ÜRÜN KARTI) ---
+        // 2. ODA DETAY MODALI (ÜRÜN KARTI)
         window.openRoomDetailsModal = (roomId) => {
             const room = cachedRooms.find(r => r.id === roomId);
             if(!room) return;
@@ -501,57 +511,66 @@
             const aptName = apt ? apt.name : 'Sahra Premium';
             const roomPrice = room.basePrice || room.price || 1500;
 
-            // Setup Details Texts
-            document.getElementById('detailRoomName').textContent = `Oda ${room.roomNumber}`;
-            document.getElementById('detailAptName').textContent = aptName;
-            document.getElementById('detailRoomType').textContent = room.type || 'Premium Süit';
-            document.getElementById('detailCapacity').textContent = `Maks. ${room.capacity || 2} Kişi`;
-            document.getElementById('detailPrice').textContent = `₺${roomPrice}`;
+            const elRoomName = document.getElementById('detailRoomName');
+            const elAptName = document.getElementById('detailAptName');
+            const elRoomType = document.getElementById('detailRoomType');
+            const elCapacity = document.getElementById('detailCapacity');
+            const elPrice = document.getElementById('detailPrice');
 
-            // Setup Images
+            if(elRoomName) elRoomName.textContent = `Oda ${room.roomNumber}`;
+            if(elAptName) elAptName.textContent = aptName;
+            if(elRoomType) elRoomType.textContent = room.type || 'Premium Süit';
+            if(elCapacity) elCapacity.textContent = `Maks. ${room.capacity || 2} Kişi`;
+            if(elPrice) elPrice.textContent = `₺${roomPrice}`;
+
             const fallbackImages = [
                 "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=800",
-                "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800",
-                "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=800"
+                "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800"
             ];
-            
-            detailImages = (room.images && Array.isArray(room.images) && room.images.length > 0) 
-                           ? room.images 
-                           : fallbackImages; // Fallback to luxury defaults if no images provided by admin yet
+            detailImages = (room.images && Array.isArray(room.images) && room.images.length > 0) ? room.images : fallbackImages;
             
             detailImageIndex = 0;
-            document.getElementById('galleryTotalCount').textContent = detailImages.length;
+            const elTotalCount = document.getElementById('galleryTotalCount');
+            if(elTotalCount) elTotalCount.textContent = detailImages.length;
+            
             updateGalleryImage();
             renderThumbnails();
 
-            // Setup Book Button Event
             const bookBtn = document.getElementById('btnDetailBook');
-            bookBtn.onclick = () => {
-                closeRoomDetailsModal();
-                openBookingModal(room.id, roomPrice, `${aptName} - Oda ${room.roomNumber}`, room.capacity);
-            };
+            if(bookBtn) {
+                bookBtn.onclick = () => {
+                    closeRoomDetailsModal();
+                    openBookingModal(room.id, roomPrice, `${aptName} - Oda ${room.roomNumber}`, room.capacity);
+                };
+            }
 
-            // Open Modal
-            document.getElementById('roomDetailsModal').classList.remove('hidden');
-            document.getElementById('roomDetailsModal').classList.add('flex');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            const modal = document.getElementById('roomDetailsModal');
+            if(modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            }
         };
 
         window.closeRoomDetailsModal = () => {
-            document.getElementById('roomDetailsModal').classList.add('hidden');
-            document.getElementById('roomDetailsModal').classList.remove('flex');
-            document.body.style.overflow = '';
+            const modal = document.getElementById('roomDetailsModal');
+            if(modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
         };
 
         function updateGalleryImage() {
             const imgEl = document.getElementById('detailMainImage');
-            imgEl.src = detailImages[detailImageIndex];
-            document.getElementById('galleryCurrentIndex').textContent = detailImageIndex + 1;
-            
-            // Re-trigger animation
-            imgEl.classList.remove('fade-image');
-            void imgEl.offsetWidth; // trigger reflow
-            imgEl.classList.add('fade-image');
+            const indexEl = document.getElementById('galleryCurrentIndex');
+            if(imgEl && detailImages.length > 0) {
+                imgEl.src = detailImages[detailImageIndex];
+                imgEl.classList.remove('fade-image');
+                void imgEl.offsetWidth; // Reflow
+                imgEl.classList.add('fade-image');
+            }
+            if(indexEl) indexEl.textContent = detailImageIndex + 1;
             updateThumbnailsHighlight();
         }
 
@@ -572,6 +591,7 @@
 
         function renderThumbnails() {
             const container = document.getElementById('detailThumbnails');
+            if(!container) return; // Güvenlik kontrolü
             if(detailImages.length <= 1) { container.innerHTML = ''; return; }
             
             let html = '';
@@ -599,11 +619,12 @@
             });
         }
 
-
-        // Fetch Approved Reviews
+        // 3. YORUMLAR
         const qRev = query(collection(db, "reviews"), where("status", "==", "APPROVED"));
         onSnapshot(qRev, (snapshot) => {
             const container = document.getElementById('publicReviewsGrid');
+            if(!container) return; // Güvenlik Kontrolü
+
             if(snapshot.empty) {
                 container.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-3xl border border-slate-100 text-slate-400 font-medium">Henüz misafir değerlendirmesi bulunmuyor.</div>`;
                 return;
@@ -641,63 +662,87 @@
             lucide.createIcons();
         });
 
-        // Booking Form Logic
+        // 4. REZERVASYON FORMU & FİYAT HESAPLAMA
         window.toggleChildAges = (count) => {
             const wrapper = document.getElementById('childAgesWrapper');
-            if (Number(count) > 0) {
-                wrapper.classList.remove('hidden');
-            } else {
-                wrapper.classList.add('hidden');
-                document.getElementById('bookChildrenAges').value = '';
+            const ageInput = document.getElementById('bookChildrenAges');
+            if(wrapper && ageInput) {
+                if (Number(count) > 0) {
+                    wrapper.classList.remove('hidden');
+                } else {
+                    wrapper.classList.add('hidden');
+                    ageInput.value = '';
+                }
             }
             calculatePublicPrice();
         };
 
         window.openBookingModal = (roomId, basePrice, roomTitle, maxCapacity) => {
-            document.getElementById('bookRoomId').value = roomId;
-            document.getElementById('modalRoomSubtitle').textContent = roomTitle;
-            
-            // Set max capacity constraint visually
+            const idInput = document.getElementById('bookRoomId');
+            const titleInput = document.getElementById('modalRoomSubtitle');
             const adultInput = document.getElementById('bookAdults');
-            if(maxCapacity) adultInput.max = maxCapacity;
+            const childInput = document.getElementById('bookChildrenCount');
+            const childAgesWrapper = document.getElementById('childAgesWrapper');
+            const childAges = document.getElementById('bookChildrenAges');
+            const checkIn = document.getElementById('bookCheckIn');
+            const checkOut = document.getElementById('bookCheckOut');
+            const modal = document.getElementById('bookingModal');
 
-            document.getElementById('bookingModal').classList.remove('hidden');
-            document.getElementById('bookingModal').classList.add('flex');
-            document.body.style.overflow = 'hidden';
+            if(idInput) idInput.value = roomId;
+            if(titleInput) titleInput.textContent = roomTitle;
+            if(adultInput && maxCapacity) adultInput.max = maxCapacity;
 
-            // Default dates (Today & Tomorrow)
             const today = new Date().toISOString().split('T')[0];
             const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
             
-            document.getElementById('bookCheckIn').value = today;
-            document.getElementById('bookCheckOut').value = tomorrow.toISOString().split('T')[0];
-            document.getElementById('bookAdults').value = 1;
-            document.getElementById('bookChildrenCount').value = 0;
-            document.getElementById('childAgesWrapper').classList.add('hidden');
-            document.getElementById('bookChildrenAges').value = '';
+            if(checkIn) checkIn.value = today;
+            if(checkOut) checkOut.value = tomorrow.toISOString().split('T')[0];
+            if(adultInput) adultInput.value = 1;
+            if(childInput) childInput.value = 0;
+            if(childAgesWrapper) childAgesWrapper.classList.add('hidden');
+            if(childAges) childAges.value = '';
             
             window.activeRoomPrice = Number(basePrice);
             calculatePublicPrice();
+
+            if(modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            }
         };
 
         window.closeBookingModal = () => {
-            document.getElementById('bookingModal').classList.add('hidden');
-            document.getElementById('bookingModal').classList.remove('flex');
-            document.body.style.overflow = '';
-            document.getElementById('publicBookingForm').reset();
-            document.getElementById('childAgesWrapper').classList.add('hidden');
+            const modal = document.getElementById('bookingModal');
+            const form = document.getElementById('publicBookingForm');
+            const childAgesWrapper = document.getElementById('childAgesWrapper');
+
+            if(modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+            if(form) form.reset();
+            if(childAgesWrapper) childAgesWrapper.classList.add('hidden');
         };
 
-        // CORE PRICING ENGINE (Per Person & Under 7 Free)
+        // Kişi Başı & Çocuk Yaş Hesaplaması (7 Yaş Altı Ücretsiz)
         window.calculatePublicPrice = function() {
-            const inD = new Date(document.getElementById('bookCheckIn').value);
-            const outD = new Date(document.getElementById('bookCheckOut').value);
+            const inEl = document.getElementById('bookCheckIn');
+            const outEl = document.getElementById('bookCheckOut');
             const detailText = document.getElementById('priceDetailText');
             const priceDisplay = document.getElementById('bookTotalPriceDisplay');
+            const adultEl = document.getElementById('bookAdults');
+            const agesEl = document.getElementById('bookChildrenAges');
+
+            if(!inEl || !outEl || !priceDisplay) return; // Güvenlik
+
+            const inD = new Date(inEl.value);
+            const outD = new Date(outEl.value);
             
             if(isNaN(inD) || isNaN(outD) || outD <= inD) {
                 priceDisplay.textContent = `₺0`;
-                detailText.textContent = "Geçersiz Tarih";
+                if(detailText) detailText.textContent = "Geçersiz Tarih";
                 window.currentCalculatedTotal = 0;
                 return;
             }
@@ -705,12 +750,10 @@
             const diffDays = Math.ceil(Math.abs(outD - inD) / (1000 * 60 * 60 * 24));
             const days = diffDays > 0 ? diffDays : 1;
             const pricePerPerson = window.activeRoomPrice || 1500;
-
-            const adults = Number(document.getElementById('bookAdults').value) || 1;
+            const adults = Number(adultEl ? adultEl.value : 1) || 1;
             
-            // Calculate payable children (>= 7 years old)
             let paidChildrenCount = 0;
-            const childrenAgesInput = document.getElementById('bookChildrenAges').value.trim();
+            const childrenAgesInput = agesEl ? agesEl.value.trim() : '';
             
             if(childrenAgesInput !== '') {
                 const ages = childrenAgesInput.split(',').map(a => Number(a.trim())).filter(a => !isNaN(a));
@@ -723,22 +766,26 @@
             const total = totalPayablePersons * pricePerPerson * days;
 
             window.currentCalculatedTotal = total;
-            
-            // Update UI
             priceDisplay.textContent = `₺${total.toLocaleString('tr-TR')}`;
             
-            let detailStr = `${totalPayablePersons} Kişi x ${days} Gece`;
-            if (childrenAgesInput !== '' && paidChildrenCount < childrenAgesInput.split(',').length) {
-                detailStr += ` (7 yaş altı ücretsiz)`;
+            if(detailText) {
+                let detailStr = `${totalPayablePersons} Kişi x ${days} Gece`;
+                if (childrenAgesInput !== '' && paidChildrenCount < childrenAgesInput.split(',').length) {
+                    detailStr += ` (7 yaş altı ücretsiz)`;
+                }
+                detailText.textContent = detailStr;
             }
-            detailText.textContent = detailStr;
         }
 
-        document.getElementById('bookCheckIn').addEventListener('change', calculatePublicPrice);
-        document.getElementById('bookCheckOut').addEventListener('change', calculatePublicPrice);
+        const checkInEl = document.getElementById('bookCheckIn');
+        const checkOutEl = document.getElementById('bookCheckOut');
+        if(checkInEl) checkInEl.addEventListener('change', calculatePublicPrice);
+        if(checkOutEl) checkOutEl.addEventListener('change', calculatePublicPrice);
 
         function renderPaymentOptions(settings) {
             const container = document.getElementById('paymentMethodsContainer');
+            if(!container) return; // Güvenlik
+            
             let html = '';
             const baseClass = "flex items-center gap-3 p-3 sm:p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors";
             
@@ -753,113 +800,126 @@
             }
             container.innerHTML = html;
             
-            if(settings.bankName) document.getElementById('bankNameText').textContent = `Banka: ${settings.bankName}`;
-            if(settings.iban) document.getElementById('ibanText').textContent = `${settings.iban}`;
+            const bankNameText = document.getElementById('bankNameText');
+            const ibanText = document.getElementById('ibanText');
+            if(bankNameText && settings.bankName) bankNameText.textContent = `Banka: ${settings.bankName}`;
+            if(ibanText && settings.iban) ibanText.textContent = `${settings.iban}`;
         }
 
         window.toggleBankInfo = (show) => {
             const box = document.getElementById('bankInfoBox');
+            if(!box) return;
             if(show) box.classList.remove('hidden'); else box.classList.add('hidden');
         };
 
-        // Submit Booking
-        document.getElementById('publicBookingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const ogText = btn.innerHTML;
-            btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
+        // Form Submit
+        const bookingForm = document.getElementById('publicBookingForm');
+        if(bookingForm) {
+            bookingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const ogText = btn.innerHTML;
+                btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
 
-            const roomId = document.getElementById('bookRoomId').value;
-            const name = document.getElementById('bookName').value;
-            const phone = document.getElementById('bookPhone').value;
-            const checkIn = document.getElementById('bookCheckIn').value;
-            const checkOut = document.getElementById('bookCheckOut').value;
-            const total = window.currentCalculatedTotal || 0;
-            const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'RECEPTION';
+                const roomId = document.getElementById('bookRoomId').value;
+                const name = document.getElementById('bookName').value;
+                const phone = document.getElementById('bookPhone').value;
+                const checkIn = document.getElementById('bookCheckIn').value;
+                const checkOut = document.getElementById('bookCheckOut').value;
+                const total = window.currentCalculatedTotal || 0;
+                const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'RECEPTION';
 
-            if(total === 0) {
-                showToast("Geçersiz tarih aralığı.", "error");
-                btn.innerHTML = ogText; btn.disabled = false;
-                return;
-            }
+                if(total === 0) {
+                    showToast("Geçersiz tarih aralığı.", "error");
+                    btn.innerHTML = ogText; btn.disabled = false;
+                    return;
+                }
 
-            try {
-                await addDoc(collection(db, "reservations"), {
-                    roomId: roomId,
-                    customerName: name,
-                    phone: phone,
-                    tc: document.getElementById('bookTC').value,
-                    adults: document.getElementById('bookAdults').value,
-                    childrenCount: document.getElementById('bookChildrenCount').value,
-                    childrenAges: document.getElementById('bookChildrenAges').value || 'Yok',
-                    checkInDate: checkIn,
-                    checkOutDate: checkOut,
-                    totalPrice: total,
-                    paidAmount: 0,
-                    remainingAmount: total,
-                    status: 'CONFIRMED',
-                    paymentMethod: method,
-                    source: 'WEB_ONLINE',
-                    processedBy: 'Online Müşteri',
-                    createdAt: serverTimestamp()
-                });
-                
-                // Mark Room as Reserved
-                await updateDoc(doc(db, "rooms", roomId), { status: 'RESERVED' });
-                
-                closeBookingModal();
-                showToast("Rezervasyon talebiniz başarıyla alındı!");
-            } catch(err) {
-                console.error(err);
-                showToast("Kayıt oluşturulurken bir hata oluştu.", "error");
-            } finally {
-                btn.innerHTML = ogText; btn.disabled = false;
-            }
-        });
+                try {
+                    await addDoc(collection(db, "reservations"), {
+                        roomId: roomId,
+                        customerName: name,
+                        phone: phone,
+                        tc: document.getElementById('bookTC').value,
+                        adults: document.getElementById('bookAdults').value,
+                        childrenCount: document.getElementById('bookChildrenCount').value,
+                        childrenAges: document.getElementById('bookChildrenAges').value || 'Yok',
+                        checkInDate: checkIn,
+                        checkOutDate: checkOut,
+                        totalPrice: total,
+                        paidAmount: 0,
+                        remainingAmount: total,
+                        status: 'CONFIRMED',
+                        paymentMethod: method,
+                        source: 'WEB_ONLINE',
+                        processedBy: 'Online Müşteri',
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    await updateDoc(doc(db, "rooms", roomId), { status: 'RESERVED' });
+                    closeBookingModal();
+                    showToast("Rezervasyon talebiniz başarıyla alındı!");
+                } catch(err) {
+                    showToast("Kayıt oluşturulurken bir hata oluştu.", "error");
+                } finally {
+                    btn.innerHTML = ogText; btn.disabled = false;
+                }
+            });
+        }
 
-        // Review Modal Logic
-        window.openReviewModal = () => { document.getElementById('reviewModal').classList.remove('hidden'); document.getElementById('reviewModal').classList.add('flex'); document.body.style.overflow = 'hidden';};
-        window.closeReviewModal = () => { document.getElementById('reviewModal').classList.add('hidden'); document.getElementById('reviewModal').classList.remove('flex'); document.getElementById('reviewForm').reset(); document.body.style.overflow = '';};
+        // Yorum İşlemleri
+        window.openReviewModal = () => { 
+            const m = document.getElementById('reviewModal');
+            if(m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+        };
+        window.closeReviewModal = () => { 
+            const m = document.getElementById('reviewModal');
+            const f = document.getElementById('reviewForm');
+            if(m) { m.classList.add('hidden'); m.classList.remove('flex'); document.body.style.overflow = ''; }
+            if(f) f.reset();
+        };
 
-        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const ogText = btn.innerHTML;
-            btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
+        const reviewForm = document.getElementById('reviewForm');
+        if(reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const ogText = btn.innerHTML;
+                btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
 
-            try {
-                await addDoc(collection(db, "reviews"), {
-                    customerName: document.getElementById('revName').value,
-                    rating: Number(document.getElementById('revRating').value),
-                    comment: document.getElementById('revComment').value,
-                    status: 'PENDING', 
-                    createdAt: serverTimestamp()
-                });
-                closeReviewModal();
-                showToast("Yorumunuz değerlendirilmek üzere iletildi.");
-            } catch(err) {
-                showToast("Yorum gönderilemedi.", "error");
-            } finally {
-                btn.innerHTML = ogText; btn.disabled = false;
-            }
-        });
+                try {
+                    await addDoc(collection(db, "reviews"), {
+                        customerName: document.getElementById('revName').value,
+                        rating: Number(document.getElementById('revRating').value),
+                        comment: document.getElementById('revComment').value,
+                        status: 'PENDING', 
+                        createdAt: serverTimestamp()
+                    });
+                    closeReviewModal();
+                    showToast("Yorumunuz değerlendirilmek üzere iletildi.");
+                } catch(err) {
+                    showToast("Yorum gönderilemedi.", "error");
+                } finally {
+                    btn.innerHTML = ogText; btn.disabled = false;
+                }
+            });
+        }
 
-        // Global Toast Notification
         window.showToast = (msg, type = 'success') => {
             const t = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = msg;
             const wrapper = document.getElementById('toastIconWrapper');
+            if(!t || !wrapper) return;
             
+            document.getElementById('toastMsg').textContent = msg;
             const iconName = type === 'error' ? 'alert-triangle' : 'check-circle-2';
             const iconColor = type === 'error' ? 'text-red-400' : 'text-emerald-400';
             
             wrapper.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6 ${iconColor}"></i>`;
             lucide.createIcons();
             
-            t.classList.remove('-translate-y-20', 'opacity-0');
-            setTimeout(() => t.classList.add('-translate-y-20', 'opacity-0'), 4000);
+            t.classList.remove('-translate-y-24', 'opacity-0');
+            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 4000);
         };
     </script>
 </body>
 </html>
-```eof

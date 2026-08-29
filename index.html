@@ -174,9 +174,10 @@
                 </button>
             </div>
             
-            <div class="p-5 overflow-y-auto flex-1 space-y-4">
+            <div class="p-5 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
                 <form id="publicBookingForm" class="space-y-4">
                     <input type="hidden" id="bookRoomId">
+                    
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Ad Soyad *</label>
@@ -187,6 +188,30 @@
                             <input type="tel" id="bookPhone" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">TC Kimlik / Pasaport No *</label>
+                            <input type="text" id="bookTC" required placeholder="Zorunlu alan" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Toplam Yetişkin Sayısı *</label>
+                            <input type="number" id="bookAdults" min="1" value="1" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Çocuk ve Yaş Bilgisi Alanı -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Sayısı</label>
+                            <input type="number" id="bookChildrenCount" min="0" value="0" onchange="toggleChildAges(this.value)" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div id="childAgesWrapper" class="hidden">
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Yaşları</label>
+                            <input type="text" id="bookChildrenAges" placeholder="Örn: 4, 7" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Giriş Tarihi *</label>
@@ -314,7 +339,7 @@
             availableRooms.forEach(room => {
                 const apt = cachedApartments.find(a => a.id === room.apartmentId);
                 const aptName = apt ? apt.name : 'Sahra Apart';
-                const roomPrice = room.basePrice || room.price || 1500; // Fiyat hatası (undefined) giderildi
+                const roomPrice = room.basePrice || room.price || 1500;
                 
                 html += `
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300 group">
@@ -348,7 +373,6 @@
             lucide.createIcons();
         }
 
-        // İndex gerektirmeyen güvenli yorum çekme (Client-side sıralama)
         const qRev = query(collection(db, "reviews"), where("status", "==", "APPROVED"));
         onSnapshot(qRev, (snapshot) => {
             const container = document.getElementById('publicReviewsGrid');
@@ -359,7 +383,6 @@
 
             let reviewsList = [];
             snapshot.forEach(d => reviewsList.push(d.data()));
-            // Tarihe göre en yeniyi üste al
             reviewsList.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
             let html = '';
@@ -390,6 +413,16 @@
             lucide.createIcons();
         });
 
+        window.toggleChildAges = (count) => {
+            const wrapper = document.getElementById('childAgesWrapper');
+            if (Number(count) > 0) {
+                wrapper.classList.remove('hidden');
+            } else {
+                wrapper.classList.add('hidden');
+                document.getElementById('bookChildrenAges').value = '';
+            }
+        };
+
         window.openBookingModal = (roomId, basePrice, roomTitle) => {
             document.getElementById('bookRoomId').value = roomId;
             document.getElementById('modalRoomSubtitle').textContent = roomTitle;
@@ -409,6 +442,7 @@
             document.getElementById('bookingModal').classList.add('hidden');
             document.getElementById('bookingModal').classList.remove('flex');
             document.getElementById('publicBookingForm').reset();
+            document.getElementById('childAgesWrapper').classList.add('hidden');
         };
 
         function calculatePublicPrice() {
@@ -458,9 +492,23 @@
 
             try {
                 await addDoc(collection(db, "reservations"), {
-                    roomId: roomId, customerName: name, phone: phone, checkInDate: checkIn, checkOutDate: checkOut,
-                    totalPrice: total, paidAmount: 0, remainingAmount: total, status: 'CONFIRMED', paymentMethod: method,
-                    source: 'WEB_ONLINE', processedBy: 'Online Müşteri', createdAt: serverTimestamp()
+                    roomId: roomId,
+                    customerName: name,
+                    phone: phone,
+                    tc: document.getElementById('bookTC').value,
+                    adults: document.getElementById('bookAdults').value,
+                    childrenCount: document.getElementById('bookChildrenCount').value,
+                    childrenAges: document.getElementById('bookChildrenAges').value || 'Yok',
+                    checkInDate: checkIn,
+                    checkOutDate: checkOut,
+                    totalPrice: total,
+                    paidAmount: 0,
+                    remainingAmount: total,
+                    status: 'CONFIRMED',
+                    paymentMethod: method,
+                    source: 'WEB_ONLINE',
+                    processedBy: 'Online Müşteri',
+                    createdAt: serverTimestamp()
                 });
                 await updateDoc(doc(db, "rooms", roomId), { status: 'RESERVED' });
                 closeBookingModal();

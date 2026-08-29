@@ -117,6 +117,10 @@
                     <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
                     <span class="text-xs font-bold tracking-wide uppercase">Temizlik: <span id="statCleaning" class="text-sm">0</span></span>
                 </button>
+                <button onclick="filterRoomMap('MAINTENANCE')" id="filterBtn-MAINTENANCE" class="flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-800 border border-orange-200 rounded-lg shadow-sm transition-all opacity-70 hover:opacity-100 hover:bg-orange-100">
+                    <i data-lucide="wrench" class="w-3.5 h-3.5 text-orange-600"></i>
+                    <span class="text-xs font-bold tracking-wide uppercase">Arızalı: <span id="statMaintenance" class="text-sm">0</span></span>
+                </button>
             </div>
         </div>
 
@@ -428,6 +432,7 @@
                 document.getElementById('statReserved').textContent = s.RESERVED;
                 document.getElementById('statOccupied').textContent = s.OCCUPIED;
                 document.getElementById('statCleaning').textContent = s.CLEANING_REQUIRED;
+                document.getElementById('statMaintenance').textContent = s.MAINTENANCE;
                 
                 renderRoomMap(); populateReservationRoomSelect();
             });
@@ -455,7 +460,7 @@
                 currentRoomFilter = status;
             }
             
-            const statuses = ['ALL', 'AVAILABLE', 'RESERVED', 'OCCUPIED', 'CLEANING_REQUIRED'];
+            const statuses = ['ALL', 'AVAILABLE', 'RESERVED', 'OCCUPIED', 'CLEANING_REQUIRED', 'MAINTENANCE'];
             
             statuses.forEach(s => {
                 const btn = document.getElementById(`filterBtn-${s}`);
@@ -471,9 +476,10 @@
                     if(s==='RESERVED') btn.classList.add('ring-blue-400');
                     if(s==='OCCUPIED') btn.classList.add('ring-red-400');
                     if(s==='CLEANING_REQUIRED') btn.classList.add('ring-amber-400');
+                    if(s==='MAINTENANCE') btn.classList.add('ring-orange-400');
                 } else {
                     btn.classList.add('opacity-70', 'hover:opacity-100');
-                    btn.classList.remove('ring-2', 'ring-offset-1', 'ring-slate-400', 'ring-emerald-400', 'ring-blue-400', 'ring-red-400', 'ring-amber-400');
+                    btn.classList.remove('ring-2', 'ring-offset-1', 'ring-slate-400', 'ring-emerald-400', 'ring-blue-400', 'ring-red-400', 'ring-amber-400', 'ring-orange-400');
                 }
             });
 

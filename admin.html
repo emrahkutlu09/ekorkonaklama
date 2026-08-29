@@ -345,7 +345,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        // GÜNCELLEME: Auth kütüphanesine createUserWithEmailAndPassword ve signOut fonksiyonları eklendi
+        import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -360,6 +361,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // YENİ: Personel kaydederken Admini sistemden atmamak için İkincil Firebase Uygulaması
+        const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getAuth(secondaryApp);
 
         signInAnonymously(auth).catch(err => console.error("Auth Error:", err));
         lucide.createIcons();
@@ -712,18 +717,50 @@
             } catch(err) { showToast("Oda eklenirken hata oluştu.", "error"); }
         });
 
+        // GÜNCELLENDİ: Personel Hesabı (Gerçek Şifre) Oluşturma Mantığı
         document.getElementById('usersForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Hesap Oluşturuluyor...';
+            btn.disabled = true;
+
+            const name = document.getElementById('usersName').value;
+            const email = document.getElementById('usersEmail').value;
+            const password = document.getElementById('usersPassword').value;
+            const role = document.getElementById('usersRole').value;
+
             try {
+                // 1. İkincil Firebase uygulaması ile personelin gerçek şifreli giriş hesabını oluştur
+                await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                
+                // 2. Hesabı açtıktan sonra ikincil hesaptan hemen çık (Admini güvende tut)
+                await signOut(secondaryAuth);
+
+                // 3. Personelin adını ve yetkisini "users" tablosuna (Firestore) kaydet
                 await addDoc(collection(db, "users"), {
-                    name: document.getElementById('usersName').value,
-                    email: document.getElementById('usersEmail').value,
-                    role: document.getElementById('usersRole').value,
+                    name: name,
+                    email: email,
+                    role: role,
                     createdAt: serverTimestamp()
                 });
+                
                 document.getElementById('usersForm').reset();
-                showToast("Personel başarıyla kaydedildi!");
-            } catch(err) { showToast("Personel eklenemedi.", "error"); }
+                showToast("Personel hesabı şifreli olarak başarıyla oluşturuldu!");
+            } catch(err) { 
+                console.error(err);
+                if(err.code === 'auth/email-already-in-use') {
+                    showToast("Bu e-posta adresi sistemde zaten kayıtlı!", "error");
+                } else if(err.code === 'auth/weak-password') {
+                    showToast("Şifre en az 6 karakter olmalıdır!", "error");
+                } else {
+                    showToast("Personel eklenemedi. Lütfen tekrar deneyin.", "error"); 
+                }
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         });
 
         window.deleteItem = async function(collectionName, id) {

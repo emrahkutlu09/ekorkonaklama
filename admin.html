@@ -863,6 +863,13 @@
         const qAdminRes = query(collection(db, "reservations"), orderBy("createdAt", "desc"));
         onSnapshot(qAdminRes, (snapshot) => {
             let html = '';
+            const statusMap = {
+                'CONFIRMED': 'Giriş Bekliyor',
+                'CHECKED_IN': 'İçeride (Konaklıyor)',
+                'CHECKED_OUT': 'Çıkış Yaptı',
+                'CANCELLED': 'İptal Edildi'
+            };
+
             snapshot.forEach(docSnap => {
                 const r = { id: docSnap.id, ...docSnap.data() };
                 const dateStr = r.createdAt ? new Date(r.createdAt.toMillis()).toLocaleString('tr-TR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '-';
@@ -873,6 +880,7 @@
                 if(r.status === 'CANCELLED') badgeClass = 'bg-red-100 text-red-700 border-red-200';
                 if(r.status === 'CHECKED_OUT') badgeClass = 'bg-slate-200 text-slate-700 border-slate-300';
 
+                const displayStatus = statusMap[r.status] || r.status;
                 const room = roomsData.find(rm => rm.id === r.roomId);
                 const roomInfo = room ? `Oda ${room.roomNumber}` : 'Oda Silinmiş/Bulunamadı';
                 const staffName = r.processedBy || (r.source === 'WEB_ONLINE' ? 'Online Müşteri' : 'Bilinmiyor');
@@ -898,7 +906,7 @@
                             <p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">Ödenen: <span class="text-emerald-600">₺${r.paidAmount || 0}</span></p>
                         </td>
                         <td class="p-3">
-                            <span class="px-2 py-1 ${badgeClass} border rounded text-[10px] font-bold uppercase">${r.status}</span>
+                            <span class="px-2 py-1 ${badgeClass} border rounded text-[10px] font-bold uppercase">${displayStatus}</span>
                         </td>
                     </tr>
                 `;

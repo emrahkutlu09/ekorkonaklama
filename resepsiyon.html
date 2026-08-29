@@ -26,6 +26,10 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Liste Tab butonları için seçili durumu */
+        .tab-active { background-color: white; color: #1e293b; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .tab-inactive { color: #64748b; border: 1px solid transparent; }
     </style>
 </head>
 <body class="text-slate-800 h-screen flex flex-col md:flex-row overflow-hidden">
@@ -65,7 +69,7 @@
                     <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-white">Resepsiyon</p>
+                    <p class="text-sm font-bold text-white" id="sidebarStaffName">Yükleniyor...</p>
                     <p class="text-[10px] text-emerald-400 font-medium tracking-wider flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Çevrimiçi</p>
                 </div>
             </div>
@@ -132,11 +136,11 @@
                     
                     <!-- FİLTRELEME BUTONLARI -->
                     <div class="flex bg-slate-200/70 p-1 rounded-lg w-full xl:w-auto text-xs font-bold overflow-x-auto shrink-0 custom-scrollbar">
-                        <button onclick="filterReservations('ALL')" id="res-filter-ALL" class="flex-1 sm:px-4 px-3 py-2 bg-white text-slate-800 shadow-sm rounded-md transition whitespace-nowrap">Tümü</button>
-                        <button onclick="filterReservations('CONFIRMED')" id="res-filter-CONFIRMED" class="flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap">Giriş Bekleyen</button>
-                        <button onclick="filterReservations('CHECKED_IN')" id="res-filter-CHECKED_IN" class="flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap">Konaklayan (İçeride)</button>
-                        <button onclick="filterReservations('CHECKED_OUT')" id="res-filter-CHECKED_OUT" class="flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap">Geçmiş (Çıkış)</button>
-                        <button onclick="filterReservations('CANCELLED')" id="res-filter-CANCELLED" class="flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap">İptaller</button>
+                        <button onclick="filterReservations('ALL')" id="res-filter-ALL" class="flex-1 sm:px-4 px-3 py-2 tab-active rounded-md transition whitespace-nowrap">Tümü</button>
+                        <button onclick="filterReservations('CONFIRMED')" id="res-filter-CONFIRMED" class="flex-1 sm:px-4 px-3 py-2 tab-inactive rounded-md transition whitespace-nowrap">Giriş Bekleyen</button>
+                        <button onclick="filterReservations('CHECKED_IN')" id="res-filter-CHECKED_IN" class="flex-1 sm:px-4 px-3 py-2 tab-inactive rounded-md transition whitespace-nowrap">Konaklayan (İçeride)</button>
+                        <button onclick="filterReservations('CHECKED_OUT')" id="res-filter-CHECKED_OUT" class="flex-1 sm:px-4 px-3 py-2 tab-inactive rounded-md transition whitespace-nowrap">Geçmiş (Çıkış)</button>
+                        <button onclick="filterReservations('CANCELLED')" id="res-filter-CANCELLED" class="flex-1 sm:px-4 px-3 py-2 tab-inactive rounded-md transition whitespace-nowrap">İptaller</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto flex-1 custom-scrollbar">
@@ -250,7 +254,7 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Şimdi Alınan Kapora (₺)</label>
-                                <input type="number" id="resDeposit" value="0" min="0" required class="w-full p-3 border-emerald-200 rounded-xl shadow-sm focus:ring-emerald-500 bg-white border-2 outline-none text-lg font-bold text-emerald-900">
+                                <input type="number" id="resDeposit" value="0" min="0" required class="w-full p-3 border-emerald-200 rounded-xl shadow-sm focus:ring-emerald-500 bg-white border-2 outline-none text-lg font-bold text-emerald-900 transition-colors">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-red-700 uppercase mb-1">Kalan Bakiye (₺)</label>
@@ -331,10 +335,10 @@
         </div>
     </div>
 
-    <!-- Toast Notification (Fixed SVG issue) -->
+    <!-- Güvenli Toast Notification (SVG Hatası Giderildi) -->
     <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 transform -translate-y-20 opacity-0 transition-all duration-300 z-[9999]">
         <div class="bg-slate-900/95 backdrop-blur text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-slate-700">
-            <span id="toastIconWrapper"><i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i></span>
+            <span id="toastIconWrapper"></span>
             <span id="toastMsg" class="font-medium text-sm">İşlem başarılı</span>
         </div>
     </div>
@@ -361,33 +365,6 @@
         lucide.createIcons();
 
         // ----------------------------------------------------------------
-        // GÜVENLİK (ROUTE GUARD) & Auth Control
-        // ----------------------------------------------------------------
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                if(window.location.pathname.endsWith('resepsiyon.html')) { window.location.assign('login.html'); }
-            } else {
-                if(user.email) {
-                    const q = query(collection(db, "staff"), where("email", "==", user.email));
-                    const snap = await getDocs(q);
-                    if(!snap.empty) {
-                        const role = snap.docs[0].data().role;
-                        if(role !== 'RECEPTION' && role !== 'ADMIN') {
-                            alert("Bu sayfaya erişim yetkiniz yok.");
-                            window.location.assign('login.html');
-                        } else { listenToData(); } 
-                    } else if (user.email === 'admin@sahra.com' || window.location.hostname === 'localhost') {
-                        listenToData(); 
-                    }
-                } else { listenToData(); }
-            }
-        });
-
-        window.logoutApp = () => {
-            signOut(auth).then(() => window.location.assign('login.html'));
-        };
-
-        // ----------------------------------------------------------------
         // GLOBAL STATE & DATA LISTENING
         // ----------------------------------------------------------------
         let allApartments = [];
@@ -395,10 +372,53 @@
         let currentSelectedRoom = null;
         let allReservations = [];
         let currentResFilter = 'ALL';
+        let currentStaffName = 'Resepsiyon'; // İşlem yapanın adı
+
+        // ----------------------------------------------------------------
+        // GÜVENLİK (ROUTE GUARD) & Auth Control & Personel Adı Bulma
+        // ----------------------------------------------------------------
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                if(window.location.pathname.endsWith('resepsiyon.html')) { window.location.assign('login.html'); }
+            } else {
+                if(user.email) {
+                    // YENİ: personeli "staff" tablosundan arıyoruz (Admin paneliyle tam uyumlu)
+                    const q = query(collection(db, "staff"), where("email", "==", user.email));
+                    const snap = await getDocs(q);
+                    
+                    if(!snap.empty) {
+                        const staffData = snap.docs[0].data();
+                        const role = staffData.role;
+                        
+                        // Sisteme giren kişinin adını değişkene at ve ekrana yaz
+                        currentStaffName = staffData.name || 'Resepsiyon';
+                        const nameEl = document.getElementById('sidebarStaffName');
+                        if (nameEl) nameEl.textContent = currentStaffName;
+
+                        if(role !== 'RECEPTION' && role !== 'ADMIN') {
+                            alert("Bu sayfaya erişim yetkiniz yok.");
+                            window.location.assign('login.html');
+                        } else { listenToData(); } 
+                    } else if (user.email === 'admin@sahra.com' || window.location.hostname === 'localhost') {
+                        currentStaffName = 'Sistem Yöneticisi';
+                        const nameEl = document.getElementById('sidebarStaffName');
+                        if (nameEl) nameEl.textContent = currentStaffName;
+                        listenToData(); 
+                    } else {
+                        // Email var ama tabloda yoksa at.
+                        alert("Kullanıcı veritabanında bulunamadı.");
+                        window.location.assign('login.html');
+                    }
+                } else { listenToData(); }
+            }
+        });
+
+        window.logoutApp = () => { signOut(auth).then(() => window.location.assign('login.html')); };
 
         function listenToData() {
             onSnapshot(collection(db, "apartments"), (snap) => {
-                allApartments = []; snap.forEach(d => allApartments.push({ id: d.id, ...d.data() })); renderRoomMap();
+                allApartments = []; snap.forEach(d => allApartments.push({ id: d.id, ...d.data() }));
+                renderRoomMap(); populateReservationRoomSelect();
             });
 
             onSnapshot(collection(db, "rooms"), (snap) => {
@@ -430,16 +450,18 @@
             });
         }
 
-        // FİLTRELEME VE EKRANA ÇİZME
+        // ----------------------------------------------------------------
+        // FİLTRELEME VE LİSTE ÇİZME
+        // ----------------------------------------------------------------
         window.filterReservations = (status) => {
             currentResFilter = status;
             ['ALL', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT', 'CANCELLED'].forEach(f => {
                 const btn = document.getElementById(`res-filter-${f}`);
                 if(!btn) return;
                 if (f === status) {
-                    btn.className = "flex-1 sm:px-4 px-3 py-2 bg-white text-slate-800 shadow-sm rounded-md transition whitespace-nowrap border border-slate-200";
+                    btn.className = "flex-1 sm:px-4 px-3 py-2 bg-white text-slate-800 shadow-sm rounded-md transition whitespace-nowrap border border-slate-200 tab-active";
                 } else {
-                    btn.className = "flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap";
+                    btn.className = "flex-1 sm:px-4 px-3 py-2 text-slate-500 hover:text-slate-800 rounded-md transition whitespace-nowrap tab-inactive";
                 }
             });
             renderReservations();
@@ -447,7 +469,6 @@
 
         function renderReservations() {
             let html = '';
-            
             let filtered = allReservations;
             if (currentResFilter !== 'ALL') {
                 filtered = allReservations.filter(r => r.status === currentResFilter);
@@ -484,6 +505,9 @@
                 let badgeColor = '';
                 let statusLabel = '';
                 let actionBtnHtml = '';
+                
+                // İŞLEMİ YAPAN PERSONELİN ADINI HAZIRLA (Burada kimlik imzasını atıyoruz)
+                const staffInfo = r.processedBy ? `<p class="text-[9px] text-slate-400 mt-1 uppercase font-semibold"><i data-lucide="user" class="w-3 h-3 inline"></i> İşlem: ${r.processedBy}</p>` : '';
 
                 if (r.status === 'CONFIRMED') {
                     badgeColor = 'bg-blue-50 text-blue-700 border-blue-200';
@@ -517,7 +541,10 @@
                 html += `
                     <tr class="hover:bg-slate-50/50 transition border-b border-slate-50">
                         <td class="p-4 text-[11px] text-slate-500 whitespace-nowrap">${dateAdded}</td>
-                        <td class="p-4 font-bold text-slate-800">${fullName}</td>
+                        <td class="p-4 font-bold text-slate-800">
+                            ${fullName}
+                            ${staffInfo}
+                        </td>
                         <td class="p-4">
                             <p class="text-xs font-semibold text-slate-700">${r.phone || '-'}</p>
                             <p class="text-[10px] text-slate-400 mt-0.5">TC: ${r.tc || '-'}</p>
@@ -545,12 +572,17 @@
             lucide.createIcons();
         }
 
+        // ----------------------------------------------------------------
+        // İŞLEM FONKSİYONLARI (TAHSİLAT, GİRİŞ, ÇIKIŞ)
+        // ----------------------------------------------------------------
+        
         // Bakiye Tahsilatı
         window.collectRemaining = async (resId, amount, totalAmount, name, roomNo) => {
             if(!confirm(`${name} adlı müşteriden kalan ₺${amount} tutarı tahsil edip kasaya işlemek istediğinize emin misiniz?`)) return;
             try {
+                // MUHASEBE UYUMU İÇİN TABLO ADI "finances" OLMALIDIR.
                 await addDoc(collection(db, "finances"), {
-                    type: 'INCOME', category: 'RESERVATION', amount: amount, description: `${name} - Oda ${roomNo} (Kalan Bakiye Tahsilatı)`, addedBy: 'RECEPTION', createdAt: serverTimestamp()
+                    type: 'INCOME', category: 'RESERVATION', amount: amount, description: `${name} - Oda ${roomNo} (Kalan Bakiye Tahsilatı)`, addedBy: currentStaffName, createdAt: serverTimestamp()
                 });
                 await updateDoc(doc(db, "reservations", resId), { remainingAmount: 0, paidAmount: totalAmount });
                 showToast("Kalan bakiye tahsil edildi!");
@@ -568,7 +600,7 @@
             } catch (e) { showToast("Giriş işlemi sırasında hata oluştu.", "error"); }
         };
 
-        // AKILLI ÇIKIŞ YAP (Ortak Fonksiyon)
+        // AKILLI ÇIKIŞ YAP (Ortak Fonksiyon - Hem haritadan hem listeden çağrılır)
         window.smartCheckout = async (resId, roomId, remainingAmount, name) => {
             if (remainingAmount > 0) {
                 closeRoomModal();
@@ -627,7 +659,7 @@
                         category: 'RESERVATION', 
                         amount: depositAmount, 
                         description: `${customerName} - Rezervasyon İptali (Kapora İadesi)`, 
-                        addedBy: 'RECEPTION', 
+                        addedBy: currentStaffName, 
                         createdAt: serverTimestamp()
                     });
                 }
@@ -722,7 +754,7 @@
         }
 
         // ----------------------------------------------------------------
-        // ODA İŞLEMLERİ 
+        // ODA MODALI & HARİTA AKSİYONLARI 
         // ----------------------------------------------------------------
         window.openRoomDetails = (roomId) => {
             currentSelectedRoom = allRooms.find(r => r.id === roomId);
@@ -786,7 +818,7 @@
         };
 
         // ----------------------------------------------------------------
-        // REZERVASYON (KAPORA & BAKİYE) LOGIC
+        // YENİ REZERVASYON (KAPORA & BAKİYE) GÜVENLİĞİ
         // ----------------------------------------------------------------
         window.openReservationModal = (roomId = null) => {
             document.getElementById('reservationModal').classList.remove('hidden'); document.getElementById('reservationModal').classList.add('flex');
@@ -811,7 +843,7 @@
             const currentVal = select.value;
             let html = '<option value="">Önce oda seçin...</option>';
             
-            // Hem MÜSAİT hem de TEMİZLİK Bekleyenleri göster
+            // Hem MÜSAİT hem de TEMİZLİK Bekleyenleri listele
             allRooms.filter(r => r.status === 'AVAILABLE' || r.status === 'CLEANING_REQUIRED').forEach(room => {
                 const aptName = allApartments.find(a => a.id === room.apartmentId)?.name || '';
                 const cleanTag = room.status === 'CLEANING_REQUIRED' ? ' (Temizlikte)' : '';
@@ -824,8 +856,8 @@
             select.addEventListener('change', calculatePrice);
             document.getElementById('resCheckIn').addEventListener('change', calculatePrice);
             document.getElementById('resCheckOut').addEventListener('change', calculatePrice);
-            document.getElementById('resPrice').addEventListener('input', updateRemaining);
-            document.getElementById('resDeposit').addEventListener('input', updateRemaining);
+            document.getElementById('resPrice').addEventListener('input', checkDepositLogic);
+            document.getElementById('resDeposit').addEventListener('input', checkDepositLogic);
         }
 
         function calculatePrice() {
@@ -838,31 +870,35 @@
             if(diffDays > 0) {
                 const price = parseInt(select.options[select.selectedIndex].getAttribute('data-price') || 0);
                 document.getElementById('resPrice').value = price * diffDays;
-                updateRemaining();
+                checkDepositLogic();
             }
         }
         
-        function updateRemaining() {
+        // YENİ: KATI KAPORA GÜVENLİK DUVARI
+        function checkDepositLogic() {
             const total = Number(document.getElementById('resPrice').value) || 0;
-            let deposit = Number(document.getElementById('resDeposit').value) || 0;
+            const depositInput = document.getElementById('resDeposit');
+            let deposit = Number(depositInput.value) || 0;
             const btnSave = document.getElementById('btnSaveReservation');
             
+            // Hesaplanan Kalan
+            let remaining = total - deposit;
+            
             if (deposit > total && total > 0) {
-                document.getElementById('resDeposit').value = total;
-                deposit = total;
-                showToast("Kapora toplam tutarı geçemez! Otomatik düzeltildi.", "error");
-            }
-            
-            document.getElementById('resRemaining').value = Math.max(0, total - deposit);
-            
-            // Hata varsa butonu kilitle
-            if (deposit < 0 || total <= 0) {
+                // Eğer Kapora Toplamı Giderse KAYDET YASAKLANIR!
+                remaining = 0;
+                depositInput.classList.add('border-red-500', 'text-red-600', 'bg-red-50');
+                showToast("DİKKAT: Kapora toplam tutarı geçemez!", "error");
                 btnSave.disabled = true;
                 btnSave.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
+                // Her şey normalse renkleri düzelt ve butonu aç
+                depositInput.classList.remove('border-red-500', 'text-red-600', 'bg-red-50');
                 btnSave.disabled = false;
                 btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
             }
+            
+            document.getElementById('resRemaining').value = remaining;
         }
 
         window.submitReservation = async (e) => {
@@ -873,7 +909,7 @@
             const deposit = Number(document.getElementById('resDeposit').value);
             const btn = document.getElementById('btnSaveReservation');
             
-            // KAYIT ESNASINDA KESİN ENGELLEME
+            // SON GÜVENLİK KONTROLÜ
             if (deposit > price) {
                 showToast("İŞLEM İPTAL EDİLDİ: Kapora tutarı toplam tutardan büyük olamaz! Lütfen düzeltin.", "error");
                 return;
@@ -892,14 +928,15 @@
                 await addDoc(collection(db, "reservations"), {
                     roomId: roomId, customerName: name, tc: document.getElementById('resTC').value, phone: document.getElementById('resPhone').value,
                     guests: document.getElementById('resGuests').value, checkInDate: document.getElementById('resCheckIn').value, checkOutDate: document.getElementById('resCheckOut').value,
-                    totalPrice: price, paidAmount: deposit, remainingAmount: remaining, status: 'CONFIRMED', source: 'RECEPTION', createdAt: serverTimestamp()
+                    totalPrice: price, paidAmount: deposit, remainingAmount: remaining, status: 'CONFIRMED', source: 'RECEPTION', 
+                    processedBy: currentStaffName, createdAt: serverTimestamp()
                 });
 
-                // 2. Kasa Geliri (SADECE KAPORA VARSA) - DİKKAT: finances KULLANILIYOR
+                // 2. Kasa Geliri (finances)
                 if (deposit > 0) {
                     const roomNo = allRooms.find(r => r.id === roomId)?.roomNumber || '';
                     await addDoc(collection(db, "finances"), {
-                        type: 'INCOME', category: 'RESERVATION', amount: deposit, description: `${name} - Oda ${roomNo} (Kapora)`, addedBy: 'RECEPTION', createdAt: serverTimestamp()
+                        type: 'INCOME', category: 'RESERVATION', amount: deposit, description: `${name} - Oda ${roomNo} (Kapora)`, addedBy: currentStaffName, createdAt: serverTimestamp()
                     });
                 }
 
@@ -910,7 +947,7 @@
         };
 
         // ----------------------------------------------------------------
-        // GİDER EKLEME
+        // GİDER EKLEME (finances)
         // ----------------------------------------------------------------
         window.openFinanceModal = () => { document.getElementById('financeModal').classList.remove('hidden'); document.getElementById('financeModal').classList.add('flex'); };
         window.closeFinanceModal = () => { document.getElementById('financeModal').classList.add('hidden'); document.getElementById('financeModal').classList.remove('flex'); document.getElementById('financeForm').reset(); };
@@ -918,20 +955,20 @@
         document.getElementById('financeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                // DİKKAT: finances KULLANILIYOR
                 await addDoc(collection(db, "finances"), {
                     type: 'EXPENSE', category: document.getElementById('finCategory').value, amount: Number(document.getElementById('finAmount').value),
-                    description: document.getElementById('finDesc').value, addedBy: 'RECEPTION', createdAt: serverTimestamp()
+                    description: document.getElementById('finDesc').value, addedBy: currentStaffName, createdAt: serverTimestamp()
                 });
                 closeFinanceModal(); showToast("Gider kasaya işlendi.");
             } catch(err) { showToast("Kayıt hatası.", "error"); }
         });
 
-        // SVG HATASI ÇÖZÜLMÜŞ TOAST BİLDİRİMİ
+        // SVG HATASI GİDERİLMİŞ GÜVENLİ TOAST
         window.showToast = (msg, type = 'success') => {
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;
             
+            // SVG'ye sınıf atamak yerine dışarıdan kapsayıcının HTML'ini değiştiriyoruz.
             const wrapper = document.getElementById('toastIconWrapper');
             const iconName = type === 'error' ? 'alert-circle' : 'check-circle';
             const iconColor = type === 'error' ? 'text-red-400' : 'text-emerald-400';

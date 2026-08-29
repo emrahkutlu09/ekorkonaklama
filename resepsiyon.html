@@ -94,7 +94,7 @@
             </div>
         </header>
 
-        <!-- Stats Bar (FİLTRELENEBİLİR BUTONLARA DÖNÜŞTÜRÜLDÜ) -->
+        <!-- Stats Bar -->
         <div class="bg-white border-b border-slate-200 p-3 shrink-0 overflow-x-auto whitespace-nowrap block" id="statsBar">
             <div class="flex gap-3 min-w-max px-2">
                 <button onclick="filterRoomMap('ALL')" id="filterBtn-ALL" class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-800 border border-slate-300 rounded-lg shadow-sm transition-all ring-2 ring-slate-400 ring-offset-1 hover:bg-slate-200">
@@ -373,7 +373,7 @@
         let allReservations = [];
         
         let currentResFilter = 'ALL';
-        let currentRoomFilter = 'ALL'; // ODA HARİTASI İÇİN FİLTRE DEĞİŞKENİ
+        let currentRoomFilter = 'ALL';
         let currentStaffName = 'Resepsiyon'; 
 
         // GÜVENLİK VE KİMLİK KONTROLÜ
@@ -449,11 +449,7 @@
             });
         }
 
-        // ==========================================
-        // YENİ EKLENEN: ODA HARİTASI FİLTRELEME
-        // ==========================================
         window.filterRoomMap = (status) => {
-            // Eğer aynı butona tekrar tıklandıysa veya "Tümü" seçildiyse sıfırla
             if(currentRoomFilter === status && status !== 'ALL') {
                 currentRoomFilter = 'ALL'; 
             } else {
@@ -466,7 +462,6 @@
                 const btn = document.getElementById(`filterBtn-${s}`);
                 if(!btn) return;
                 
-                // Seçili olan butonu vurgula, diğerlerini soluk yap
                 if (s === currentRoomFilter) {
                     btn.classList.remove('opacity-70', 'hover:opacity-100');
                     btn.classList.add('ring-2', 'ring-offset-1');
@@ -495,7 +490,6 @@
             let html = '';
             
             allApartments.forEach(apt => {
-                // Sadece seçili filtredeki odaları al
                 let aptRooms = allRooms.filter(r => r.apartmentId === apt.id).sort((a,b) => a.roomNumber.localeCompare(b.roomNumber));
                 
                 if (currentRoomFilter !== 'ALL') {
@@ -537,10 +531,6 @@
             lucide.createIcons();
         }
 
-        // ==========================================
-
-
-        // FİLTRELEME VE REZERVASYON ÇİZME
         window.filterReservations = (status) => {
             currentResFilter = status;
             ['ALL', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT', 'CANCELLED'].forEach(f => {
@@ -658,7 +648,6 @@
             lucide.createIcons();
         }
 
-        // TAHSİLAT
         window.collectRemaining = async (resId, amount, totalAmount, name, roomNo) => {
             if(!confirm(`${name} adlı müşteriden kalan ₺${amount} tutarı tahsil edip kasaya işlemek istediğinize emin misiniz?`)) return;
             try {
@@ -670,7 +659,6 @@
             } catch(e) { console.error(e); showToast("Tahsilat hatası.", "error"); }
         };
 
-        // GİRİŞ YAP
         window.checkinGuest = async (resId, roomId, name) => {
             if(!confirm(`${name} adlı müşterinin otele girişini yapmak istediğinize emin misiniz?`)) return;
             try {
@@ -681,7 +669,6 @@
             } catch (e) { showToast("Giriş işlemi sırasında hata oluştu.", "error"); }
         };
 
-        // AKILLI ÇIKIŞ YAP
         window.smartCheckout = async (resId, roomId, remainingAmount, name) => {
             if (remainingAmount > 0) {
                 closeRoomModal();
@@ -697,7 +684,6 @@
             } catch (e) { showToast("Çıkış işlemi sırasında bir hata oluştu.", "error"); }
         };
 
-        // İPTAL VE İADE YÖNETİMİ
         let currentCancelRes = null;
 
         window.openCancelModal = (resId, roomId, customerName, depositAmount) => {
@@ -744,7 +730,6 @@
             } catch (error) { showToast("İptal işlemi sırasında hata oluştu.", "error"); }
         };
 
-        // UI TAB GEÇİŞLERİ
         window.toggleSidebar = () => {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -782,7 +767,6 @@
             return map[status] || 'home';
         }
 
-        // ODA DETAYLARI VE MODALI
         window.openRoomDetails = (roomId) => {
             currentSelectedRoom = allRooms.find(r => r.id === roomId);
             if(!currentSelectedRoom) return;
@@ -822,9 +806,15 @@
             } else if(currentSelectedRoom.status === 'OCCUPIED') {
                 const activeRes = allReservations.find(r => r.roomId === roomId && r.status === 'CHECKED_IN');
                 if (activeRes) {
-                    btns = `<button onclick="smartCheckout('${activeRes.id}', '${roomId}', ${activeRes.remainingAmount || 0}, '${activeRes.customerName}')" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-500/30 flex justify-center items-center gap-2"><i data-lucide="log-out" class="w-5 h-5"></i> Akıllı Çıkış Yap (Check-out)</button>`;
+                    btns = `
+                        <button onclick="smartCheckout('${activeRes.id}', '${roomId}', ${activeRes.remainingAmount || 0}, '${activeRes.customerName}')" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-slate-500/30 flex justify-center items-center gap-2 mb-2"><i data-lucide="log-out" class="w-5 h-5"></i> Akıllı Çıkış Yap (Check-out)</button>
+                        <button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="w-full bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-3.5 rounded-xl border border-amber-200 transition flex justify-center items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5"></i> Ara Temizlik İste</button>
+                    `;
                 } else {
-                    btns = `<button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-500/30 flex justify-center items-center gap-2"><i data-lucide="log-out" class="w-5 h-5"></i> Çıkış Yap (Manuel)</button>`;
+                    btns = `
+                        <button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-slate-500/30 flex justify-center items-center gap-2 mb-2"><i data-lucide="log-out" class="w-5 h-5"></i> Çıkış Yap (Manuel)</button>
+                        <button onclick="updateRoomStatus('${roomId}', 'CLEANING_REQUIRED')" class="w-full bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-3.5 rounded-xl border border-amber-200 transition flex justify-center items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5"></i> Manuel Temizlik İste</button>
+                    `;
                 }
             } else if(currentSelectedRoom.status === 'CLEANING_REQUIRED') {
                 btns = `<div class="text-center p-3 text-sm text-amber-700 bg-amber-50 rounded-xl mb-3 font-medium">Kat görevlisi ekranından temizlendi bilgisi bekleniyor.</div>
@@ -844,7 +834,6 @@
             catch (e) { alert("Hata oluştu."); }
         };
 
-        // YENİ REZERVASYON & KAPORA GÜVENLİĞİ
         window.openReservationModal = (roomId = null) => {
             document.getElementById('reservationModal').classList.remove('hidden'); document.getElementById('reservationModal').classList.add('flex');
             const today = new Date().toISOString().split('T')[0];
@@ -867,7 +856,6 @@
             const currentVal = select.value;
             let html = '<option value="">Önce oda seçin...</option>';
             
-            // Müsait VE Temizlikteki odalar eklendi
             allRooms.filter(r => r.status === 'AVAILABLE' || r.status === 'CLEANING_REQUIRED').forEach(room => {
                 const aptName = allApartments.find(a => a.id === room.apartmentId)?.name || '';
                 const cleanTag = room.status === 'CLEANING_REQUIRED' ? ' (Temizlikte)' : '';
@@ -898,7 +886,6 @@
             }
         }
         
-        // KATI KAPORA GÜVENLİK DUVARI
         function checkDepositLogic() {
             const total = Number(document.getElementById('resPrice').value) || 0;
             const depositInput = document.getElementById('resDeposit');
@@ -963,7 +950,6 @@
             } catch (error) { showToast("Kayıt hatası.", "error"); btn.disabled = false; btn.innerHTML = 'Kaydet ve Onayla';} 
         };
 
-        // GİDER EKLEME (finances)
         window.openFinanceModal = () => { document.getElementById('financeModal').classList.remove('hidden'); document.getElementById('financeModal').classList.add('flex'); };
         window.closeFinanceModal = () => { document.getElementById('financeModal').classList.add('hidden'); document.getElementById('financeModal').classList.remove('flex'); document.getElementById('financeForm').reset(); };
 
@@ -978,7 +964,6 @@
             } catch(err) { showToast("Kayıt hatası.", "error"); }
         });
 
-        // SVG HATASI GİDERİLMİŞ GÜVENLİ TOAST
         window.showToast = (msg, type = 'success') => {
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;

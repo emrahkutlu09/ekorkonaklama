@@ -14,6 +14,12 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Toggle Switch CSS */
+        .toggle-checkbox:checked { right: 0; border-color: #22c55e; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #22c55e; }
+        .toggle-checkbox { right: 4; z-index: 1; border-color: #e2e8f0; transition: all 0.3s; }
+        .toggle-label { width: 3.5rem; height: 1.75rem; background-color: #cbd5e1; border-radius: 9999px; transition: all 0.3s; cursor: pointer; }
     </style>
 </head>
 <body class="text-gray-800 h-screen flex overflow-hidden">
@@ -33,7 +39,7 @@
             </div>
             <button class="md:hidden text-slate-400" onclick="toggleSidebar()"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchView('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-lg text-white font-medium transition text-left">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
             </button>
@@ -47,9 +53,12 @@
                 <div class="flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5"></i> Yorum Yönetimi</div>
                 <span id="pendingReviewBadge" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
-            <!-- YENİ EKLENEN: FİNANS YÖNETİMİ MENÜSÜ -->
             <button onclick="switchView('finance')" id="nav-finance" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left">
                 <i data-lucide="wallet" class="w-5 h-5"></i> Finans Yönetimi
+            </button>
+            <!-- YENİ EKLENEN: AYARLAR MENÜSÜ -->
+            <button onclick="switchView('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition text-left mt-4 border-t border-slate-800 pt-4">
+                <i data-lucide="settings" class="w-5 h-5"></i> Sistem Ayarları
             </button>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-slate-950/50">
@@ -111,115 +120,67 @@
                         <i data-lucide="shield-check" class="w-8 h-8"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800 mb-2">Sahra Apart Yönetim Sistemine Hoş Geldiniz</h3>
-                    <p class="text-gray-500 max-w-md mx-auto mb-6">Mutlak kontrol felsefesiyle tasarlanmış bu panelden tesisinizi, personelinizi, finansınızı ve misafir yorumlarınızı yönetebilirsiniz.</p>
+                    <p class="text-gray-500 max-w-md mx-auto mb-6">Sisteminize tam yetki ile hakimsiniz. Yeni eklenen "Ayarlar" menüsünden ödeme yöntemlerini yönetebilirsiniz.</p>
                 </div>
             </div>
 
-            <!-- VIEW 2: FACILITIES (APART & ODA) -->
+            <!-- VIEW 2: FACILITIES (Mevcut) -->
             <div id="view-facilities" class="space-y-8 fade-in hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
                         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i> Yeni Apart Ekle</h3>
                         <form id="apartmentForm" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Apart Adı</label>
-                                <input type="text" id="aptName" required placeholder="Örn: Sahra Apart 1" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Adres / Konum</label>
-                                <input type="text" id="aptAddress" placeholder="Örn: Merkez Mah. No:1" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition">Apartı Kaydet</button>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Apart Adı</label><input type="text" id="aptName" required placeholder="Örn: Sahra Apart 1" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Adres / Konum</label><input type="text" id="aptAddress" placeholder="Örn: Merkez Mah." class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"></div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition">Kaydet</button>
                         </form>
                     </div>
-
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2 h-fit">
                         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="bed-double" class="w-5 h-5 text-emerald-500"></i> Yeni Oda Ekle</h3>
                         <form id="roomForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Apart Seçimi</label>
-                                <select id="roomApartmentId" required class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                                    <option value="">Önce apart seçin...</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Oda Numarası</label>
-                                <input type="text" id="roomNumber" required placeholder="Örn: 101" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Oda Tipi</label>
-                                <input type="text" id="roomType" required placeholder="Örn: 1+1 Suit" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Gecelik Fiyat (₺)</label>
-                                <input type="number" id="roomPrice" required placeholder="1500" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div class="md:col-span-2">
-                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition shadow-md">Odayı Sisteme Ekle</button>
-                            </div>
+                            <div><label class="block text-sm font-medium mb-1">Apart</label><select id="roomApartmentId" required class="w-full border rounded-lg p-2.5 outline-none bg-white"><option value="">Önce apart seçin...</option></select></div>
+                            <div><label class="block text-sm font-medium mb-1">Oda No</label><input type="text" id="roomNumber" required placeholder="101" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">Tip</label><input type="text" id="roomType" required placeholder="1+1" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">Fiyat(₺)</label><input type="number" id="roomPrice" required placeholder="1000" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <div class="md:col-span-2"><button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg transition">Oda Ekle</button></div>
                         </form>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">Kayıtlı Apartlar</h3>
-                        <div id="apartmentsList" class="space-y-3">
-                            <p class="text-gray-400 text-sm">Yükleniyor...</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">Kayıtlı Odalar</h3>
-                        <div id="roomsList" class="space-y-3">
-                            <p class="text-gray-400 text-sm">Yükleniyor...</p>
-                        </div>
-                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><h3 class="font-bold mb-4">Apartlar</h3><div id="apartmentsList" class="space-y-3">Yükleniyor...</div></div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><h3 class="font-bold mb-4">Odalar</h3><div id="roomsList" class="space-y-3">Yükleniyor...</div></div>
                 </div>
             </div>
 
-            <!-- VIEW 3: STAFF MANAGEMENT -->
+            <!-- VIEW 3: STAFF (Personel Yönetimi) -->
             <div id="view-users" class="space-y-8 fade-in hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5 text-indigo-500"></i> Yeni Personel Ekle</h3>
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5 text-indigo-500"></i> Personel Ekle</h3>
                         <form id="usersForm" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Personel Adı Soyadı</label>
-                                <input type="text" id="usersName" required placeholder="Ahmet Yılmaz" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">E-Posta (Giriş Adresi)</label>
-                                <input type="email" id="usersEmail" required placeholder="resepsiyon@sahra.com" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
-                                <input type="password" id="usersPassword" required placeholder="******" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Görev / Rol</label>
-                                <select id="usersRole" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                            <div><label class="block text-sm font-medium mb-1">Ad Soyad</label><input type="text" id="usersName" required placeholder="Örn: Ahmet" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">E-Posta</label><input type="email" id="usersEmail" required placeholder="ahmet@sahra.com" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">Şifre</label><input type="password" id="usersPassword" required placeholder="******" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">Rol</label>
+                                <select id="usersRole" class="w-full border rounded-lg p-2.5 outline-none bg-white">
                                     <option value="RECEPTION">Resepsiyon</option>
                                     <option value="HOUSEKEEPING">Kat Görevlisi</option>
                                 </select>
                             </div>
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition shadow-md">Personel Hesabı Oluştur</button>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg transition shadow-md">Oluştur</button>
                         </form>
                     </div>
-
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">Sistem Personelleri</h3>
+                        <h3 class="font-bold mb-4">Personeller (staff Tablosu)</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm text-gray-600">
                                 <thead class="bg-gray-50 text-gray-700 uppercase text-xs">
                                     <tr>
-                                        <th class="p-3">Ad Soyad</th>
-                                        <th class="p-3">E-Posta</th>
-                                        <th class="p-3">Rol</th>
-                                        <th class="p-3 text-right">İşlem</th>
+                                        <th class="p-3">Ad Soyad</th><th class="p-3">E-Posta</th><th class="p-3">Rol</th><th class="p-3 text-right">İşlem</th>
                                     </tr>
                                 </thead>
                                 <tbody id="usersTableBody" class="divide-y divide-gray-100">
-                                    <tr><td colspan="4" class="p-4 text-center text-gray-400">Yükleniyor...</td></tr>
+                                    <tr><td colspan="4" class="p-4 text-center">Yükleniyor...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -227,116 +188,97 @@
                 </div>
             </div>
 
-            <!-- VIEW 4: REVIEW MANAGEMENT -->
+            <!-- VIEW 4: REVIEWS (Mevcut) -->
             <div id="view-reviews" class="space-y-6 fade-in hidden">
                 <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Müşteri Yorumları Denetimi</h3>
-                        <p class="text-sm text-gray-500 mt-1">Web sitesinden yapılan yorumlar önce buraya düşer. Onaylamadığınız yorumlar sitede görünmez.</p>
-                    </div>
+                    <div><h3 class="text-xl font-bold">Yorum Denetimi</h3></div>
                     <div class="flex gap-2 bg-gray-100 p-1 rounded-lg">
                         <button onclick="filterReviews('ALL')" id="filter-ALL" class="px-4 py-2 text-sm font-medium rounded-md bg-white shadow-sm text-gray-800 transition">Tümü</button>
-                        <button onclick="filterReviews('PENDING')" id="filter-PENDING" class="px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-800 transition">Onay Bekleyenler</button>
+                        <button onclick="filterReviews('PENDING')" id="filter-PENDING" class="px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-800 transition">Bekleyenler</button>
                         <button onclick="filterReviews('APPROVED')" id="filter-APPROVED" class="px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-800 transition">Yayındakiler</button>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviewsContainer">
-                    <div class="col-span-full text-center py-12 text-gray-500">Yorumlar yükleniyor...</div>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviewsContainer"></div>
             </div>
 
-            <!-- VIEW 5: FINANCE MANAGEMENT (MUHASEBE) -->
+            <!-- VIEW 5: FINANCE (Mevcut) -->
             <div id="view-finance" class="space-y-6 fade-in hidden">
-                <!-- Finans Özet Kartları -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                            <i data-lucide="trending-up" class="w-6 h-6 text-emerald-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Toplam Gelir</p>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="financeTotalIncome">₺0</h3>
-                        </div>
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0"><i data-lucide="trending-up" class="w-6 h-6 text-emerald-600"></i></div>
+                        <div><p class="text-sm font-medium text-gray-500">Toplam Gelir</p><h3 class="text-2xl font-bold text-gray-900 mt-1" id="financeTotalIncome">₺0</h3></div>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                            <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Toplam Gider</p>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="financeTotalExpense">₺0</h3>
-                        </div>
+                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i></div>
+                        <div><p class="text-sm font-medium text-gray-500">Toplam Gider</p><h3 class="text-2xl font-bold text-gray-900 mt-1" id="financeTotalExpense">₺0</h3></div>
                     </div>
                     <div class="bg-slate-900 p-6 rounded-xl shadow-lg border border-slate-800 flex items-center gap-4 text-white">
-                        <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
-                            <i data-lucide="wallet" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-300">Net Kasa Durumu</p>
-                            <h3 class="text-3xl font-bold mt-1" id="financeNetBalance">₺0</h3>
-                        </div>
+                        <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shrink-0"><i data-lucide="wallet" class="w-6 h-6 text-white"></i></div>
+                        <div><p class="text-sm font-medium text-slate-300">Net Kasa Durumu</p><h3 class="text-3xl font-bold mt-1" id="financeNetBalance">₺0</h3></div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- İşlem Ekleme Formu -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i> Manuel Kasa İşlemi</h3>
+                        <h3 class="text-lg font-bold mb-4">Manuel Kasa İşlemi</h3>
                         <form id="financeForm" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">İşlem Türü</label>
-                                <select id="finType" required class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                                    <option value="INCOME">Gelir (+)</option>
-                                    <option value="EXPENSE">Gider (-)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                                <select id="finCategory" required class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                                    <option value="RESERVATION">Konaklama / Rezervasyon</option>
-                                    <option value="BILLS">Fatura (Elektrik, Su, İnternet)</option>
-                                    <option value="SUPPLIES">Temizlik / Sarf Malzemesi</option>
-                                    <option value="SALARY">Personel Maaş/Avans</option>
-                                    <option value="MAINTENANCE">Bakım & Onarım</option>
-                                    <option value="OTHER">Diğer</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Tutar (₺)</label>
-                                <input type="number" id="finAmount" required placeholder="Örn: 500" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
-                                <input type="text" id="finDesc" required placeholder="Örn: 101 Nolu oda konaklama" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition shadow-md">Kayıt Ekle</button>
+                            <div><select id="finType" required class="w-full border rounded-lg p-2.5 outline-none bg-white"><option value="INCOME">Gelir (+)</option><option value="EXPENSE">Gider (-)</option></select></div>
+                            <div><select id="finCategory" required class="w-full border rounded-lg p-2.5 outline-none bg-white"><option value="RESERVATION">Konaklama / Rezervasyon</option><option value="BILLS">Fatura</option><option value="SUPPLIES">Sarf Malzemesi</option><option value="OTHER">Diğer</option></select></div>
+                            <div><input type="number" id="finAmount" required placeholder="Tutar (₺)" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <div><input type="text" id="finDesc" required placeholder="Açıklama" class="w-full border rounded-lg p-2.5 outline-none"></div>
+                            <button type="submit" class="w-full bg-slate-900 text-white py-2.5 rounded-lg transition shadow-md">Kaydet</button>
                         </form>
                     </div>
-
-                    <!-- Kasa Hareketleri Listesi -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-gray-900">Son Kasa Hareketleri</h3>
-                            <p class="text-xs text-gray-500">Rezervasyonlar kasaya otomatik işlenir.</p>
-                        </div>
+                        <h3 class="font-bold mb-4">Son Kasa Hareketleri</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm text-gray-600">
                                 <thead class="bg-gray-50 text-gray-700 uppercase text-xs">
-                                    <tr>
-                                        <th class="p-3">Tarih</th>
-                                        <th class="p-3">Açıklama</th>
-                                        <th class="p-3">Kategori</th>
-                                        <th class="p-3">Tutar</th>
-                                        <th class="p-3 text-right">İşlem</th>
-                                    </tr>
+                                    <tr><th class="p-3">Tarih</th><th class="p-3">Ekleyen</th><th class="p-3">Açıklama</th><th class="p-3">Kategori</th><th class="p-3">Tutar</th><th class="p-3 text-right">İşlem</th></tr>
                                 </thead>
-                                <tbody id="financeTableBody" class="divide-y divide-gray-100">
-                                    <tr><td colspan="5" class="p-4 text-center text-gray-400">Yükleniyor...</td></tr>
-                                </tbody>
+                                <tbody id="financeTableBody" class="divide-y divide-gray-100"></tbody>
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- VIEW 6: SİSTEM AYARLARI -->
+            <div id="view-settings" class="space-y-6 fade-in hidden">
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 max-w-3xl">
+                    <div class="border-b border-gray-100 pb-5 mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="credit-card" class="w-6 h-6"></i></div>
+                            Ödeme Yöntemleri & Web Sitesi Ayarları
+                        </h3>
+                        <p class="text-gray-500 mt-2">Müşterilerin web sitenizden rezervasyon yaparken göreceği ödeme seçeneklerini buradan yönetebilirsiniz.</p>
+                    </div>
+
+                    <form id="settingsForm" class="space-y-8">
+                        <div class="space-y-6">
+                            <!-- Havale -->
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <div><h4 class="font-bold text-gray-800 text-lg">Havale / EFT ile Ödeme</h4></div>
+                                <div class="relative inline-block w-14 align-middle select-none"><input type="checkbox" id="set-havale" class="toggle-checkbox absolute block w-7 h-7 rounded-full bg-white border-4 appearance-none cursor-pointer"/><label for="set-havale" class="toggle-label block overflow-hidden h-7 rounded-full bg-gray-300 cursor-pointer"></label></div>
+                            </div>
+                            <div class="pl-4 border-l-4 border-blue-500 space-y-4">
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Banka ve Alıcı Adı</label><input type="text" id="set-bankName" placeholder="Ziraat Bankası - Ahmet Yılmaz" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-blue-500 text-gray-800"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">IBAN Numarası</label><input type="text" id="set-iban" placeholder="TR00..." class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-blue-500 text-gray-800 font-mono"></div>
+                            </div>
+                            <!-- Kredi Kartı -->
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <div><h4 class="font-bold text-gray-800 text-lg">Kredi / Banka Kartı</h4></div>
+                                <div class="relative inline-block w-14 align-middle select-none"><input type="checkbox" id="set-cc" class="toggle-checkbox absolute block w-7 h-7 rounded-full bg-white border-4 appearance-none cursor-pointer"/><label for="set-cc" class="toggle-label block overflow-hidden h-7 rounded-full bg-gray-300 cursor-pointer"></label></div>
+                            </div>
+                            <!-- Resepsiyon -->
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <div><h4 class="font-bold text-gray-800 text-lg">Resepsiyonda Ödeme</h4></div>
+                                <div class="relative inline-block w-14 align-middle select-none"><input type="checkbox" id="set-desk" class="toggle-checkbox absolute block w-7 h-7 rounded-full bg-white border-4 appearance-none cursor-pointer"/><label for="set-desk" class="toggle-label block overflow-hidden h-7 rounded-full bg-gray-300 cursor-pointer"></label></div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <button type="submit" id="btn-save-settings" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-8 rounded-xl transition shadow-lg flex items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> Değişiklikleri Kaydet</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -345,9 +287,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        // GÜNCELLEME: Auth kütüphanesine createUserWithEmailAndPassword ve signOut fonksiyonları eklendi
+        // Auth kütüphanesine createUserWithEmailAndPassword ve signOut eklendi
         import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
@@ -362,7 +304,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // YENİ: Personel kaydederken Admini sistemden atmamak için İkincil Firebase Uygulaması
+        // Personel kaydederken Admini sistemden atmamak için İkincil Firebase Uygulaması
         const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
         const secondaryAuth = getAuth(secondaryApp);
 
@@ -376,14 +318,13 @@
         };
 
         window.switchView = function(viewName) {
-            const views = ['dashboard', 'facilities', 'users', 'reviews', 'finance'];
+            const views = ['dashboard', 'facilities', 'users', 'reviews', 'finance', 'settings'];
             views.forEach(v => {
-                document.getElementById(`view-${v}`).classList.add('hidden');
-                document.getElementById(`view-${v}`).classList.remove('block');
+                const el = document.getElementById(`view-${v}`);
+                if(el) { el.classList.add('hidden'); el.classList.remove('block'); }
                 
                 const nav = document.getElementById(`nav-${v}`);
-                nav.classList.remove('bg-blue-600', 'text-white');
-                nav.classList.add('text-slate-300', 'hover:bg-slate-800');
+                if(nav) { nav.classList.remove('bg-blue-600', 'text-white'); nav.classList.add('text-slate-300', 'hover:bg-slate-800'); }
             });
 
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
@@ -393,9 +334,8 @@
             activeNav.classList.remove('text-slate-300', 'hover:bg-slate-800');
             activeNav.classList.add('bg-blue-600', 'text-white');
 
-            const titles = { 'dashboard': 'Dashboard', 'facilities': 'Tesis Yönetimi', 'users': 'Personel Yönetimi', 'reviews': 'Yorum Yönetimi', 'finance': 'Finans & Muhasebe' };
+            const titles = { 'dashboard': 'Dashboard', 'facilities': 'Tesis Yönetimi', 'users': 'Personel Yönetimi', 'reviews': 'Yorum Yönetimi', 'finance': 'Finans & Muhasebe', 'settings': 'Sistem Ayarları' };
             document.getElementById('pageTitle').textContent = titles[viewName];
-            
             if(window.innerWidth < 768) toggleSidebar();
         };
 
@@ -403,9 +343,15 @@
             const toast = document.getElementById('toast');
             const icon = document.getElementById('toastIcon');
             document.getElementById('toastMsg').textContent = msg;
-            
             toast.className = `fixed top-6 right-6 z-[9999] px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-x-0 opacity-100 text-white ${type==='error'?'bg-red-600':'bg-emerald-600'}`;
-            icon.setAttribute('data-lucide', type==='error'?'alert-circle':'check-circle');
+            
+            const svgIcon = type === 'error' ? 'alert-circle' : 'check-circle';
+            const iconParent = icon.parentElement;
+            const newIcon = document.createElement('i');
+            newIcon.setAttribute('data-lucide', svgIcon);
+            newIcon.id = 'toastIcon';
+            newIcon.className = 'w-5 h-5';
+            iconParent.replaceChild(newIcon, icon);
             lucide.createIcons();
 
             setTimeout(() => {
@@ -414,361 +360,156 @@
             }, 3000);
         };
 
-        // Global Data States
-        let apartmentsData = [];
-        let roomsData = [];
-        let usersData = [];
-        let reviewsData = [];
-        let financeData = [];
-        let currentReviewFilter = 'ALL';
+        // Global Veriler
+        let apartmentsData = []; let roomsData = []; let usersData = []; let reviewsData = []; let currentReviewFilter = 'ALL';
 
-        // Listeners: Apart & Oda
+        // Apartlar
         onSnapshot(collection(db, "apartments"), (snapshot) => {
-            apartmentsData = [];
-            let html = '';
-            let selectHtml = '<option value="">Apart seçin...</option>';
-            
+            apartmentsData = []; let html = ''; let selectHtml = '<option value="">Apart seçin...</option>';
             snapshot.forEach(docSnap => {
-                const apt = { id: docSnap.id, ...docSnap.data() };
-                apartmentsData.push(apt);
-                selectHtml += `<option value="${apt.id}">${apt.name}</option>`;
-                html += `
-                    <div class="flex items-center justify-between p-4 bg-gray-50 border rounded-xl hover:bg-gray-100 transition">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-white rounded-lg shadow-sm"><i data-lucide="building" class="w-5 h-5 text-blue-500"></i></div>
-                            <div>
-                                <p class="font-bold text-gray-800">${apt.name}</p>
-                                <p class="text-xs text-gray-500">${apt.address || 'Adres girilmemiş'}</p>
-                            </div>
-                        </div>
-                        <button onclick="deleteItem('apartments', '${apt.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>`;
+                const apt = { id: docSnap.id, ...docSnap.data() }; apartmentsData.push(apt); selectHtml += `<option value="${apt.id}">${apt.name}</option>`;
+                html += `<div class="flex justify-between p-3 bg-gray-50 border rounded-lg mb-2"><div><p class="font-bold">${apt.name}</p></div><button onclick="deleteItem('apartments', '${apt.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
             });
-            document.getElementById('apartmentsList').innerHTML = html || '<p class="text-gray-400 text-sm">Henüz apart eklenmemiş.</p>';
-            document.getElementById('roomApartmentId').innerHTML = selectHtml;
-            document.getElementById('statApartCount').textContent = apartmentsData.length;
-            lucide.createIcons();
+            document.getElementById('apartmentsList').innerHTML = html || '<p class="text-gray-400 text-sm">Yok.</p>';
+            document.getElementById('roomApartmentId').innerHTML = selectHtml; document.getElementById('statApartCount').textContent = apartmentsData.length; lucide.createIcons();
         });
 
+        // Odalar
         onSnapshot(collection(db, "rooms"), (snapshot) => {
-            roomsData = [];
-            let html = '';
+            roomsData = []; let html = '';
             snapshot.forEach(docSnap => {
-                const room = { id: docSnap.id, ...docSnap.data() };
-                roomsData.push(room);
+                const room = { id: docSnap.id, ...docSnap.data() }; roomsData.push(room);
                 const apt = apartmentsData.find(a => a.id === room.apartmentId);
-                html += `
-                    <div class="flex items-center justify-between p-4 bg-gray-50 border rounded-xl hover:bg-gray-100 transition">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-white rounded-lg shadow-sm"><i data-lucide="bed" class="w-5 h-5 text-emerald-500"></i></div>
-                            <div>
-                                <p class="font-bold text-gray-800">Oda ${room.roomNumber} <span class="text-xs font-normal text-gray-500">(${room.type})</span></p>
-                                <p class="text-xs text-emerald-600 font-medium">${apt ? apt.name : 'Bilinmeyen'} • ₺${room.basePrice}/gece</p>
-                            </div>
-                        </div>
-                        <button onclick="deleteItem('rooms', '${room.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>`;
+                html += `<div class="flex justify-between p-3 bg-gray-50 border rounded-lg mb-2"><div><p class="font-bold">Oda ${room.roomNumber}</p><p class="text-xs text-emerald-600">${apt ? apt.name : ''} • ₺${room.basePrice}</p></div><button onclick="deleteItem('rooms', '${room.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
             });
-            document.getElementById('roomsList').innerHTML = html || '<p class="text-gray-400 text-sm">Henüz oda eklenmemiş.</p>';
-            document.getElementById('statRoomCount').textContent = roomsData.length;
-            lucide.createIcons();
+            document.getElementById('roomsList').innerHTML = html || '<p class="text-gray-400 text-sm">Yok.</p>';
+            document.getElementById('statRoomCount').textContent = roomsData.length; lucide.createIcons();
         });
 
-        onSnapshot(collection(db, "users"), (snapshot) => {
-            usersData = [];
-            let html = '';
+        // Personel (staff Tablosu - GÜNCEL)
+        onSnapshot(collection(db, "staff"), (snapshot) => {
+            usersData = []; let html = '';
             snapshot.forEach(docSnap => {
-                const s = { id: docSnap.id, ...docSnap.data() };
-                usersData.push(s);
+                const s = { id: docSnap.id, ...docSnap.data() }; usersData.push(s);
                 const roleColor = s.role === 'RECEPTION' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700';
                 html += `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-4 font-bold text-gray-800 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs">${s.name.charAt(0)}</div>
-                            ${s.name}
-                        </td>
-                        <td class="p-4">${s.email}</td>
-                        <td class="p-4"><span class="px-2.5 py-1 ${roleColor} rounded-full text-xs font-bold">${s.role}</span></td>
-                        <td class="p-4 text-right"><button onclick="deleteItem('users', '${s.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                    <tr class="border-b">
+                        <td class="p-3 font-bold flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs">${s.name.charAt(0)}</div>${s.name}</td>
+                        <td class="p-3">${s.email}</td>
+                        <td class="p-3"><span class="px-2.5 py-1 ${roleColor} rounded-full text-xs font-bold">${s.role}</span></td>
+                        <td class="p-3 text-right"><button onclick="deleteItem('staff', '${s.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
                     </tr>`;
             });
             document.getElementById('usersTableBody').innerHTML = html || '<tr><td colspan="4" class="p-8 text-center text-gray-400">Kayıtlı personel bulunmuyor.</td></tr>';
             lucide.createIcons();
         });
 
-        // Listeners: Yorumlar
-        const qReviews = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
-        onSnapshot(qReviews, (snapshot) => {
-            reviewsData = [];
-            let pendingCount = 0;
-            snapshot.forEach(docSnap => {
-                const r = { id: docSnap.id, ...docSnap.data() };
-                reviewsData.push(r);
-                if(r.status === 'PENDING') pendingCount++;
-            });
-            
+        // Yorumlar
+        onSnapshot(query(collection(db, "reviews"), orderBy("createdAt", "desc")), (snapshot) => {
+            reviewsData = []; let pendingCount = 0;
+            snapshot.forEach(docSnap => { const r = { id: docSnap.id, ...docSnap.data() }; reviewsData.push(r); if(r.status === 'PENDING') pendingCount++; });
             document.getElementById('statPendingReviews').textContent = pendingCount;
             const badge = document.getElementById('pendingReviewBadge');
-            if(pendingCount > 0) {
-                badge.textContent = pendingCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+            if(pendingCount > 0) { badge.textContent = pendingCount; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
             renderReviews();
         });
 
         window.filterReviews = function(status) {
             currentReviewFilter = status;
-            ['ALL', 'PENDING', 'APPROVED'].forEach(f => {
-                const btn = document.getElementById(`filter-${f}`);
-                btn.className = `px-4 py-2 text-sm font-medium rounded-md transition ${f === status ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-800'}`;
-            });
+            ['ALL', 'PENDING', 'APPROVED'].forEach(f => { document.getElementById(`filter-${f}`).className = `px-4 py-2 text-sm font-medium rounded-md transition ${f === status ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-800'}`; });
             renderReviews();
         };
 
         function renderReviews() {
             const container = document.getElementById('reviewsContainer');
-            let filtered = reviewsData;
-            if(currentReviewFilter !== 'ALL') {
-                filtered = reviewsData.filter(r => r.status === currentReviewFilter);
-            }
-
-            if(filtered.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-xl border border-gray-100 text-gray-500"><i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>Bu filtrede gösterilecek yorum bulunmuyor.</div>`;
-                lucide.createIcons();
-                return;
-            }
-
+            let filtered = currentReviewFilter === 'ALL' ? reviewsData : reviewsData.filter(r => r.status === currentReviewFilter);
+            if(filtered.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500">Yorum bulunmuyor.</div>`; return; }
             let html = '';
             filtered.forEach(r => {
-                let stars = '';
-                for(let i=0; i<5; i++) { stars += `<i data-lucide="star" class="w-4 h-4 ${i < r.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}"></i>`; }
-
-                let statusBadge = '';
-                let actionBtns = '';
-                
-                if(r.status === 'PENDING') {
-                    statusBadge = '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded-full uppercase tracking-wider">Onay Bekliyor</span>';
-                    actionBtns = `
-                        <button onclick="updateReviewStatus('${r.id}', 'APPROVED')" class="flex-1 bg-green-50 hover:bg-green-100 text-green-700 py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1"><i data-lucide="check" class="w-4 h-4"></i> Onayla (Yayınla)</button>
-                        <button onclick="deleteItem('reviews', '${r.id}')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-700 py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1"><i data-lucide="trash-2" class="w-4 h-4"></i> Reddet (Sil)</button>
-                    `;
-                } else if (r.status === 'APPROVED') {
-                    statusBadge = '<span class="px-2 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded-full uppercase tracking-wider">Yayında</span>';
-                    actionBtns = `
-                        <button onclick="updateReviewStatus('${r.id}', 'PENDING')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1"><i data-lucide="eye-off" class="w-4 h-4"></i> Yayından Kaldır (Gizle)</button>
-                    `;
-                }
-
-                const dateStr = r.createdAt ? new Date(r.createdAt.toMillis()).toLocaleDateString('tr-TR') : 'Tarih Yok';
-
-                html += `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col hover:shadow-md transition">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex gap-1">${stars}</div>
-                        ${statusBadge}
-                    </div>
-                    <p class="text-gray-700 italic text-sm flex-1 mb-4">"${r.comment}"</p>
-                    <div class="border-t border-gray-100 pt-4 mb-4">
-                        <p class="font-bold text-gray-900 text-sm">${r.customerName}</p>
-                        <p class="text-xs text-gray-400">${dateStr}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        ${actionBtns}
-                    </div>
-                </div>`;
+                let statusBadge = r.status === 'PENDING' ? '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded-full">Bekliyor</span>' : '<span class="px-2 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded-full">Yayında</span>';
+                let btns = r.status === 'PENDING' ? `<button onclick="updateReviewStatus('${r.id}', 'APPROVED')" class="flex-1 bg-green-50 text-green-700 py-1.5 rounded-lg text-sm font-semibold">Onayla</button><button onclick="deleteItem('reviews', '${r.id}')" class="flex-1 bg-red-50 text-red-700 py-1.5 rounded-lg text-sm font-semibold">Sil</button>` : `<button onclick="updateReviewStatus('${r.id}', 'PENDING')" class="w-full bg-gray-100 text-gray-700 py-1.5 rounded-lg text-sm font-semibold">Gizle</button>`;
+                html += `<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"><div class="flex justify-between items-start mb-2">${statusBadge}</div><p class="text-sm italic mb-4">"${r.comment}"</p><div class="border-t pt-2 mb-2"><p class="font-bold text-sm">${r.customerName}</p></div><div class="flex gap-2">${btns}</div></div>`;
             });
-
             container.innerHTML = html;
-            lucide.createIcons();
         }
 
-        window.updateReviewStatus = async function(id, newStatus) {
-            try {
-                await updateDoc(doc(db, "reviews", id), { status: newStatus });
-                showToast(`Yorum durumu güncellendi: ${newStatus === 'APPROVED' ? 'Yayında' : 'Gizlendi'}`);
-            } catch (error) { showToast("Yorum güncellenirken hata oluştu.", "error"); }
-        };
+        window.updateReviewStatus = async function(id, newStatus) { try { await updateDoc(doc(db, "reviews", id), { status: newStatus }); showToast("Durum güncellendi."); } catch (e) {} };
 
-        // Listeners: FİNANS / MUHASEBE
-        const qFinance = query(collection(db, "finances"), orderBy("createdAt", "desc"));
-        onSnapshot(qFinance, (snapshot) => {
-            financeData = [];
-            let totalIncome = 0;
-            let totalExpense = 0;
-            let html = '';
-
-            const catMap = {
-                'RESERVATION': 'Konaklama / Rzv',
-                'BILLS': 'Fatura',
-                'SUPPLIES': 'Sarf Malzemesi',
-                'SALARY': 'Personel',
-                'MAINTENANCE': 'Bakım Onarım',
-                'OTHER': 'Diğer'
-            };
-
+        // Finans
+        onSnapshot(query(collection(db, "finances"), orderBy("createdAt", "desc")), (snapshot) => {
+            let totalIncome = 0; let totalExpense = 0; let html = '';
+            const catMap = { 'RESERVATION': 'Rzv', 'BILLS': 'Fatura', 'SUPPLIES': 'Sarf Mlz.', 'SALARY': 'Personel', 'MAINTENANCE': 'Bakım', 'OTHER': 'Diğer' };
+            
             snapshot.forEach(docSnap => {
                 const f = { id: docSnap.id, ...docSnap.data() };
-                financeData.push(f);
-                
                 const isIncome = f.type === 'INCOME';
-                if(isIncome) totalIncome += Number(f.amount);
-                else totalExpense += Number(f.amount);
-
-                const dateStr = f.createdAt ? new Date(f.createdAt.toMillis()).toLocaleDateString('tr-TR') : 'Tarih Yok';
-                const typeBadge = isIncome 
-                    ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold">GELİR</span>'
-                    : '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[10px] font-bold">GİDER</span>';
+                if(isIncome) totalIncome += Number(f.amount); else totalExpense += Number(f.amount);
                 
-                const amountClass = isIncome ? 'text-emerald-600' : 'text-red-600';
-                const sign = isIncome ? '+' : '-';
-
-                html += `
-                    <tr class="hover:bg-gray-50 transition border-b border-gray-50">
-                        <td class="p-3 text-xs text-gray-500">${dateStr}</td>
-                        <td class="p-3 font-medium text-gray-800">${f.description}</td>
-                        <td class="p-3">
-                            <div class="flex items-center gap-2">
-                                ${typeBadge}
-                                <span class="text-xs text-gray-500">${catMap[f.category] || f.category}</span>
-                            </div>
-                        </td>
-                        <td class="p-3 font-bold ${amountClass}">${sign}₺${f.amount}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="deleteItem('finances', '${f.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Sil"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </td>
-                    </tr>
-                `;
+                const dateStr = f.createdAt ? new Date(f.createdAt.toMillis()).toLocaleDateString('tr-TR') : '-';
+                const addedBy = f.addedBy || 'ADMIN';
+                const typeBadge = isIncome ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold">GELİR</span>' : '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[10px] font-bold">GİDER</span>';
+                
+                html += `<tr class="border-b">
+                    <td class="p-3 text-xs text-gray-500">${dateStr}</td>
+                    <td class="p-3 text-xs font-semibold text-blue-600">${addedBy}</td>
+                    <td class="p-3 font-medium text-gray-800">${f.description}</td>
+                    <td class="p-3"><div class="flex items-center gap-2">${typeBadge}<span class="text-xs text-gray-500">${catMap[f.category]||f.category}</span></div></td>
+                    <td class="p-3 font-bold ${isIncome?'text-emerald-600':'text-red-600'}">${isIncome?'+':'-'}₺${f.amount}</td>
+                    <td class="p-3 text-right"><button onclick="deleteItem('finances', '${f.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                </tr>`;
             });
-
             const netBalance = totalIncome - totalExpense;
-
-            document.getElementById('financeTableBody').innerHTML = html || '<tr><td colspan="5" class="p-8 text-center text-gray-400">Henüz kasa hareketi bulunmuyor.</td></tr>';
-            
-            // Update Dashboard and Finance Stats
+            document.getElementById('financeTableBody').innerHTML = html || '<tr><td colspan="6" class="p-4 text-center">Kayıt yok.</td></tr>';
             document.getElementById('financeTotalIncome').textContent = `₺${totalIncome.toLocaleString('tr-TR')}`;
             document.getElementById('financeTotalExpense').textContent = `₺${totalExpense.toLocaleString('tr-TR')}`;
-            
-            const balElement = document.getElementById('financeNetBalance');
-            const dashBalElement = document.getElementById('statNetBalance');
-            
-            balElement.textContent = `₺${netBalance.toLocaleString('tr-TR')}`;
-            dashBalElement.textContent = `₺${netBalance.toLocaleString('tr-TR')}`;
-            
-            if(netBalance < 0) {
-                balElement.classList.add('text-red-400');
-                balElement.classList.remove('text-white', 'text-emerald-400');
-                dashBalElement.classList.add('text-red-600');
-                dashBalElement.classList.remove('text-emerald-600');
-            } else {
-                balElement.classList.add('text-emerald-400');
-                balElement.classList.remove('text-white', 'text-red-400');
-                dashBalElement.classList.add('text-emerald-600');
-                dashBalElement.classList.remove('text-red-600');
-            }
-
-            lucide.createIcons();
+            document.getElementById('financeNetBalance').textContent = `₺${netBalance.toLocaleString('tr-TR')}`;
+            document.getElementById('statNetBalance').textContent = `₺${netBalance.toLocaleString('tr-TR')}`; lucide.createIcons();
         });
 
-        // Form Submissions
+        // Ayarları Oku
+        onSnapshot(doc(db, "settings", "payments"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('set-havale').checked = data.isHavaleActive || false;
+                document.getElementById('set-cc').checked = data.isCreditCardActive || false;
+                document.getElementById('set-desk').checked = data.isPayAtDeskActive || false;
+                document.getElementById('set-bankName').value = data.bankName || '';
+                document.getElementById('set-iban').value = data.ibanNumber || '';
+            }
+        });
+
+        // Form Gönderimleri
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); const btn = document.getElementById('btn-save-settings'); btn.disabled = true; btn.innerHTML = 'Kaydediliyor...';
+            try {
+                await setDoc(doc(db, "settings", "payments"), { isHavaleActive: document.getElementById('set-havale').checked, isCreditCardActive: document.getElementById('set-cc').checked, isPayAtDeskActive: document.getElementById('set-desk').checked, bankName: document.getElementById('set-bankName').value, ibanNumber: document.getElementById('set-iban').value, updatedAt: serverTimestamp() }, { merge: true });
+                showToast("Ayarlar güncellendi!");
+            } catch (error) { showToast("Hata oluştu.", "error"); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-5 h-5"></i> Değişiklikleri Kaydet'; lucide.createIcons(); }
+        });
+
         document.getElementById('financeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await addDoc(collection(db, "finances"), {
-                    type: document.getElementById('finType').value,
-                    category: document.getElementById('finCategory').value,
-                    amount: Number(document.getElementById('finAmount').value),
-                    description: document.getElementById('finDesc').value,
-                    addedBy: 'ADMIN',
-                    createdAt: serverTimestamp()
-                });
-                document.getElementById('financeForm').reset();
-                showToast("Kasa işlemi başarıyla kaydedildi.");
-            } catch(err) { showToast("Kasa işlemi eklenirken hata oluştu.", "error"); }
+            e.preventDefault(); try { await addDoc(collection(db, "finances"), { type: document.getElementById('finType').value, category: document.getElementById('finCategory').value, amount: Number(document.getElementById('finAmount').value), description: document.getElementById('finDesc').value, addedBy: 'ADMIN', createdAt: serverTimestamp() }); document.getElementById('financeForm').reset(); showToast("Kaydedildi."); } catch(err) { showToast("Hata.", "error"); }
         });
-
         document.getElementById('apartmentForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await addDoc(collection(db, "apartments"), {
-                    name: document.getElementById('aptName').value,
-                    address: document.getElementById('aptAddress').value,
-                    createdAt: serverTimestamp()
-                });
-                document.getElementById('apartmentForm').reset();
-                showToast("Apart başarıyla eklendi!");
-            } catch(err) { showToast("Apart eklenirken hata oluştu.", "error"); }
+            e.preventDefault(); try { await addDoc(collection(db, "apartments"), { name: document.getElementById('aptName').value, address: document.getElementById('aptAddress').value, createdAt: serverTimestamp() }); document.getElementById('apartmentForm').reset(); showToast("Kaydedildi."); } catch(err) { showToast("Hata.", "error"); }
         });
-
         document.getElementById('roomForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await addDoc(collection(db, "rooms"), {
-                    apartmentId: document.getElementById('roomApartmentId').value,
-                    roomNumber: document.getElementById('roomNumber').value,
-                    type: document.getElementById('roomType').value,
-                    basePrice: Number(document.getElementById('roomPrice').value),
-                    status: 'AVAILABLE',
-                    createdAt: serverTimestamp()
-                });
-                document.getElementById('roomForm').reset();
-                showToast("Oda başarıyla eklendi!");
-            } catch(err) { showToast("Oda eklenirken hata oluştu.", "error"); }
+            e.preventDefault(); try { await addDoc(collection(db, "rooms"), { apartmentId: document.getElementById('roomApartmentId').value, roomNumber: document.getElementById('roomNumber').value, type: document.getElementById('roomType').value, basePrice: Number(document.getElementById('roomPrice').value), status: 'AVAILABLE', createdAt: serverTimestamp() }); document.getElementById('roomForm').reset(); showToast("Kaydedildi."); } catch(err) { showToast("Hata.", "error"); }
         });
 
-        // GÜNCELLENDİ: Personel Hesabı (Gerçek Şifre) Oluşturma Mantığı
+        // Personel Ekleme (staff Tablosu + Şifreli Kayıt)
         document.getElementById('usersForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Hesap Oluşturuluyor...';
-            btn.disabled = true;
-
-            const name = document.getElementById('usersName').value;
-            const email = document.getElementById('usersEmail').value;
-            const password = document.getElementById('usersPassword').value;
-            const role = document.getElementById('usersRole').value;
-
+            e.preventDefault(); const btn = e.target.querySelector('button'); const origTxt = btn.innerHTML; btn.innerHTML = 'Oluşturuluyor...'; btn.disabled = true;
+            const name = document.getElementById('usersName').value; const email = document.getElementById('usersEmail').value; const password = document.getElementById('usersPassword').value; const role = document.getElementById('usersRole').value;
             try {
-                // 1. İkincil Firebase uygulaması ile personelin gerçek şifreli giriş hesabını oluştur
                 await createUserWithEmailAndPassword(secondaryAuth, email, password);
-                
-                // 2. Hesabı açtıktan sonra ikincil hesaptan hemen çık (Admini güvende tut)
                 await signOut(secondaryAuth);
-
-                // 3. Personelin adını ve yetkisini "users" tablosuna (Firestore) kaydet
-                await addDoc(collection(db, "users"), {
-                    name: name,
-                    email: email,
-                    role: role,
-                    createdAt: serverTimestamp()
-                });
-                
-                document.getElementById('usersForm').reset();
-                showToast("Personel hesabı şifreli olarak başarıyla oluşturuldu!");
-            } catch(err) { 
-                console.error(err);
-                if(err.code === 'auth/email-already-in-use') {
-                    showToast("Bu e-posta adresi sistemde zaten kayıtlı!", "error");
-                } else if(err.code === 'auth/weak-password') {
-                    showToast("Şifre en az 6 karakter olmalıdır!", "error");
-                } else {
-                    showToast("Personel eklenemedi. Lütfen tekrar deneyin.", "error"); 
-                }
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                await addDoc(collection(db, "staff"), { name: name, email: email, role: role, createdAt: serverTimestamp() });
+                document.getElementById('usersForm').reset(); showToast("Şifreli hesap oluşturuldu!");
+            } catch(err) { console.log(err); showToast("E-posta kullanımda veya hata oluştu.", "error"); } finally { btn.innerHTML = origTxt; btn.disabled = false; }
         });
 
-        window.deleteItem = async function(collectionName, id) {
-            try {
-                await deleteDoc(doc(db, collectionName, id));
-                showToast("Kayıt başarıyla silindi!");
-            } catch(err) { showToast("Silme işlemi başarısız.", "error"); }
-        };
+        window.deleteItem = async function(collectionName, id) { try { await deleteDoc(doc(db, collectionName, id)); showToast("Silindi!"); } catch(err) { showToast("Hata.", "error"); } };
     </script>
 </body>
 </html>

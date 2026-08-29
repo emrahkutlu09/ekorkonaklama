@@ -154,17 +154,24 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Oda Tipi</label>
                                 <input type="text" id="roomType" required placeholder="Örn: 2+1 Aile" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
-                            <!-- YENİ: Kapasite Alanı -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Kapasite (Maks. Kişi)</label>
                                 <input type="number" id="roomCapacity" required placeholder="Örn: 4" min="1" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <!-- YENİ EKLENEN RESİM YÜKLEME ALANI -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Oda Görselleri (Çoklu Seçim Yapabilirsiniz)</label>
+                                <input type="file" id="roomImages" multiple accept="image/*" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer">
+                                <p class="text-xs text-gray-500 mt-1">CTRL (veya CMD) tuşuna basılı tutarak birden fazla resim seçebilirsiniz.</p>
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Daire Gecelik Fiyatı (₺)</label>
                                 <input type="number" id="roomPrice" required placeholder="1500" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <div class="md:col-span-2">
-                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition shadow-md">Odayı Sisteme Ekle</button>
+                                <button type="submit" id="btnSaveRoom" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 rounded-lg transition shadow-md flex justify-center items-center gap-2">
+                                    <i data-lucide="save" class="w-5 h-5"></i> Odayı Sisteme Ekle
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -349,7 +356,7 @@
                 </div>
             </div>
 
-            <!-- VIEW 6: SİSTEM AYARLARI (YENİ EKLENDİ) -->
+            <!-- VIEW 6: SİSTEM AYARLARI -->
             <div id="view-settings" class="space-y-8 fade-in hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     
@@ -401,7 +408,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        // GÜNCELLEME: setDoc eklendi (Ayarları kaydetmek için)
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -416,6 +422,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // CLOUDINARY AYARLARI (Lütfen buraları doldurun)
+        const CLOUDINARY_CLOUD_NAME = "szqx6dxe"; 
+        const CLOUDINARY_UPLOAD_PRESET = "kibris_bazar_preset";
 
         // Personel kaydederken Admini sistemden atmamak için İkincil Firebase
         const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
@@ -524,13 +534,18 @@
                 const room = { id: docSnap.id, ...docSnap.data() };
                 roomsData.push(room);
                 const apt = apartmentsData.find(a => a.id === room.apartmentId);
+                
+                // Resim var mı göstergesi eklendi
+                const imgCount = (room.images && room.images.length) ? room.images.length : 0;
+                const imgBadge = imgCount > 0 ? `<span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded ml-2">${imgCount} Görsel</span>` : '';
+                
                 const cap = room.capacity ? `<span class="text-indigo-500">Maks ${room.capacity} Kişi</span>` : '';
                 html += `
                     <div class="flex items-center justify-between p-4 bg-gray-50 border rounded-xl hover:bg-gray-100 transition">
                         <div class="flex items-center gap-3">
                             <div class="p-2 bg-white rounded-lg shadow-sm"><i data-lucide="bed" class="w-5 h-5 text-emerald-500"></i></div>
                             <div>
-                                <p class="font-bold text-gray-800">Oda ${room.roomNumber} <span class="text-xs font-normal text-gray-500">(${room.type})</span></p>
+                                <p class="font-bold text-gray-800">Oda ${room.roomNumber} <span class="text-xs font-normal text-gray-500">(${room.type})</span> ${imgBadge}</p>
                                 <p class="text-xs text-emerald-600 font-medium">${apt ? apt.name : 'Bilinmeyen'} • ₺${room.basePrice}/gece • ${cap}</p>
                             </div>
                         </div>
@@ -713,19 +728,75 @@
             } catch(err) { showToast("Hata oluştu.", "error"); }
         });
 
+        // ==========================================
+        // CLOUDINARY RESİM YÜKLEME VE ODA KAYIT İŞLEMİ
+        // ==========================================
         document.getElementById('roomForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('btnSaveRoom');
+            const originalText = btn.innerHTML;
+            
+            // Eğer bilgileri doldurmadıysanız uyarı ver
+            if(CLOUDINARY_CLOUD_NAME === "BURAYA_CLOUD_NAME_YAZIN" || CLOUDINARY_UPLOAD_PRESET === "BURAYA_UPLOAD_PRESET_YAZIN") {
+                showToast("Lütfen kod içindeki Cloudinary ayarlarını doldurun!", "error");
+                return;
+            }
+            
             try {
+                const files = document.getElementById('roomImages').files;
+                let imageUrls = [];
+
+                if (files.length > 0) {
+                    btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Resimler Yükleniyor...';
+                    lucide.createIcons();
+                    btn.disabled = true;
+
+                    // Tüm resimleri Cloudinary'e yükle
+                    const uploadPromises = Array.from(files).map(async (file) => {
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                        
+                        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        if(data.secure_url) {
+                            return data.secure_url;
+                        } else {
+                            throw new Error(data.error?.message || "Cloudinary yükleme hatası");
+                        }
+                    });
+
+                    imageUrls = await Promise.all(uploadPromises);
+                }
+
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Oda Kaydediliyor...';
+                lucide.createIcons();
+
                 await addDoc(collection(db, "rooms"), {
                     apartmentId: document.getElementById('roomApartmentId').value,
                     roomNumber: document.getElementById('roomNumber').value,
                     type: document.getElementById('roomType').value,
-                    capacity: Number(document.getElementById('roomCapacity').value), // YENİ EKLENEN KAPASİTE
+                    capacity: Number(document.getElementById('roomCapacity').value),
                     basePrice: Number(document.getElementById('roomPrice').value),
-                    status: 'AVAILABLE', createdAt: serverTimestamp()
+                    images: imageUrls, // <--- Cloudinary'den gelen linkleri veritabanına ekliyoruz
+                    status: 'AVAILABLE', 
+                    createdAt: serverTimestamp()
                 });
-                document.getElementById('roomForm').reset(); showToast("Oda eklendi!");
-            } catch(err) { showToast("Hata oluştu.", "error"); }
+                
+                document.getElementById('roomForm').reset(); 
+                showToast("Oda görsellerle birlikte eklendi!");
+            } catch(err) { 
+                console.error("Hata detayı:", err);
+                showToast("Oda eklenirken bir hata oluştu: " + (err.message || "Bilinmeyen Hata"), "error"); 
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
         });
 
         document.getElementById('usersForm').addEventListener('submit', async (e) => {
@@ -741,7 +812,7 @@
             try {
                 await createUserWithEmailAndPassword(secondaryAuth, email, password);
                 await signOut(secondaryAuth);
-                await addDoc(collection(db, "staff"), { // TABLO ADI DÜZELTİLDİ
+                await addDoc(collection(db, "staff"), {
                     name: name, email: email, role: role, createdAt: serverTimestamp()
                 });
                 document.getElementById('usersForm').reset(); showToast("Personel hesabı oluşturuldu!");
@@ -755,8 +826,11 @@
         });
 
         window.deleteItem = async function(collectionName, id) {
-            try { await deleteDoc(doc(db, collectionName, id)); showToast("Kayıt silindi!"); } 
-            catch(err) { showToast("Silme işlemi başarısız.", "error"); }
+            if(!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
+            try { 
+                await deleteDoc(doc(db, collectionName, id)); 
+                showToast("Kayıt silindi!"); 
+            } catch(err) { showToast("Silme işlemi başarısız.", "error"); }
         };
     </script>
 </body>

@@ -3,77 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sahra Apart & Konaklama | Anasayfa</title>
+    <title>Sahra Apart & Konaklama | Lüks Konaklama Deneyimi</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+        
         body { font-family: 'Inter', sans-serif; }
         .font-serif-luxury { font-family: 'Playfair Display', serif; }
-        .hero-overlay { background: linear-gradient(to bottom, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.85)); }
-        .modal-enter { animation: fadeIn 0.25s ease-out forwards; }
+        
+        /* Hero Overlay Gradient */
+        .hero-overlay { background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)); }
+        
+        /* Modal Animation */
+        .modal-enter { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        #netlify-badge, iframe[src*="netlify"], .netlify-badge { display: none !important; }
+        
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Hide Netlify Badge */
+        #netlify-badge, iframe[src*="netlify"], .netlify-badge { display: none !important; }
+        
+        /* WhatsApp Pulse Effect */
+        @keyframes pulse-whatsapp {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .whatsapp-btn { animation: pulse-whatsapp 2s infinite; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
 
-    <!-- Toast Bildirimleri -->
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 transform -translate-y-20 opacity-0 transition-all duration-300 z-[9999]">
-        <div class="bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700">
+    <!-- Toast Notifications -->
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 transform -translate-y-20 opacity-0 transition-all duration-500 z-[9999]">
+        <div class="bg-slate-900/95 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700/50 font-medium">
             <span id="toastIconWrapper"></span>
-            <span id="toastMsg" class="font-medium text-sm">İşlem başarılı</span>
+            <span id="toastMsg" class="tracking-wide">İşlem başarılı</span>
         </div>
     </div>
 
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/902560000000" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] transition-transform duration-300 hover:scale-110 whatsapp-btn flex items-center justify-center group">
+        <i data-lucide="message-circle" class="w-8 h-8"></i>
+        <span class="absolute right-16 bg-slate-900 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-medium pointer-events-none shadow-lg">Hemen Bize Yazın</span>
+    </a>
+
     <!-- Navbar -->
-    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">SAHRA</span>
-                <span class="text-xs font-bold uppercase tracking-widest bg-amber-500 text-white px-2 py-1 rounded-md">Apart & Konaklama</span>
-            </div>
-            <div class="hidden md:flex items-center gap-8 font-medium text-slate-600 text-sm">
-                <a href="#rooms" class="hover:text-amber-600 transition">İmza Odalarımız</a>
-                <a href="#about" class="hover:text-amber-600 transition">Hakkımızda</a>
-                <a href="#reviews" class="hover:text-amber-600 transition">Misafir Yorumları</a>
-                <a href="#contact" class="hover:text-amber-600 transition">İletişim</a>
-            </div>
+    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <a href="login.html" class="hidden sm:inline-flex items-center gap-2 text-slate-600 hover:text-amber-600 font-medium text-sm px-3 py-2 transition">
-                    <i data-lucide="lock" class="w-4 h-4"></i> Personel Girişi
+                <span class="text-3xl font-serif-luxury font-bold tracking-tight text-slate-900">SAHRA</span>
+                <div class="h-6 w-[1px] bg-amber-500/50"></div>
+                <span class="text-xs font-bold uppercase tracking-[0.2em] text-amber-600">Premium</span>
+            </div>
+            <div class="hidden md:flex items-center gap-10 font-medium text-slate-600 text-sm tracking-wide">
+                <a href="#rooms" class="hover:text-amber-600 transition-colors">İmza Odalarımız</a>
+                <a href="#about" class="hover:text-amber-600 transition-colors">Ayrıcalıklar</a>
+                <a href="#reviews" class="hover:text-amber-600 transition-colors">Misafir Defteri</a>
+                <a href="#contact" class="hover:text-amber-600 transition-colors">İletişim</a>
+            </div>
+            <div class="flex items-center gap-5">
+                <a href="login.html" class="hidden sm:inline-flex items-center gap-2 text-slate-500 hover:text-amber-600 font-medium text-xs uppercase tracking-wider transition-colors">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i> Personel
                 </a>
-                <a href="#rooms" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-slate-900/20 transition transform active:scale-95">
-                    Hemen Rezervasyon
+                <a href="#rooms" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-slate-900/20 transition-all transform active:scale-95">
+                    Rezervasyon
                 </a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative bg-slate-900 text-white py-28 lg:py-40 overflow-hidden flex items-center justify-center">
+    <header class="relative bg-slate-900 text-white py-32 lg:py-48 overflow-hidden flex items-center justify-center">
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=2000" alt="Otel Arka Plan" class="w-full h-full object-cover object-center opacity-45 transform scale-105">
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=2000" alt="Otel Arka Plan" class="w-full h-full object-cover object-center opacity-50 transform scale-105 animate-[kenburns_20s_ease-out_forwards]">
             <div class="absolute inset-0 hero-overlay"></div>
         </div>
-        <div class="relative z-10 max-w-4xl mx-auto px-4 text-center space-y-6">
-            <span class="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-amber-300 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Ultra Lüks Konaklama Deneyimi
+        <div class="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-8">
+            <span class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 px-5 py-2 rounded-full text-xs font-bold tracking-[0.2em] uppercase">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Konforun Yeni Adresi
             </span>
-            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-serif-luxury font-bold tracking-tight leading-tight">
-                Ev Konforunda <span class="text-amber-400 italic">Asil Huzur</span>
+            <h1 class="text-5xl sm:text-6xl lg:text-8xl font-serif-luxury font-normal leading-[1.1] text-white drop-shadow-lg">
+                Ev Konforunda <br/><span class="italic text-amber-400 font-light">Asil Bir Huzur</span>
             </h1>
-            <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto font-normal leading-relaxed">
-                Nazilli’nin kalbinde, modern mimarinin ve üstün konforun buluştuğu seçkin dairelerimizde unutulmaz bir konaklama sizleri bekliyor.
+            <p class="text-white/80 text-lg sm:text-xl max-w-3xl mx-auto font-light leading-relaxed">
+                Nazilli’nin merkezinde, modern mimarinin ve üstün misafirperverliğin buluştuğu seçkin dairelerimizde kusursuz bir konaklama sizleri bekliyor.
             </p>
-            <div class="pt-4 flex flex-col sm:flex-row justify-center gap-4">
-                <a href="#rooms" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-4 rounded-xl shadow-xl shadow-amber-500/20 transition transform hover:-translate-y-0.5">
+            <div class="pt-6 flex justify-center">
+                <a href="#rooms" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-10 py-5 rounded-xl shadow-2xl shadow-amber-500/20 transition-all transform hover:-translate-y-1 uppercase tracking-widest text-sm">
                     İmza Odalarımızı Keşfedin
                 </a>
             </div>
@@ -81,219 +109,247 @@
     </header>
 
     <!-- Odalarımız / Vitrin -->
-    <section id="rooms" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <span class="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-md">Seçkin Yaşam Alanları</span>
-            <h2 class="text-3xl sm:text-4xl font-serif-luxury font-bold text-slate-900 tracking-tight">İmza Odalarımız</h2>
-            <p class="text-slate-500 text-sm sm:text-base">7 yaş altı çocukların ücretsiz konakladığı, kişi başı fiyatlandırılan konforlu dairelerimiz.</p>
+    <section id="rooms" class="py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-6">
+            <div class="space-y-4 max-w-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="h-[1px] w-8 bg-amber-600"></div>
+                    <span class="text-amber-600 text-xs font-bold tracking-[0.2em] uppercase">Seçkin Konaklama</span>
+                </div>
+                <h2 class="text-4xl sm:text-5xl font-serif-luxury text-slate-900">İmza Odalarımız</h2>
+            </div>
+            <p class="text-slate-500 text-sm max-w-md md:text-right font-light leading-relaxed">
+                Her bir detayı özenle düşünülmüş, lüksün ve konforun birleştiği yaşam alanlarımızı inceleyin. Fiyatlarımız kişi başı olarak hesaplanmaktadır.
+            </p>
         </div>
         
-        <div id="publicRoomsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="col-span-full text-center py-12 text-slate-400 flex flex-col items-center">
-                <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-amber-500 mb-3"></i>
-                Odalar yükleniyor...
+        <div id="publicRoomsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <!-- Loading State -->
+            <div class="col-span-full text-center py-20 text-slate-400 flex flex-col items-center">
+                <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-amber-500 mb-4"></i>
+                <span class="font-serif-luxury italic text-lg">Özel odalarımız hazırlanıyor...</span>
             </div>
         </div>
     </section>
 
-    <!-- Hakkımızda -->
-    <section id="about" class="bg-slate-900 text-white py-24 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-            <div class="space-y-6">
-                <span class="text-amber-400 font-bold text-xs uppercase tracking-widest bg-white/10 px-3 py-1 rounded-md">Neden Sahra Apart?</span>
-                <h2 class="text-3xl sm:text-4xl font-serif-luxury font-bold tracking-tight">Kusursuzluk Standartımızdır</h2>
-                <p class="text-slate-300 text-base leading-relaxed">
-                    Yılların getirdiği tecrübe ve otelcilik vizyonumuzla, misafirlerimize evlerindeki sıcaklığı aratmayacak hijyenik, güvenli ve lüks yaşam alanları sunuyoruz. 7/24 kesintisiz hizmetimizle her an yanınızdayız.
+    <!-- Hakkımızda / Avantajlar -->
+    <section id="about" class="bg-slate-900 text-white py-28 relative overflow-hidden border-y border-slate-800">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 left-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+            <div class="space-y-8">
+                <div class="flex items-center gap-3">
+                    <div class="h-[1px] w-8 bg-amber-400"></div>
+                    <span class="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase">Neden Sahra Premium?</span>
+                </div>
+                <h2 class="text-4xl sm:text-5xl font-serif-luxury leading-tight">Mükemmelliği <br/><span class="italic text-white/70 font-light">Hissedin.</span></h2>
+                <p class="text-slate-300 text-base font-light leading-relaxed">
+                    Misyonumuz sadece bir konaklama sağlamak değil; ince düşünülmüş detaylarla zenginleştirilmiş bir yaşam stili sunmaktır. Mahremiyetiniz, güvenliğiniz ve konforunuz için her detayı en ince ayrıntısına kadar planladık.
                 </p>
-                <div class="grid grid-cols-2 gap-4 pt-2">
-                    <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur">
-                        <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="wifi" class="w-5 h-5"></i></div>
-                        <span class="font-semibold text-sm text-slate-200">Yüksek Hız Wi-Fi</span>
+                <div class="grid grid-cols-2 gap-8 pt-8 border-t border-white/10">
+                    <div>
+                        <i data-lucide="wifi" class="w-8 h-8 text-amber-400 mb-4"></i>
+                        <h4 class="font-serif-luxury text-lg text-white mb-2">Sınırsız Bağlantı</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed font-light">Her odada yüksek hızlı fiber internet altyapısı ile her an çevrimiçi kalın.</p>
                     </div>
-                    <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur">
-                        <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
-                        <span class="font-semibold text-sm text-slate-200">7/24 Güvenlik</span>
+                    <div>
+                        <i data-lucide="shield-check" class="w-8 h-8 text-amber-400 mb-4"></i>
+                        <h4 class="font-serif-luxury text-lg text-white mb-2">Tam Güvenlik</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed font-light">7/24 resepsiyon, kapalı devre kamera sistemleri ve güvenli giriş protokolleri.</p>
                     </div>
                 </div>
             </div>
             <div class="relative">
-                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=1000" alt="Apart İç Mekan" class="rounded-3xl shadow-2xl object-cover w-full h-[420px] border border-white/10">
+                <div class="absolute inset-0 bg-amber-500 transform translate-x-4 translate-y-4 opacity-20 rounded-3xl"></div>
+                <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=1000" alt="Lüks Konsept" class="relative z-10 w-full h-[500px] object-cover shadow-2xl rounded-3xl grayscale hover:grayscale-0 transition-all duration-700">
             </div>
         </div>
     </section>
 
     <!-- Müşteri Yorumları -->
-    <section id="reviews" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-12 gap-4">
-            <div>
-                <span class="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-md">Deneyimler</span>
-                <h2 class="text-3xl font-serif-luxury font-bold text-slate-900 tracking-tight mt-2">Misafirlerimiz Ne Diyor?</h2>
-            </div>
-            <button onclick="openReviewModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2">
-                <i data-lucide="message-square-plus" class="w-4 h-4 text-amber-400"></i> Siz de Yorum Yapın
+    <section id="reviews" class="py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full bg-slate-50">
+        <div class="flex flex-col items-center text-center mb-16 space-y-6">
+            <i data-lucide="quote" class="w-10 h-10 text-amber-500/30"></i>
+            <h2 class="text-4xl font-serif-luxury text-slate-900">Ziyaretçi Defteri</h2>
+            <button onclick="openReviewModal()" class="text-sm font-semibold uppercase tracking-widest text-amber-600 hover:text-amber-500 transition-colors pb-1 border-b border-amber-600/30 hover:border-amber-500">
+                Deneyiminizi Paylaşın
             </button>
         </div>
 
-        <div id="publicReviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="col-span-full text-center py-12 text-slate-400">Yorumlar yükleniyor...</div>
+        <div id="publicReviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="col-span-full text-center py-12 text-slate-400 font-serif-luxury italic">
+                Değerli yorumlar yükleniyor...
+            </div>
         </div>
     </section>
 
-    <!-- WhatsApp Sabit Buton -->
-    <a href="https://wa.me/902560000000" target="_blank" class="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-110">
-        <i data-lucide="message-circle" class="w-7 h-7"></i>
-    </a>
-
     <!-- Footer -->
-    <footer id="contact" class="bg-slate-950 text-white pt-16 pb-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-            <div class="space-y-4">
-                <h3 class="text-xl font-serif-luxury font-bold tracking-wider text-amber-400">SAHRA APART</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Konforlu, güvenli ve lüks konaklama deneyimi için doğru adres.</p>
+    <footer id="contact" class="bg-slate-950 text-white pt-24 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+            <div class="md:col-span-5 space-y-6">
+                <span class="text-2xl font-serif-luxury font-bold tracking-wider text-white">SAHRA <span class="text-amber-400 text-sm tracking-[0.2em] font-sans font-normal ml-2">PREMIUM</span></span>
+                <p class="text-slate-400 text-sm leading-relaxed max-w-sm font-light">
+                    Beklentilerinizin ötesinde bir konaklama deneyimi için şehrin kalbindeki lüks kaçamağınız.
+                </p>
             </div>
-            <div class="space-y-3">
-                <h4 class="font-bold text-sm uppercase tracking-wider text-slate-300">İletişim Bilgileri</h4>
-                <p class="text-slate-400 text-sm flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i> Merkez Mah. Konak Sk. No:1, Nazilli / Aydın</p>
-                <p class="text-slate-400 text-sm flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-amber-400"></i> +90 (256) 000 00 00</p>
+            <div class="md:col-span-4 space-y-6">
+                <h4 class="font-serif-luxury text-lg text-white">İletişim Bilgileri</h4>
+                <div class="space-y-4 text-sm font-light text-slate-400">
+                    <p class="flex items-start gap-3"><i data-lucide="map-pin" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i> <span>Merkez Mah. Konak Sk. No:1, Nazilli / Aydın</span></p>
+                    <p class="flex items-center gap-3"><i data-lucide="phone" class="w-4 h-4 text-amber-400 shrink-0"></i> <span>+90 (256) 000 00 00</span></p>
+                    <p class="flex items-center gap-3"><i data-lucide="mail" class="w-4 h-4 text-amber-400 shrink-0"></i> <span>premium@sahraapart.com</span></p>
+                </div>
             </div>
-            <div class="space-y-3">
-                <h4 class="font-bold text-sm uppercase tracking-wider text-slate-300">Hızlı Bağlantılar</h4>
-                <div class="flex flex-col space-y-2 text-sm text-slate-400">
-                    <a href="#rooms" class="hover:text-white transition">İmza Odalarımız</a>
-                    <a href="#about" class="hover:text-white transition">Hakkımızda</a>
-                    <a href="login.html" class="hover:text-white transition flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i> Personel Girişi</a>
+            <div class="md:col-span-3 space-y-6">
+                <h4 class="font-serif-luxury text-lg text-white">Hızlı Erişim</h4>
+                <div class="flex flex-col space-y-3 text-sm font-light text-slate-400">
+                    <a href="#rooms" class="hover:text-amber-400 transition-colors w-fit">İmza Odalarımız</a>
+                    <a href="#about" class="hover:text-amber-400 transition-colors w-fit">Ayrıcalıklar</a>
+                    <a href="login.html" class="hover:text-amber-400 transition-colors w-fit flex items-center gap-2"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Personel Girişi</a>
                 </div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-900 text-center text-xs text-slate-500">
-            &copy; 2026 Sahra Apart & Konaklama. Tüm hakları saklıdır.
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800/50 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-light text-slate-500 tracking-wider uppercase">
+            <p>&copy; 2026 SAHRA PREMIUM APART. TÜM HAKLARI SAKLIDIR.</p>
+            <p>Designed for Excellence</p>
         </div>
     </footer>
 
-    <!-- Online Rezervasyon Modalı -->
-    <div id="bookingModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-lg modal-enter overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50 shrink-0">
+    <!-- Online Rezervasyon Modalı (Lüks Tema) -->
+    <div id="bookingModal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm p-0 sm:p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-2xl modal-enter overflow-hidden flex flex-col h-[95vh] sm:h-auto sm:max-h-[90vh]">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50 shrink-0">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900">Online Rezervasyon</h3>
-                    <p class="text-xs text-slate-500" id="modalRoomSubtitle">Seçilen Oda</p>
+                    <h3 class="text-2xl font-serif-luxury font-bold text-slate-900">Rezervasyon Talebi</h3>
+                    <p class="text-xs font-bold text-amber-600 uppercase tracking-widest mt-1" id="modalRoomSubtitle">Seçilen Oda</p>
                 </div>
-                <button onclick="closeBookingModal()" class="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-400 hover:text-slate-600 shadow-sm border border-slate-200 transition">
+                <button onclick="closeBookingModal()" class="w-10 h-10 flex items-center justify-center bg-white rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 shadow-sm border border-slate-200 transition-all">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             
-            <div class="p-5 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
-                <form id="publicBookingForm" class="space-y-4">
+            <!-- Body -->
+            <div class="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar">
+                <form id="publicBookingForm" class="space-y-6">
                     <input type="hidden" id="bookRoomId">
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Ad Soyad *</label>
-                            <input type="text" id="bookName" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Ad Soyad *</label>
+                            <input type="text" id="bookName" required class="w-full border-b-2 border-slate-200 bg-transparent py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Telefon *</label>
-                            <input type="tel" id="bookPhone" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">TC Kimlik / Pasaport No *</label>
-                            <input type="text" id="bookTC" required placeholder="Zorunlu alan" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Yetişkin Sayısı (Kişi Başı) *</label>
-                            <input type="number" id="bookAdults" min="1" value="1" required onchange="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Telefon *</label>
+                            <input type="tel" id="bookPhone" required class="w-full border-b-2 border-slate-200 bg-transparent py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                         </div>
                     </div>
 
-                    <!-- Çocuk ve Yaş Bilgisi Alanı (7 Yaş Altı Ücretsiz) -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">TC Kimlik / Pasaport No *</label>
+                            <input type="text" id="bookTC" required class="w-full border-b-2 border-slate-200 bg-transparent py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Yetişkin Sayısı (Kişi Başı Ücret) *</label>
+                            <input type="number" id="bookAdults" min="1" value="1" required onchange="calculatePublicPrice()" class="w-full border-b-2 border-slate-200 bg-transparent py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Çocuk Bilgisi (7 Yaş Altı Ücretsiz Logic) -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Sayısı</label>
-                                <input type="number" id="bookChildrenCount" min="0" value="0" onchange="toggleChildAges(this.value)" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Çocuk Sayısı</label>
+                                <input type="number" id="bookChildrenCount" min="0" value="0" onchange="toggleChildAges(this.value)" class="w-full border-b-2 border-slate-200 bg-white py-2.5 px-2 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                             </div>
                             <div id="childAgesWrapper" class="hidden">
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Yaşları</label>
-                                <input type="text" id="bookChildrenAges" placeholder="Örn: 5, 9" oninput="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Çocuk Yaşları</label>
+                                <input type="text" id="bookChildrenAges" placeholder="Örn: 4, 9" oninput="calculatePublicPrice()" class="w-full border-b-2 border-slate-200 bg-white py-2.5 px-2 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                             </div>
                         </div>
-                        <p class="text-[11px] text-amber-700 font-medium"><i data-lucide="info" class="w-3.5 h-3.5 inline"></i> 7 yaşından küçük çocuklardan ücret alınmaz (Ücretli çocuklar yetişkin fiyatıyla hesaplanır).</p>
+                        <p class="text-[10px] text-amber-700 font-bold bg-amber-50 p-2 rounded border border-amber-100/50 inline-block"><i data-lucide="info" class="w-3 h-3 inline mr-1"></i>7 yaşından küçük konuklarımızdan ücret talep edilmez.</p>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Giriş Tarihi *</label>
-                            <input type="date" id="bookCheckIn" required onchange="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Giriş Tarihi *</label>
+                            <input type="date" id="bookCheckIn" required onchange="calculatePublicPrice()" class="w-full border-b-2 border-slate-200 bg-transparent py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çıkış Tarihi *</label>
-                            <input type="date" id="bookCheckOut" required onchange="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Çıkış Tarihi *</label>
+                            <input type="date" id="bookCheckOut" required onchange="calculatePublicPrice()" class="w-full border-b-2 border-slate-200 bg-transparent py-2.5 text-sm font-medium text-slate-900 focus:border-amber-500 outline-none transition-colors">
                         </div>
                     </div>
 
-                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 flex justify-between items-center">
-                        <span class="text-sm font-semibold text-amber-900">Hesaplanan Toplam Tutar:</span>
-                        <span id="bookTotalPriceDisplay" class="text-xl font-black text-amber-700">₺0</span>
+                    <!-- Fiyat Gösterimi -->
+                    <div class="bg-slate-900 text-white p-6 rounded-2xl flex justify-between items-center shadow-lg relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
+                        <div class="relative z-10">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">Hesaplanan Toplam Tutar</span>
+                            <span class="text-xs text-slate-500 block mb-2" id="priceDetailText">(1 Yetişkin x 1 Gece)</span>
+                        </div>
+                        <span id="bookTotalPriceDisplay" class="text-3xl sm:text-4xl font-serif-luxury font-bold text-amber-400 relative z-10">₺0</span>
                     </div>
 
-                    <div class="space-y-2 pt-2">
-                        <label class="block text-xs font-bold text-slate-600 uppercase">Ödeme Yöntemi Seçin *</label>
-                        <div id="paymentMethodsContainer" class="space-y-2"></div>
+                    <div class="space-y-4 pt-4 border-t border-slate-100">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ödeme Yöntemi Tercihiniz *</label>
+                        <div id="paymentMethodsContainer" class="space-y-3"></div>
                     </div>
 
-                    <div id="bankInfoBox" class="hidden bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-1">
-                        <p class="font-bold"><i data-lucide="info" class="w-4 h-4 inline"></i> Havale / EFT Bilgileri:</p>
-                        <p id="bankNameText">Banka: Ziraat Bankası</p>
-                        <p id="ibanText" class="font-mono font-bold">IBAN: TR00 0000 0000 0000 0000 0000 00</p>
+                    <div id="bankInfoBox" class="hidden bg-slate-50 border border-slate-200 p-5 rounded-xl text-sm text-slate-700 space-y-2 font-light">
+                        <p class="font-bold text-slate-900 uppercase tracking-wider text-[10px] mb-3"><i data-lucide="building" class="w-3.5 h-3.5 inline text-amber-500"></i> Kurumsal Banka Hesaplarımız</p>
+                        <p id="bankNameText" class="font-medium text-slate-600">Banka: Yükleniyor...</p>
+                        <p id="ibanText" class="font-mono font-bold tracking-widest text-lg text-slate-900">TR00...</p>
                     </div>
                 </form>
             </div>
             
-            <div class="p-4 bg-slate-50 border-t border-slate-100 shrink-0 flex gap-3">
-                <button type="button" onclick="closeBookingModal()" class="flex-1 py-3 bg-white border border-slate-200 font-semibold text-slate-700 rounded-xl text-sm">Vazgeç</button>
-                <button type="submit" form="publicBookingForm" class="flex-[2] py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm shadow-lg shadow-amber-500/20">Rezervasyonu Tamamla</button>
+            <!-- Footer Actions -->
+            <div class="p-6 bg-white border-t border-slate-100 shrink-0 flex gap-4">
+                <button type="button" onclick="closeBookingModal()" class="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 rounded-xl transition-colors border border-slate-200">İptal</button>
+                <button type="submit" form="publicBookingForm" class="flex-[2] py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-xl shadow-slate-900/20">Talebi İlet</button>
             </div>
         </div>
     </div>
 
     <!-- Müşteri Yorum Yapma Modalı -->
-    <div id="reviewModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm p-0 sm:p-4">
+    <div id="reviewModal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm p-0 sm:p-4">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden">
-            <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50">
-                <h3 class="text-lg font-bold text-slate-900">Deneyiminizi Paylaşın</h3>
-                <button onclick="closeReviewModal()" class="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-400 hover:text-slate-600 shadow-sm border border-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                <h3 class="text-xl font-serif-luxury font-bold text-slate-900">Ziyaretçi Defteri</h3>
+                <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-700 bg-slate-50 p-2 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form id="reviewForm" class="p-5 space-y-4">
+            <form id="reviewForm" class="p-6 space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Adınız Soyadınız *</label>
-                    <input type="text" id="revName" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Ad Soyad *</label>
+                    <input type="text" id="revName" required class="w-full border-b-2 border-slate-200 bg-transparent py-2 text-sm font-medium focus:border-amber-500 outline-none transition-colors">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Puanınız *</label>
-                    <select id="revRating" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white font-bold text-amber-500 outline-none">
-                        <option value="5">⭐⭐⭐⭐⭐ (5 Yıldız - Mükemmel)</option>
-                        <option value="4">⭐⭐⭐⭐ (4 Yıldız - Çok İyi)</option>
-                        <option value="3">⭐⭐⭐ (3 Yıldız - Ortalama)</option>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Konaklama Deneyiminiz *</label>
+                    <select id="revRating" class="w-full border-b-2 border-slate-200 bg-transparent py-2 text-sm font-bold text-amber-600 focus:border-amber-500 outline-none transition-colors">
+                        <option value="5">⭐⭐⭐⭐⭐ Mükemmel (5 Yıldız)</option>
+                        <option value="4">⭐⭐⭐⭐ Çok İyi (4 Yıldız)</option>
+                        <option value="3">⭐⭐⭐ Ortalama (3 Yıldız)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Yorumunuz *</label>
-                    <textarea id="revComment" rows="4" required placeholder="Konaklamanız nasıl geçti?" class="w-full border border-slate-200 rounded-xl p-3 text-sm outline-none"></textarea>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Düşünceleriniz *</label>
+                    <textarea id="revComment" rows="4" required class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm font-medium focus:border-amber-500 outline-none transition-colors resize-none bg-slate-50" placeholder="Sahra Premium deneyiminizi bizimle paylaşın..."></textarea>
                 </div>
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-amber-500/20">Yorumu Gönder</button>
+                <button type="submit" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-slate-900/20">Yorumu İlet</button>
             </form>
         </div>
     </div>
 
-    <!-- Firebase SDK & Logic -->
+    <!-- Firebase SDK & Core Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
             authDomain: "ekorkonaklama-web.firebaseapp.com",
@@ -306,11 +362,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Initialize Icons
         lucide.createIcons();
 
         let cachedApartments = [];
         let cachedRooms = [];
 
+        // Fetch Global Settings (Payments)
         onSnapshot(doc(db, "settings", "payments"), (docSnap) => {
             if(docSnap.exists()) {
                 renderPaymentOptions(docSnap.data());
@@ -319,6 +377,7 @@
             }
         });
 
+        // Fetch Facilities Data
         onSnapshot(collection(db, "apartments"), (snap) => {
             cachedApartments = [];
             snap.forEach(d => cachedApartments.push({ id: d.id, ...d.data() }));
@@ -331,10 +390,11 @@
             checkAndRenderRooms();
         });
 
+        // Render Rooms Grid
         function checkAndRenderRooms() {
             const grid = document.getElementById('publicRoomsGrid');
             if(cachedApartments.length === 0 || cachedRooms.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">Henüz kayıtlı oda bulunmuyor.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400 font-medium">Sistemde kayıtlı oda bulunmuyor.</div>`;
                 return;
             }
 
@@ -342,37 +402,66 @@
             const availableRooms = cachedRooms.filter(r => r.status === 'AVAILABLE');
 
             if(availableRooms.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 font-medium bg-white rounded-2xl border border-slate-200 shadow-sm">Şu anda müsait odamız bulunmamaktadır.</div>`;
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center justify-center">
+                        <i data-lucide="calendar-x" class="w-12 h-12 text-slate-300 mb-4"></i>
+                        <p class="text-slate-600 font-serif-luxury text-xl">Şu anda müsait odamız bulunmamaktadır.</p>
+                        <p class="text-sm text-slate-400 mt-2">Lütfen daha sonra tekrar kontrol edin veya bizimle iletişime geçin.</p>
+                    </div>`;
+                lucide.createIcons();
                 return;
             }
 
-            availableRooms.forEach(room => {
+            const roomImages = [
+                "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=800",
+                "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800",
+                "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=800"
+            ];
+
+            availableRooms.forEach((room, index) => {
                 const apt = cachedApartments.find(a => a.id === room.apartmentId);
-                const aptName = apt ? apt.name : 'Sahra Apart';
+                const aptName = apt ? apt.name : 'Sahra Premium';
                 const roomPrice = room.basePrice || room.price || 1500;
-                const capacity = room.capacity ? `Maks. ${room.capacity} Kişi` : '2 Kişilik';
+                const capacity = room.capacity ? `Maks. ${room.capacity} Kişi` : 'Standart Kapasite';
+                const imgUrl = roomImages[index % roomImages.length];
                 
                 html += `
-                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300 group">
-                        <div class="relative h-60 overflow-hidden bg-slate-100">
-                            <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=800" alt="Oda" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-emerald-700 shadow-sm flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Müsait
+                    <div class="group bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col">
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="${imgUrl}" alt="Oda" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60"></div>
+                            
+                            <!-- Badges -->
+                            <div class="absolute top-5 left-5 bg-white/95 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] font-bold text-slate-800 shadow-sm uppercase tracking-widest">
+                                ${aptName}
+                            </div>
+                            <div class="absolute top-5 right-5 bg-emerald-500/90 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] font-bold text-white shadow-sm flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Müsait
+                            </div>
+                            
+                            <!-- Bottom Info overlaying image -->
+                            <div class="absolute bottom-5 left-5 right-5 text-white">
+                                <h3 class="text-2xl font-serif-luxury font-bold drop-shadow-md">Oda ${room.roomNumber}</h3>
+                                <p class="text-xs font-medium text-white/90 drop-shadow-md mt-1">${room.type || 'Premium Süit'}</p>
                             </div>
                         </div>
-                        <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
-                            <div>
-                                <span class="text-xs font-bold uppercase tracking-wider text-amber-600">${aptName}</span>
-                                <h3 class="text-xl font-bold text-slate-900 mt-1 font-serif-luxury">Oda ${room.roomNumber} - ${room.type || 'Suit'}</h3>
-                                <p class="text-slate-500 text-xs mt-1.5 flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-500"></i> Nazilli / Aydın &bull; <i data-lucide="users" class="w-3.5 h-3.5 text-amber-500"></i> ${capacity}</p>
+                        
+                        <div class="p-6 flex-1 flex flex-col justify-between bg-white relative">
+                            <!-- Features -->
+                            <div class="flex items-center gap-4 text-xs font-medium text-slate-500 mb-6">
+                                <span class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md"><i data-lucide="users" class="w-3.5 h-3.5 text-amber-500"></i> ${capacity}</span>
+                                <span class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md"><i data-lucide="wifi" class="w-3.5 h-3.5 text-amber-500"></i> Sınırsız Wi-Fi</span>
                             </div>
-                            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            
+                            <div class="flex items-end justify-between pt-5 border-t border-slate-100">
                                 <div>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Kişi Başı Gecelik</span>
-                                    <span class="text-2xl font-black text-slate-900">₺${roomPrice}</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">Kişi Başı Gecelik</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="text-3xl font-black text-slate-900">₺${roomPrice}</span>
+                                    </div>
                                 </div>
-                                <button onclick="openBookingModal('${room.id}', '${roomPrice}', '${aptName} - Oda ${room.roomNumber}')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition">
-                                    Hemen Seç
+                                <button onclick="openBookingModal('${room.id}', '${roomPrice}', '${aptName} - Oda ${room.roomNumber}', ${room.capacity})" class="bg-slate-900 group-hover:bg-amber-500 text-white px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg transition-colors duration-300">
+                                    Seç
                                 </button>
                             </div>
                         </div>
@@ -384,11 +473,12 @@
             lucide.createIcons();
         }
 
+        // Fetch Approved Reviews
         const qRev = query(collection(db, "reviews"), where("status", "==", "APPROVED"));
         onSnapshot(qRev, (snapshot) => {
             const container = document.getElementById('publicReviewsGrid');
             if(snapshot.empty) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-200 shadow-sm">Henüz onaylanmış yorum bulunmuyor.</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-3xl border border-slate-100 text-slate-400 font-medium">Henüz misafir değerlendirmesi bulunmuyor.</div>`;
                 return;
             }
 
@@ -405,17 +495,17 @@
                 const dateStr = r.createdAt ? new Date(r.createdAt.toMillis()).toLocaleDateString('tr-TR') : '';
 
                 html += `
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
-                        <div class="space-y-3">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+                        <div class="space-y-4">
                             <div class="flex gap-1">${stars}</div>
-                            <p class="text-slate-700 text-sm italic leading-relaxed">"${r.comment}"</p>
+                            <p class="text-slate-700 text-sm italic leading-relaxed font-serif-luxury text-lg">"${r.comment}"</p>
                         </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                        <div class="flex justify-between items-end pt-6 mt-4 border-t border-slate-50">
                             <div>
-                                <p class="font-bold text-slate-900 text-sm">${r.customerName}</p>
-                                <p class="text-[10px] text-slate-400">Doğrulanmış Konaklama</p>
+                                <p class="font-bold text-slate-900 text-sm tracking-wide uppercase">${r.customerName}</p>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Premium Misafir</p>
                             </div>
-                            <span class="text-xs text-slate-400">${dateStr}</span>
+                            <span class="text-[10px] font-bold text-slate-300">${dateStr}</span>
                         </div>
                     </div>
                 `;
@@ -424,6 +514,7 @@
             lucide.createIcons();
         });
 
+        // Booking Form Logic
         window.toggleChildAges = (count) => {
             const wrapper = document.getElementById('childAgesWrapper');
             if (Number(count) > 0) {
@@ -435,14 +526,21 @@
             calculatePublicPrice();
         };
 
-        window.openBookingModal = (roomId, basePrice, roomTitle) => {
+        window.openBookingModal = (roomId, basePrice, roomTitle, maxCapacity) => {
             document.getElementById('bookRoomId').value = roomId;
             document.getElementById('modalRoomSubtitle').textContent = roomTitle;
+            
+            // Set max capacity constraint visually
+            const adultInput = document.getElementById('bookAdults');
+            if(maxCapacity) adultInput.max = maxCapacity;
+
             document.getElementById('bookingModal').classList.remove('hidden');
             document.getElementById('bookingModal').classList.add('flex');
 
+            // Default dates (Today & Tomorrow)
             const today = new Date().toISOString().split('T')[0];
             const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+            
             document.getElementById('bookCheckIn').value = today;
             document.getElementById('bookCheckOut').value = tomorrow.toISOString().split('T')[0];
             document.getElementById('bookAdults').value = 1;
@@ -461,37 +559,50 @@
             document.getElementById('childAgesWrapper').classList.add('hidden');
         };
 
-        // KİŞİ BAŞI VE 7 YAŞ ALTI ÜCRETSİZ HESAPLAMA MOTORU
+        // CORE PRICING ENGINE (Per Person & Under 7 Free)
         window.calculatePublicPrice = function() {
             const inD = new Date(document.getElementById('bookCheckIn').value);
             const outD = new Date(document.getElementById('bookCheckOut').value);
-            if(isNaN(inD) || isNaN(outD)) return;
+            const detailText = document.getElementById('priceDetailText');
+            const priceDisplay = document.getElementById('bookTotalPriceDisplay');
+            
+            if(isNaN(inD) || isNaN(outD) || outD <= inD) {
+                priceDisplay.textContent = `₺0`;
+                detailText.textContent = "Geçersiz Tarih";
+                window.currentCalculatedTotal = 0;
+                return;
+            }
             
             const diffDays = Math.ceil(Math.abs(outD - inD) / (1000 * 60 * 60 * 24));
             const days = diffDays > 0 ? diffDays : 1;
             const pricePerPerson = window.activeRoomPrice || 1500;
 
-            // Yetişkin sayısı
             const adults = Number(document.getElementById('bookAdults').value) || 1;
             
-            // Ücretli çocuk sayısını hesapla (7 yaş ve üzeri)
+            // Calculate payable children (>= 7 years old)
             let paidChildrenCount = 0;
             const childrenAgesInput = document.getElementById('bookChildrenAges').value.trim();
+            
             if(childrenAgesInput !== '') {
                 const ages = childrenAgesInput.split(',').map(a => Number(a.trim())).filter(a => !isNaN(a));
                 ages.forEach(age => {
-                    if (age >= 7) {
-                        paidChildrenCount++; // 7 yaş ve üstü ücrete tabi
-                    }
-                    // 7 yaşından küçükler (< 7) ücretsiz sayılır
+                    if (age >= 7) paidChildrenCount++;
                 });
             }
 
-            const totalPersons = adults + paidChildrenCount;
-            const total = totalPersons * pricePerPerson * days;
+            const totalPayablePersons = adults + paidChildrenCount;
+            const total = totalPayablePersons * pricePerPerson * days;
 
             window.currentCalculatedTotal = total;
-            document.getElementById('bookTotalPriceDisplay').textContent = `₺${total}`;
+            
+            // Update UI
+            priceDisplay.textContent = `₺${total.toLocaleString('tr-TR')}`;
+            
+            let detailStr = `${totalPayablePersons} Kişi x ${days} Gece`;
+            if (childrenAgesInput !== '' && paidChildrenCount < childrenAgesInput.split(',').length) {
+                detailStr += ` (7 yaş altı ücretsiz)`;
+            }
+            detailText.textContent = detailStr;
         }
 
         document.getElementById('bookCheckIn').addEventListener('change', calculatePublicPrice);
@@ -500,18 +611,21 @@
         function renderPaymentOptions(settings) {
             const container = document.getElementById('paymentMethodsContainer');
             let html = '';
+            const baseClass = "flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors";
+            
             if(settings.creditCard !== false) {
-                html += `<label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="paymentMethod" value="CREDIT_CARD" checked class="w-4 h-4 text-amber-600"><span class="text-sm font-semibold text-slate-700">Kredi Kartı ile Online Güvenli Ödeme</span></label>`;
+                html += `<label class="${baseClass}"><input type="radio" name="paymentMethod" value="CREDIT_CARD" checked class="w-4 h-4 text-amber-500 accent-amber-500"><span class="text-xs font-bold uppercase tracking-wide text-slate-700">Kredi Kartı (Online Ödeme)</span></label>`;
             }
             if(settings.bankTransfer !== false) {
-                html += `<label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="paymentMethod" value="BANK_TRANSFER" class="w-4 h-4 text-amber-600" onchange="toggleBankInfo(true)"><span class="text-sm font-semibold text-slate-700">Havale / EFT (IBAN)</span></label>`;
+                html += `<label class="${baseClass}"><input type="radio" name="paymentMethod" value="BANK_TRANSFER" class="w-4 h-4 text-amber-500 accent-amber-500" onchange="toggleBankInfo(true)"><span class="text-xs font-bold uppercase tracking-wide text-slate-700">Havale / EFT</span></label>`;
             }
             if(settings.atReception !== false) {
-                html += `<label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="paymentMethod" value="RECEPTION" class="w-4 h-4 text-amber-600" onchange="toggleBankInfo(false)"><span class="text-sm font-semibold text-slate-700">Otele Girişte Ödeme</span></label>`;
+                html += `<label class="${baseClass}"><input type="radio" name="paymentMethod" value="RECEPTION" class="w-4 h-4 text-amber-500 accent-amber-500" onchange="toggleBankInfo(false)"><span class="text-xs font-bold uppercase tracking-wide text-slate-700">Otele Girişte Ödeme</span></label>`;
             }
             container.innerHTML = html;
+            
             if(settings.bankName) document.getElementById('bankNameText').textContent = `Banka: ${settings.bankName}`;
-            if(settings.iban) document.getElementById('ibanText').textContent = `IBAN: ${settings.iban}`;
+            if(settings.iban) document.getElementById('ibanText').textContent = `${settings.iban}`;
         }
 
         window.toggleBankInfo = (show) => {
@@ -519,15 +633,26 @@
             if(show) box.classList.remove('hidden'); else box.classList.add('hidden');
         };
 
+        // Submit Booking
         document.getElementById('publicBookingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const ogText = btn.innerHTML;
+            btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
+
             const roomId = document.getElementById('bookRoomId').value;
             const name = document.getElementById('bookName').value;
             const phone = document.getElementById('bookPhone').value;
             const checkIn = document.getElementById('bookCheckIn').value;
             const checkOut = document.getElementById('bookCheckOut').value;
-            const total = window.currentCalculatedTotal || 1500;
+            const total = window.currentCalculatedTotal || 0;
             const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'RECEPTION';
+
+            if(total === 0) {
+                showToast("Geçersiz tarih aralığı.", "error");
+                btn.innerHTML = ogText; btn.disabled = false;
+                return;
+            }
 
             try {
                 await addDoc(collection(db, "reservations"), {
@@ -549,41 +674,60 @@
                     processedBy: 'Online Müşteri',
                     createdAt: serverTimestamp()
                 });
+                
+                // Mark Room as Reserved
                 await updateDoc(doc(db, "rooms", roomId), { status: 'RESERVED' });
+                
                 closeBookingModal();
                 showToast("Rezervasyon talebiniz başarıyla alındı!");
             } catch(err) {
-                showToast("Rezervasyon oluşturulurken hata oluştu.", "error");
+                console.error(err);
+                showToast("Kayıt oluşturulurken bir hata oluştu.", "error");
+            } finally {
+                btn.innerHTML = ogText; btn.disabled = false;
             }
         });
 
+        // Review Modal Logic
         window.openReviewModal = () => { document.getElementById('reviewModal').classList.remove('hidden'); document.getElementById('reviewModal').classList.add('flex'); };
         window.closeReviewModal = () => { document.getElementById('reviewModal').classList.add('hidden'); document.getElementById('reviewModal').classList.remove('flex'); document.getElementById('reviewForm').reset(); };
 
         document.getElementById('reviewForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
+
             try {
                 await addDoc(collection(db, "reviews"), {
                     customerName: document.getElementById('revName').value,
                     rating: Number(document.getElementById('revRating').value),
                     comment: document.getElementById('revComment').value,
-                    status: 'PENDING', createdAt: serverTimestamp()
+                    status: 'PENDING', 
+                    createdAt: serverTimestamp()
                 });
                 closeReviewModal();
-                showToast("Yorumunuz başarıyla iletildi.");
+                showToast("Yorumunuz değerlendirilmek üzere iletildi.");
             } catch(err) {
                 showToast("Yorum gönderilemedi.", "error");
+            } finally {
+                btn.innerHTML = 'Yorumu İlet'; btn.disabled = false;
             }
         });
 
+        // Global Toast Notification
         window.showToast = (msg, type = 'success') => {
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;
             const wrapper = document.getElementById('toastIconWrapper');
-            wrapper.innerHTML = `<i data-lucide="${type==='error'?'alert-circle':'check-circle'}" class="w-5 h-5 ${type==='error'?'text-red-400':'text-emerald-400'}"></i>`;
+            
+            const iconName = type === 'error' ? 'alert-triangle' : 'check-circle-2';
+            const iconColor = type === 'error' ? 'text-red-400' : 'text-emerald-400';
+            
+            wrapper.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6 ${iconColor}"></i>`;
             lucide.createIcons();
+            
             t.classList.remove('-translate-y-20', 'opacity-0');
-            setTimeout(() => t.classList.add('-translate-y-20', 'opacity-0'), 3500);
+            setTimeout(() => t.classList.add('-translate-y-20', 'opacity-0'), 4000);
         };
     </script>
 </body>

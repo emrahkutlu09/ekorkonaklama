@@ -58,7 +58,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -96,20 +96,23 @@
             btn.disabled = true;
 
             try {
-                // 1. Firebase Auth ile giriş yap
+                // Oturum kalıcılığını yerel hafızaya sabitle (Çıkış yapılana kadar unutulmaz)
+                await setPersistence(auth, browserLocalPersistence);
+
+                // Firebase Auth ile giriş yap
                 const userCredential = await signInWithEmailAndPassword(auth, email, pass);
                 const user = userCredential.user;
 
-                let userRole = 'RECEPTION'; // Varsayılan
+                let userRole = 'RECEPTION';
 
-                // 2. Eğer admin hesabı ise doğrudan admin.html'e gönder
+                // Yönetici kontrolü
                 if (email === 'admin@sahra.com') {
                     showToast("Yönetici girişi başarılı, yönlendiriliyorsunuz...", "success");
                     setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                     return;
                 }
 
-                // 3. Firestore'daki 'staff' koleksiyonundan personelin rolünü bul
+                // Firestore staff tablosundan rolü sorgula
                 const q = query(collection(db, "staff"), where("email", "==", email));
                 const querySnapshot = await getDocs(q);
 
@@ -117,13 +120,10 @@
                     userRole = querySnapshot.docs[0].data().role;
                 }
 
-                // 4. Role göre doğru panele yönlendir
                 showToast("Giriş başarılı, yönlendiriliyorsunuz...", "success");
                 setTimeout(() => {
                     if (userRole === 'HOUSEKEEPING') {
                         window.location.href = 'katgorevlisi.html';
-                    } else if (userRole === 'RECEPTION' || userRole === 'ADMIN') {
-                        window.location.href = 'resepsiyon.html';
                     } else {
                         window.location.href = 'resepsiyon.html';
                     }

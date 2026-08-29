@@ -258,6 +258,7 @@
                                 <select id="usersRole" class="w-full border rounded-lg p-2.5 border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
                                     <option value="RECEPTION">Resepsiyon</option>
                                     <option value="HOUSEKEEPING">Kat Görevlisi</option>
+                                    <option value="ADMIN">Yönetici (Admin)</option>
                                 </select>
                             </div>
                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition shadow-md">Personel Hesabı Oluştur</button>
@@ -591,7 +592,6 @@
             window.mapInitialized = true;
         }
 
-        // UI Helpers
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('sidebarOverlay').classList.toggle('hidden');
@@ -650,7 +650,6 @@
         let reviewsData = [];
         let currentReviewFilter = 'ALL';
 
-        // Ayarları Dinleme
         onSnapshot(doc(db, "settings", "payments"), (docSnap) => {
             if(docSnap.exists()) {
                 const data = docSnap.data();
@@ -662,7 +661,6 @@
             }
         });
         
-        // Genel Ayarları Dinleme
         onSnapshot(doc(db, "settings", "general"), (docSnap) => {
             if(docSnap.exists()) {
                 const data = docSnap.data();
@@ -675,7 +673,6 @@
             }
         });
 
-        // Apart ve Odalar
         onSnapshot(collection(db, "apartments"), (snapshot) => {
             apartmentsData = [];
             let html = '';
@@ -740,7 +737,6 @@
             lucide.createIcons();
         });
 
-        // ODA DÜZENLEME SİSTEMİ MANTIĞI
         let currentEditRoomId = null;
         let currentEditImages = [];
 
@@ -875,9 +871,9 @@
             let html = '';
             snapshot.forEach(docSnap => {
                 const s = { id: docSnap.id, ...docSnap.data() };
-                const roleMap = { 'RECEPTION': 'Resepsiyon', 'HOUSEKEEPING': 'Kat Görevlisi' };
+                const roleMap = { 'RECEPTION': 'Resepsiyon', 'HOUSEKEEPING': 'Kat Görevlisi', 'ADMIN': 'Yönetici' };
                 const displayRole = roleMap[s.role] || s.role;
-                const roleColor = s.role === 'RECEPTION' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700';
+                const roleColor = s.role === 'ADMIN' ? 'bg-red-100 text-red-700' : (s.role === 'RECEPTION' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700');
                 html += `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-50">
                         <td class="p-4 font-bold text-gray-800 flex items-center gap-2">
@@ -907,7 +903,6 @@
             } catch(err) { showToast("Kayıt işlemi başarısız.", "error"); } finally { btn.innerHTML = originalText; btn.disabled = false; }
         });
 
-        // --- YORUMLAR (GÜNCELLENDİ) ---
         const qReviews = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
         onSnapshot(qReviews, (snapshot) => {
             reviewsData = [];
@@ -1031,7 +1026,6 @@
             } catch(e) { showToast("Ayarlar güncellenirken hata oluştu.", "error"); }
         });
 
-        // GENEL AYARLAR FORM SUBMIT EKLENDİ
         const generalSettingsForm = document.getElementById('generalSettingsForm');
         if(generalSettingsForm) {
             generalSettingsForm.addEventListener('submit', async (e) => {
@@ -1082,7 +1076,6 @@
             } catch(err) { showToast("Hata oluştu.", "error"); }
         });
 
-        // REZERVASYONLAR VE İŞLEM TAKİBİ İÇİN LİSTEYİ GETİR
         const qAdminRes = query(collection(db, "reservations"), orderBy("createdAt", "desc"));
         onSnapshot(qAdminRes, (snapshot) => {
             let html = '';

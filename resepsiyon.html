@@ -22,19 +22,16 @@
         .status-CLEANING_REQUIRED { background-color: #fefce8; color: #854d0e; border: 1px solid #fef08a; }
         .status-MAINTENANCE { background-color: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
 
-        /* Kaydırma çubuğu gizleme */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        /* Liste Tab butonları için seçili durumu */
         .tab-active { background-color: white; color: #1e293b; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .tab-inactive { color: #64748b; border: 1px solid transparent; }
     </style>
 </head>
 <body class="text-slate-800 h-screen flex flex-col md:flex-row overflow-hidden">
 
-    <!-- Mobile Header -->
     <header class="md:hidden bg-slate-900 text-white h-16 flex items-center justify-between px-4 shrink-0 z-20 shadow-md">
         <h1 class="text-lg font-bold tracking-wider text-blue-400">SAHRA APART</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition">
@@ -42,10 +39,8 @@
         </button>
     </header>
 
-    <!-- Sidebar Overlay (Mobile) -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 z-30 hidden backdrop-blur-sm md:hidden" onclick="toggleSidebar()"></div>
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-slate-900 text-white flex flex-col z-40 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
         <div class="p-6 border-b border-slate-800 flex justify-between items-center md:block">
             <div class="text-center md:text-left">
@@ -79,9 +74,7 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 flex flex-col h-[calc(100vh-4rem)] md:h-screen overflow-hidden bg-slate-50/50">
-        <!-- Top Actions Bar -->
         <header class="bg-white h-16 border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 shrink-0 shadow-sm z-10">
             <h2 class="text-lg md:text-xl font-bold text-slate-800 hidden sm:block" id="pageTitle">Oda Haritası</h2>
             <div class="flex gap-2 w-full sm:w-auto">
@@ -94,7 +87,6 @@
             </div>
         </header>
 
-        <!-- Stats Bar (Scrollable on mobile) -->
         <div class="bg-white border-b border-slate-200 p-3 shrink-0 overflow-x-auto whitespace-nowrap hidden sm:block" id="statsBar">
             <div class="flex gap-3 min-w-max px-2">
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg shadow-sm">
@@ -116,7 +108,6 @@
             </div>
         </div>
 
-        <!-- CONTENT 1: ROOM MAP -->
         <div class="flex-1 overflow-y-auto p-4 md:p-6" id="view-map">
             <div id="roomMapContainer" class="pb-10">
                 <div class="flex flex-col items-center justify-center h-full text-slate-400 mt-20">
@@ -126,7 +117,6 @@
             </div>
         </div>
 
-        <!-- CONTENT 2: RESERVATIONS LIST -->
         <div class="flex-1 overflow-y-auto p-4 md:p-6 hidden" id="view-reservations">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
                 <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-slate-50 shrink-0">
@@ -134,7 +124,6 @@
                         <i data-lucide="calendar-clock" class="w-5 h-5 text-blue-500"></i> Rezervasyon Listesi
                     </h3>
                     
-                    <!-- FİLTRELEME BUTONLARI -->
                     <div class="flex bg-slate-200/70 p-1 rounded-lg w-full xl:w-auto text-xs font-bold overflow-x-auto shrink-0 custom-scrollbar">
                         <button onclick="filterReservations('ALL')" id="res-filter-ALL" class="flex-1 sm:px-4 px-3 py-2 tab-active rounded-md transition whitespace-nowrap">Tümü</button>
                         <button onclick="filterReservations('CONFIRMED')" id="res-filter-CONFIRMED" class="flex-1 sm:px-4 px-3 py-2 tab-inactive rounded-md transition whitespace-nowrap">Giriş Bekleyen</button>
@@ -156,16 +145,13 @@
                                 <th class="p-4 text-right">Durum / İşlem</th>
                             </tr>
                         </thead>
-                        <tbody id="reservationsTableBody" class="divide-y divide-slate-100">
-                            <!-- JS ile doldurulacak -->
-                        </tbody>
+                        <tbody id="reservationsTableBody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Room Action Modal -->
     <div id="roomModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50 shrink-0">
@@ -178,17 +164,12 @@
                 </button>
             </div>
             <div class="p-5 space-y-5 overflow-y-auto flex-1">
-                <div class="p-4 rounded-2xl border-2 flex items-center gap-4 shadow-sm" id="modalStatusBadge">
-                    <!-- Status HTML -->
-                </div>
-                <div id="modalActionButtons" class="grid grid-cols-1 gap-3 pt-2">
-                    <!-- Action Buttons -->
-                </div>
+                <div class="p-4 rounded-2xl border-2 flex items-center gap-4 shadow-sm" id="modalStatusBadge"></div>
+                <div id="modalActionButtons" class="grid grid-cols-1 gap-3 pt-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- Hızlı Rezervasyon Modalı -->
     <div id="reservationModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-2xl modal-enter flex flex-col h-[90vh] sm:h-auto sm:max-h-[90vh] overflow-hidden">
             <div class="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 bg-slate-50 shrink-0">
@@ -200,7 +181,6 @@
             
             <div class="p-4 sm:p-5 overflow-y-auto flex-1 custom-scrollbar">
                 <form id="reservationForm" class="space-y-5">
-                    
                     <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -241,7 +221,6 @@
                         </div>
                     </div>
 
-                    <!-- FİNANS BÖLÜMÜ (KAPORA VE KALAN) -->
                     <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 space-y-4">
                         <div class="pt-2">
                             <label class="block text-sm font-bold text-slate-700 mb-1">Toplam Konaklama Tutarı</label>
@@ -272,7 +251,6 @@
         </div>
     </div>
 
-    <!-- İptal Yönetim Modalı -->
     <div id="cancelModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden">
             <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-rose-50">
@@ -301,7 +279,6 @@
         </div>
     </div>
 
-    <!-- Kasa Gideri Ekleme Modalı -->
     <div id="financeModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden">
             <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50">
@@ -335,7 +312,6 @@
         </div>
     </div>
 
-    <!-- Güvenli Toast Notification -->
     <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 transform -translate-y-20 opacity-0 transition-all duration-300 z-[9999]">
         <div class="bg-slate-900/95 backdrop-blur text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-slate-700">
             <span id="toastIconWrapper"></span>
@@ -343,7 +319,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -371,7 +346,6 @@
         let currentResFilter = 'ALL';
         let currentStaffName = 'Resepsiyon'; 
 
-        // GÜVENLİK VE KİMLİK KONTROLÜ
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 if(window.location.pathname.endsWith('resepsiyon.html')) { window.location.assign('login.html'); }
@@ -442,7 +416,6 @@
             });
         }
 
-        // FİLTRELEME VE REZERVASYON ÇİZME
         window.filterReservations = (status) => {
             currentResFilter = status;
             ['ALL', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT', 'CANCELLED'].forEach(f => {
@@ -521,18 +494,11 @@
                     statusLabel = 'İPTAL EDİLDİ';
                     actionBtnHtml = ``;
                 }
-                else {
-                    badgeColor = 'bg-red-50 text-red-700 border-red-200';
-                    statusLabel = r.status;
-                }
 
                 html += `
                     <tr class="hover:bg-slate-50/50 transition border-b border-slate-50">
                         <td class="p-4 text-[11px] text-slate-500 whitespace-nowrap">${dateAdded}</td>
-                        <td class="p-4 font-bold text-slate-800">
-                            ${fullName}
-                            ${staffInfo}
-                        </td>
+                        <td class="p-4 font-bold text-slate-800">${fullName} ${staffInfo}</td>
                         <td class="p-4">
                             <p class="text-xs font-semibold text-slate-700">${r.phone || '-'}</p>
                             <p class="text-[10px] text-slate-400 mt-0.5">TC: ${r.tc || '-'}</p>
@@ -560,7 +526,6 @@
             lucide.createIcons();
         }
 
-        // TAHSİLAT
         window.collectRemaining = async (resId, amount, totalAmount, name, roomNo) => {
             if(!confirm(`${name} adlı müşteriden kalan ₺${amount} tutarı tahsil edip kasaya işlemek istediğinize emin misiniz?`)) return;
             try {
@@ -569,10 +534,9 @@
                 });
                 await updateDoc(doc(db, "reservations", resId), { remainingAmount: 0, paidAmount: totalAmount });
                 showToast("Kalan bakiye tahsil edildi!");
-            } catch(e) { console.error(e); showToast("Tahsilat hatası.", "error"); }
+            } catch(e) { showToast("Tahsilat hatası.", "error"); }
         };
 
-        // GİRİŞ YAP
         window.checkinGuest = async (resId, roomId, name) => {
             if(!confirm(`${name} adlı müşterinin otele girişini yapmak istediğinize emin misiniz?`)) return;
             try {
@@ -583,11 +547,10 @@
             } catch (e) { showToast("Giriş işlemi sırasında hata oluştu.", "error"); }
         };
 
-        // AKILLI ÇIKIŞ YAP
         window.smartCheckout = async (resId, roomId, remainingAmount, name) => {
             if (remainingAmount > 0) {
                 closeRoomModal();
-                showToast(`İŞLEM İPTAL EDİLDİ: ${name} isimli müşterinin ₺${remainingAmount} ödenmemiş bakiyesi var. Önce kalanı tahsil edin!`, "error");
+                showToast(`İŞLEM İPTAL EDİLDİ: ${name} isimli müşterinin ₺${remainingAmount} ödenmemiş bakiyesi var.`, "error");
                 return;
             }
             if(!confirm(`${name} adlı müşterinin çıkışını yapmak ve odayı temizliğe göndermek istediğinize emin misiniz?`)) return;
@@ -599,21 +562,13 @@
             } catch (e) { showToast("Çıkış işlemi sırasında bir hata oluştu.", "error"); }
         };
 
-        // İPTAL VE İADE YÖNETİMİ
         let currentCancelRes = null;
-
         window.openCancelModal = (resId, roomId, customerName, depositAmount) => {
             currentCancelRes = { resId, roomId, customerName, depositAmount };
             document.getElementById('cancelCustomerName').textContent = customerName;
             document.getElementById('cancelDepositAmount').textContent = `₺${depositAmount}`;
-            
             const btnRefund = document.getElementById('btnRefundCancel');
-            if (depositAmount <= 0) {
-                btnRefund.classList.add('hidden');
-            } else {
-                btnRefund.classList.remove('hidden');
-            }
-
+            if (depositAmount <= 0) btnRefund.classList.add('hidden'); else btnRefund.classList.remove('hidden');
             document.getElementById('cancelModal').classList.remove('hidden');
             document.getElementById('cancelModal').classList.add('flex');
         };
@@ -627,10 +582,6 @@
         window.confirmCancel = async (isRefund) => {
             if(!currentCancelRes) return;
             const { resId, roomId, customerName, depositAmount } = currentCancelRes;
-            
-            const actionText = isRefund ? "Kaporayı İADE EDEREK iptal etmek" : "Kaporayı YAKARAK iptal etmek";
-            if(!confirm(`${customerName} adlı müşterinin rezervasyonunu ${actionText} istediğinize emin misiniz?`)) return;
-
             try {
                 if (isRefund && depositAmount > 0) {
                     await addDoc(collection(db, "finances"), {
@@ -639,19 +590,14 @@
                 }
                 await updateDoc(doc(db, "reservations", resId), { status: 'CANCELLED' });
                 if (roomId) await updateDoc(doc(db, "rooms", roomId), { status: 'AVAILABLE' });
-                
-                closeRoomModal();
-                closeCancelModal();
-                showToast("Rezervasyon başarıyla iptal edildi ve oda boşa çıkarıldı.");
-            } catch (error) { showToast("İptal işlemi sırasında hata oluştu.", "error"); }
+                closeRoomModal(); closeCancelModal();
+                showToast("Rezervasyon iptal edildi ve oda boşa çıkarıldı.");
+            } catch (error) { showToast("İptal işlemi hatası.", "error"); }
         };
 
-        // UI TAB GEÇİŞLERİ
         window.toggleSidebar = () => {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebarOverlay').classList.toggle('hidden');
         };
 
         window.switchTab = (tab) => {
@@ -661,7 +607,6 @@
             document.getElementById('tab-reservations').className = "w-full flex items-center justify-between px-4 py-3.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl transition text-left";
             
             document.getElementById(`view-${tab === 'map' ? 'map' : 'reservations'}`).classList.remove('hidden');
-            
             if(tab === 'map') {
                 document.getElementById('pageTitle').textContent = "Oda Haritası";
                 document.getElementById('statsBar').classList.remove('hidden');
@@ -717,7 +662,6 @@
             return map[status] || 'home';
         }
 
-        // ODA DETAYLARI VE MODALI
         window.openRoomDetails = (roomId) => {
             currentSelectedRoom = allRooms.find(r => r.id === roomId);
             if(!currentSelectedRoom) return;
@@ -735,9 +679,7 @@
 
             document.getElementById('modalStatusBadge').className = `p-4 rounded-2xl border flex items-center gap-4 shadow-sm ${badgeClasses[currentSelectedRoom.status]}`;
             document.getElementById('modalStatusBadge').innerHTML = `
-                <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                    <i data-lucide="${getIconForStatus(currentSelectedRoom.status)}" class="w-6 h-6"></i>
-                </div>
+                <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm"><i data-lucide="${getIconForStatus(currentSelectedRoom.status)}" class="w-6 h-6"></i></div>
                 <div><p class="text-[10px] uppercase font-bold tracking-wider opacity-70">Anlık Durum</p><p class="font-bold text-lg leading-tight">${getStatusLabel(currentSelectedRoom.status)}</p></div>
             `;
 
@@ -773,20 +715,17 @@
         };
 
         window.closeRoomModal = () => { document.getElementById('roomModal').classList.add('hidden'); document.getElementById('roomModal').classList.remove('flex'); };
-
         window.updateRoomStatus = async (roomId, newStatus) => {
             try { await updateDoc(doc(db, "rooms", roomId), { status: newStatus }); closeRoomModal(); showToast(`Oda: ${getStatusLabel(newStatus)}`); } 
             catch (e) { alert("Hata oluştu."); }
         };
 
-        // YENİ REZERVASYON & KAPORA GÜVENLİĞİ
         window.openReservationModal = (roomId = null) => {
             document.getElementById('reservationModal').classList.remove('hidden'); document.getElementById('reservationModal').classList.add('flex');
             const today = new Date().toISOString().split('T')[0];
             const tmrw = new Date(); tmrw.setDate(tmrw.getDate() + 1);
             document.getElementById('resCheckIn').value = today; document.getElementById('resCheckOut').value = tmrw.toISOString().split('T')[0];
             if(roomId) { document.getElementById('resRoom').value = roomId; calculatePrice(); }
-            
             document.getElementById('btnSaveReservation').disabled = false;
             document.getElementById('btnSaveReservation').innerHTML = 'Kaydet ve Onayla';
         };
@@ -801,17 +740,13 @@
             const select = document.getElementById('resRoom');
             const currentVal = select.value;
             let html = '<option value="">Önce oda seçin...</option>';
-            
-            // Müsait VE Temizlikteki odalar eklendi
             allRooms.filter(r => r.status === 'AVAILABLE' || r.status === 'CLEANING_REQUIRED').forEach(room => {
                 const aptName = allApartments.find(a => a.id === room.apartmentId)?.name || '';
                 const cleanTag = room.status === 'CLEANING_REQUIRED' ? ' (Temizlikte)' : '';
                 html += `<option value="${room.id}" data-price="${room.basePrice}">${aptName} - Oda ${room.roomNumber} (₺${room.basePrice}) ${cleanTag}</option>`;
             });
-            
             select.innerHTML = html;
             if(currentVal) select.value = currentVal;
-            
             select.addEventListener('change', calculatePrice);
             document.getElementById('resCheckIn').addEventListener('change', calculatePrice);
             document.getElementById('resCheckOut').addEventListener('change', calculatePrice);
@@ -824,7 +759,6 @@
             const inD = new Date(document.getElementById('resCheckIn').value);
             const outD = new Date(document.getElementById('resCheckOut').value);
             if(!select.value || isNaN(inD) || isNaN(outD)) return;
-            
             const diffDays = Math.ceil(Math.abs(outD - inD) / (1000 * 60 * 60 * 24));
             if(diffDays > 0) {
                 const price = parseInt(select.options[select.selectedIndex].getAttribute('data-price') || 0);
@@ -833,27 +767,21 @@
             }
         }
         
-        // KATI KAPORA GÜVENLİK DUVARI
         function checkDepositLogic() {
             const total = Number(document.getElementById('resPrice').value) || 0;
             const depositInput = document.getElementById('resDeposit');
             let deposit = Number(depositInput.value) || 0;
             const btnSave = document.getElementById('btnSaveReservation');
-            
             let remaining = total - deposit;
-            
             if (deposit > total && total > 0) {
                 remaining = 0;
                 depositInput.classList.add('border-red-500', 'text-red-600', 'bg-red-50');
                 showToast("DİKKAT: Kapora toplam tutarı geçemez!", "error");
                 btnSave.disabled = true;
-                btnSave.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
                 depositInput.classList.remove('border-red-500', 'text-red-600', 'bg-red-50');
                 btnSave.disabled = false;
-                btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-            
             document.getElementById('resRemaining').value = remaining;
         }
 
@@ -865,14 +793,7 @@
             const deposit = Number(document.getElementById('resDeposit').value);
             const btn = document.getElementById('btnSaveReservation');
             
-            if (deposit > price) {
-                showToast("İŞLEM İPTAL EDİLDİ: Kapora tutarı toplam tutardan büyük olamaz! Lütfen düzeltin.", "error");
-                return;
-            }
-            if (deposit < 0 || price <= 0) {
-                showToast("İşlem iptal edildi: Mantıksız tutarlar girdiniz!", "error");
-                return;
-            }
+            if (deposit > price) { showToast("Kapora tutarı toplam tutardan büyük olamaz!", "error"); return; }
             if(!roomId || !name) { showToast("Lütfen eksik alanları doldurun.", "error"); return; }
 
             const remaining = price - deposit;
@@ -894,11 +815,10 @@
                 }
 
                 await updateDoc(doc(db, "rooms", roomId), { status: 'RESERVED' });
-                closeReservationModal(); showToast(deposit > 0 ? "Kayıt başarılı, kapora kasaya işlendi." : "Rezervasyon başarılı.");
+                closeReservationModal(); showToast("Rezervasyon başarılı.");
             } catch (error) { showToast("Kayıt hatası.", "error"); btn.disabled = false; btn.innerHTML = 'Kaydet ve Onayla';} 
         };
 
-        // GİDER EKLEME (finances)
         window.openFinanceModal = () => { document.getElementById('financeModal').classList.remove('hidden'); document.getElementById('financeModal').classList.add('flex'); };
         window.closeFinanceModal = () => { document.getElementById('financeModal').classList.add('hidden'); document.getElementById('financeModal').classList.remove('flex'); document.getElementById('financeForm').reset(); };
 
@@ -913,22 +833,17 @@
             } catch(err) { showToast("Kayıt hatası.", "error"); }
         });
 
-        // SVG HATASI GİDERİLMİŞ GÜVENLİ TOAST
         window.showToast = (msg, type = 'success') => {
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;
-            
             const wrapper = document.getElementById('toastIconWrapper');
             const iconName = type === 'error' ? 'alert-circle' : 'check-circle';
             const iconColor = type === 'error' ? 'text-red-400' : 'text-emerald-400';
-            
             wrapper.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 ${iconColor}"></i>`;
             lucide.createIcons();
-            
             t.classList.remove('-translate-y-20', 'opacity-0');
             setTimeout(() => t.classList.add('-translate-y-20', 'opacity-0'), 3000);
         };
-
     </script>
 </body>
 </html>

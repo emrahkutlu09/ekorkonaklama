@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sahra Apart & Konaklama | Lüks Konaklama Deneyimi</title>
+    <title>Ekor Apart & Konaklama | Lüks Konaklama Deneyimi</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -71,7 +71,7 @@
     <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-24 flex items-center justify-between">
             <div class="flex items-center gap-2 sm:gap-3">
-                <span id="navbarBrandName" class="text-2xl sm:text-3xl font-serif-luxury font-bold tracking-tight text-slate-900">SAHRA</span>
+                <span id="navbarBrandName" class="text-2xl sm:text-3xl font-serif-luxury font-bold tracking-tight text-slate-900">EKOR</span>
                 <div class="hidden sm:block h-6 w-[1px] bg-amber-500/50"></div>
                 <span id="navbarBrandSlogan" class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-amber-600 mt-1 sm:mt-0">Premium</span>
             </div>
@@ -104,7 +104,7 @@
     <!-- Mobil Açılır Menü (Tam Ekran) -->
     <div id="mobileMenu" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-50 flex flex-col hidden opacity-0 transition-opacity duration-300">
         <div class="flex justify-between items-center p-4 h-16 border-b border-slate-800/50">
-            <span id="mobileBrandName" class="text-2xl font-serif-luxury font-bold tracking-tight text-white">SAHRA</span>
+            <span id="mobileBrandName" class="text-2xl font-serif-luxury font-bold tracking-tight text-white">EKOR</span>
             <button onclick="toggleMobileMenu()" class="p-2 text-white hover:text-amber-500 transition-colors">
                 <i data-lucide="x" class="w-7 h-7"></i>
             </button>
@@ -156,7 +156,7 @@
     <section id="about" class="py-20 bg-white border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16 max-w-3xl mx-auto">
-                <span class="text-amber-600 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase mb-4 block">Sahra Farkı</span>
+                <span class="text-amber-600 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase mb-4 block">Ekor Farkı</span>
                 <h2 class="text-3xl sm:text-4xl font-serif-luxury text-slate-900">Ayrıcalıklı Hizmetlerimiz</h2>
                 <p class="mt-4 text-slate-500 text-sm sm:text-base font-light leading-relaxed">
                     Sadece bir konaklama değil, her detayı özenle düşünülmüş prestijli bir yaşam alanı sunuyoruz.
@@ -280,7 +280,7 @@
                 <!-- Marka & Açıklama -->
                 <div class="space-y-4">
                     <div class="flex items-baseline">
-                        <span id="footerBrandName" class="text-3xl font-serif-luxury font-bold text-white tracking-widest">SAHRA</span>
+                        <span id="footerBrandName" class="text-3xl font-serif-luxury font-bold text-white tracking-widest">EKOR</span>
                         <span id="footerBrandSlogan" class="text-amber-500 text-[10px] uppercase font-bold tracking-widest ml-2">Premium</span>
                     </div>
                     <p class="text-sm text-slate-400 font-light leading-relaxed">
@@ -329,7 +329,7 @@
                         </li>
                         <li class="flex items-center gap-3">
                             <i data-lucide="mail" class="w-5 h-5 text-amber-500 shrink-0"></i>
-                            <a id="footerEmail" href="mailto:info@sahraapart.com" class="hover:text-amber-400 transition-colors">info@sahraapart.com</a>
+                            <a id="footerEmail" href="mailto:info@ekorkonaklama.com" class="hover:text-amber-400 transition-colors">info@ekorkonaklama.com</a>
                         </li>
                     </ul>
                 </div>
@@ -337,7 +337,7 @@
 
             <!-- Alt Telif & İmza -->
             <div class="border-t border-slate-800/80 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-xs font-light text-slate-500">&copy; 2026 Sahra Apart & Konaklama. Tüm Hakları Saklıdır.</p>
+                <p class="text-xs font-light text-slate-500">&copy; 2026 Ekor Apart & Konaklama. Tüm Hakları Saklıdır.</p>
                 <div class="flex items-center gap-2">
                     <p class="text-xs text-slate-500 font-medium tracking-wider">Tasarlayan ve Geliştiren:</p>
                     <span class="text-xs font-bold text-amber-500 tracking-widest uppercase">Enart Yazılım</span>
@@ -777,7 +777,7 @@
 
             availableRooms.forEach((room, index) => {
                 const apt = cachedApartments.find(a => a.id === room.apartmentId);
-                const aptName = apt ? apt.name : 'Sahra Premium';
+                const aptName = apt ? apt.name : 'Ekor Premium';
                 const roomPrice = room.basePrice || room.price || 1500;
                 const capacity = room.capacity ? `Maks. ${room.capacity} Kişi` : 'Standart Kapasite';
                 
@@ -841,7 +841,7 @@
             if(!room) return;
 
             const apt = cachedApartments.find(a => a.id === room.apartmentId);
-            const aptName = apt ? apt.name : 'Sahra Premium';
+            const aptName = apt ? apt.name : 'Ekor Premium';
             const roomPrice = room.basePrice || room.price || 1500;
 
             const elRoomName = document.getElementById('detailRoomName');
@@ -1205,7 +1205,7 @@
             if (type === 'refund') {
                 titleEl.textContent = 'İptal ve İade Şartları';
                 contentEl.innerHTML = `
-                    <p>Sahra Apart & Konaklama olarak rezervasyon iptal ve iade süreçlerimiz, misafirlerimize esneklik sunarken tesisimizin operasyonel planlamasını da korumayı amaçlamaktadır.</p>
+                    <p>Ekor Apart & Konaklama olarak rezervasyon iptal ve iade süreçlerimiz, misafirlerimize esneklik sunarken tesisimizin operasyonel planlamasını da korumayı amaçlamaktadır.</p>
                     <ul class="list-disc pl-5 space-y-3 mt-4 font-medium text-slate-700">
                         <li><strong>Standart İptal:</strong> Konaklama başlangıç tarihine <span class="text-amber-600 font-bold">7 günden fazla</span> süre kala yapılan iptallerde, ödemiş olduğunuz kapora veya tam ücret kesintisiz olarak %100 iade edilir.</li>
                         <li><strong>Geç İptal:</strong> Konaklama başlangıç tarihine <span class="text-amber-600 font-bold">7 günden az</span> süre kala yapılan iptallerde, odanın başka bir misafire tahsis edilememe riski (fırsat kaybı) nedeniyle kapora iadesi yapılmamaktadır.</li>
@@ -1217,7 +1217,7 @@
             } else if (type === 'kvkk') {
                 titleEl.textContent = 'Kişisel Verilerin Korunması (KVKK)';
                 contentEl.innerHTML = `
-                    <p><strong>Sahra Apart & Konaklama</strong> olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca kişisel verilerinizin güvenliğine ve gizliliğine en üst düzeyde hassasiyet gösteriyoruz.</p>
+                    <p><strong>Ekor Apart & Konaklama</strong> olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca kişisel verilerinizin güvenliğine ve gizliliğine en üst düzeyde hassasiyet gösteriyoruz.</p>
                     <div class="space-y-4 mt-4 text-slate-700">
                         <p><strong>1. Hangi Verileri İşliyoruz?</strong><br> Tesisimizde konaklamanız, rezervasyon işlemleriniz ve kimlik doğrulama süreçlerimiz kapsamında; ad, soyad, T.C. Kimlik / Pasaport numarası, telefon numarası ve e-posta adresi gibi temel bilgileriniz işlenmektedir.</p>
                         <p><strong>2. İşleme Amacı ve Yasal Dayanak:</strong><br> Verileriniz; rezervasyonunuzun tamamlanması, faturalandırma işlemleri, müşteri memnuniyeti takibi ve Emniyet Genel Müdürlüğü Kimlik Bildirim Sistemi (KBS) gereği yasal zorunluluklarımızı yerine getirmek amacıyla işlenmektedir.</p>

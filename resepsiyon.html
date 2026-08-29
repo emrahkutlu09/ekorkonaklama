@@ -22,12 +22,10 @@
         .status-CLEANING_REQUIRED { background-color: #fefce8; color: #854d0e; border: 1px solid #fef08a; }
         .status-MAINTENANCE { background-color: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
 
-        /* Kaydırma çubuğu gizleme */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        /* Liste Tab butonları için seçili durumu */
         .tab-active { background-color: white; color: #1e293b; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .tab-inactive { color: #64748b; border: 1px solid transparent; }
     </style>
@@ -376,7 +374,6 @@
         let currentRoomFilter = 'ALL';
         let currentStaffName = 'Resepsiyon'; 
 
-        // GÜVENLİK VE KİMLİK KONTROLÜ
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 if(window.location.pathname.endsWith('resepsiyon.html')) { window.location.assign('login.html'); }
@@ -573,8 +570,11 @@
                     balanceHtml += `<div class="mt-1.5 px-2 py-1 bg-rose-50 text-rose-500 rounded text-[9px] font-bold border border-rose-200 uppercase text-center w-max">İPTAL EDİLDİ</div>`;
                 } else if (remP > 0) {
                     balanceHtml += `
-                        <p class="text-[10px] text-red-600 font-bold uppercase mt-0.5">Kalan: ₺${remP}</p>
-                        <button onclick="collectRemaining('${r.id}', ${remP}, ${totalP}, '${fullName}', '${roomNo}')" class="mt-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-bold border border-emerald-200 transition shadow-sm w-full">Kalanı Tahsil Et</button>
+                        <p class="text-[10px] text-red-600 font-bold uppercase mt-0.5 mb-1.5">Kalan: ₺${remP}</p>
+                        <div class="flex items-center gap-1.5">
+                            <input type="number" id="partialAmount-${r.id}" value="${remP}" min="1" max="${remP}" class="w-20 p-1.5 text-xs border border-slate-300 rounded-lg font-bold text-slate-800 bg-white outline-none">
+                            <button onclick="collectPartial('${r.id}', ${totalP}, ${paidP}, ${remP}, '${fullName}', '${roomNo}')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold transition shadow-sm whitespace-nowrap">Tahsil Et</button>
+                        </div>
                     `;
                 } else {
                     balanceHtml += `<div class="mt-1.5 px-2 py-1 bg-slate-100 text-slate-400 rounded text-[9px] font-bold border border-slate-200 uppercase text-center w-max">HESAP KAPANDI</div>`;
@@ -648,15 +648,42 @@
             lucide.createIcons();
         }
 
-        window.collectRemaining = async (resId, amount, totalAmount, name, roomNo) => {
-            if(!confirm(`${name} adlı müşteriden kalan ₺${amount} tutarı tahsil edip kasaya işlemek istediğinize emin misiniz?`)) return;
+        // YENİ: PARÇALI (KISMİ) TAHSİLAT MANTIĞI
+        window.collectPartial = async (resId, totalAmount, currentPaid, currentRemaining, name, roomNo) => {
+            const inputEl = document.getElementById(`partialAmount-${resId}`);
+            const payAmount = Number(inputEl ? inputEl.value : 0);
+
+            if (payAmount <= 0) {
+                showToast("Lütfen geçerli bir tahsilat tutarı girin.", "error");
+                return;
+            }
+            if (payAmount > currentRemaining) {
+                showToast(`Tahsil edilecek tutar kalan borçtan (₺${currentRemaining}) büyük olamaz!`, "error");
+                return;
+            }
+
+            if(!confirm(`${name} adlı müşteriden ₺${payAmount} tahsil edip kasaya işlemek istediğinize emin misiniz?`)) return;
+
             try {
+                const newPaid = currentPaid + payAmount;
+                const newRemaining = totalAmount - newPaid;
+
+                // Kasaya gelir olarak işle
                 await addDoc(collection(db, "finances"), {
-                    type: 'INCOME', category: 'RESERVATION', amount: amount, description: `${name} - Oda ${roomNo} (Kalan Bakiye Tahsilatı)`, addedBy: currentStaffName, createdAt: serverTimestamp()
+                    type: 'INCOME', category: 'RESERVATION', amount: payAmount, description: `${name} - Oda ${roomNo} (Ara Ödeme / Kısmi Tahsilat)`, addedBy: currentStaffName, createdAt: serverTimestamp()
                 });
-                await updateDoc(doc(db, "reservations", resId), { remainingAmount: 0, paidAmount: totalAmount });
-                showToast("Kalan bakiye tahsil edildi!");
-            } catch(e) { console.error(e); showToast("Tahsilat hatası.", "error"); }
+
+                // Rezervasyonu güncelle
+                await updateDoc(doc(db, "reservations", resId), { 
+                    paidAmount: newPaid, 
+                    remainingAmount: newRemaining 
+                });
+
+                showToast(`₺${payAmount} başarıyla tahsil edildi ve kasaya işlendi.`);
+            } catch(e) {
+                console.error(e);
+                showToast("Tahsilat hatası oluştu.", "error");
+            }
         };
 
         window.checkinGuest = async (resId, roomId, name) => {
@@ -727,7 +754,7 @@
                 closeRoomModal();
                 closeCancelModal();
                 showToast("Rezervasyon başarıyla iptal edildi ve oda boşa çıkarıldı.");
-            } catch (error) { showToast("İptal işlemi sırasında hata oluştu.", "error"); }
+            } catch (error) { showToast("İşlem sırasında hata oluştu.", "error"); }
         };
 
         window.toggleSidebar = () => {

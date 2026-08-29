@@ -85,7 +85,7 @@
         <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
             <span class="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-md">Seçkin Yaşam Alanları</span>
             <h2 class="text-3xl sm:text-4xl font-serif-luxury font-bold text-slate-900 tracking-tight">İmza Odalarımız</h2>
-            <p class="text-slate-500 text-sm sm:text-base">Her bir detayı özenle düşünülmüş, lüksün ve konforun birleştiği dairelerimizi inceleyin.</p>
+            <p class="text-slate-500 text-sm sm:text-base">7 yaş altı çocukların ücretsiz konakladığı, kişi başı fiyatlandırılan konforlu dairelerimiz.</p>
         </div>
         
         <div id="publicRoomsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -204,36 +204,39 @@
                             <input type="text" id="bookTC" required placeholder="Zorunlu alan" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Toplam Yetişkin Sayısı *</label>
-                            <input type="number" id="bookAdults" min="1" value="1" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Yetişkin Sayısı (Kişi Başı) *</label>
+                            <input type="number" id="bookAdults" min="1" value="1" required onchange="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                         </div>
                     </div>
 
-                    <!-- Çocuk ve Yaş Bilgisi Alanı -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Sayısı</label>
-                            <input type="number" id="bookChildrenCount" min="0" value="0" onchange="toggleChildAges(this.value)" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                    <!-- Çocuk ve Yaş Bilgisi Alanı (7 Yaş Altı Ücretsiz) -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Sayısı</label>
+                                <input type="number" id="bookChildrenCount" min="0" value="0" onchange="toggleChildAges(this.value)" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                            </div>
+                            <div id="childAgesWrapper" class="hidden">
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Yaşları</label>
+                                <input type="text" id="bookChildrenAges" placeholder="Örn: 5, 9" oninput="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                            </div>
                         </div>
-                        <div id="childAgesWrapper" class="hidden">
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çocuk Yaşları</label>
-                            <input type="text" id="bookChildrenAges" placeholder="Örn: 4, 7" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none">
-                        </div>
+                        <p class="text-[11px] text-amber-700 font-medium"><i data-lucide="info" class="w-3.5 h-3.5 inline"></i> 7 yaşından küçük çocuklardan ücret alınmaz (Ücretli çocuklar yetişkin fiyatıyla hesaplanır).</p>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Giriş Tarihi *</label>
-                            <input type="date" id="bookCheckIn" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input type="date" id="bookCheckIn" required onchange="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Çıkış Tarihi *</label>
-                            <input type="date" id="bookCheckOut" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input type="date" id="bookCheckOut" required onchange="calculatePublicPrice()" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                         </div>
                     </div>
 
                     <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 flex justify-between items-center">
-                        <span class="text-sm font-semibold text-amber-900">Hesaplanan Tutar:</span>
+                        <span class="text-sm font-semibold text-amber-900">Hesaplanan Toplam Tutar:</span>
                         <span id="bookTotalPriceDisplay" class="text-xl font-black text-amber-700">₺0</span>
                     </div>
 
@@ -347,7 +350,7 @@
                 const apt = cachedApartments.find(a => a.id === room.apartmentId);
                 const aptName = apt ? apt.name : 'Sahra Apart';
                 const roomPrice = room.basePrice || room.price || 1500;
-                const capacity = room.capacity ? `Maks. ${room.capacity} Kişi` : 'Standart Kapasite';
+                const capacity = room.capacity ? `Maks. ${room.capacity} Kişi` : '2 Kişilik';
                 
                 html += `
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300 group">
@@ -365,7 +368,7 @@
                             </div>
                             <div class="flex items-center justify-between pt-4 border-t border-slate-100">
                                 <div>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Gecelik Fiyat</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Kişi Başı Gecelik</span>
                                     <span class="text-2xl font-black text-slate-900">₺${roomPrice}</span>
                                 </div>
                                 <button onclick="openBookingModal('${room.id}', '${roomPrice}', '${aptName} - Oda ${room.roomNumber}')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition">
@@ -429,6 +432,7 @@
                 wrapper.classList.add('hidden');
                 document.getElementById('bookChildrenAges').value = '';
             }
+            calculatePublicPrice();
         };
 
         window.openBookingModal = (roomId, basePrice, roomTitle) => {
@@ -441,6 +445,10 @@
             const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('bookCheckIn').value = today;
             document.getElementById('bookCheckOut').value = tomorrow.toISOString().split('T')[0];
+            document.getElementById('bookAdults').value = 1;
+            document.getElementById('bookChildrenCount').value = 0;
+            document.getElementById('childAgesWrapper').classList.add('hidden');
+            document.getElementById('bookChildrenAges').value = '';
             
             window.activeRoomPrice = Number(basePrice);
             calculatePublicPrice();
@@ -453,12 +461,35 @@
             document.getElementById('childAgesWrapper').classList.add('hidden');
         };
 
-        function calculatePublicPrice() {
+        // KİŞİ BAŞI VE 7 YAŞ ALTI ÜCRETSİZ HESAPLAMA MOTORU
+        window.calculatePublicPrice = function() {
             const inD = new Date(document.getElementById('bookCheckIn').value);
             const outD = new Date(document.getElementById('bookCheckOut').value);
             if(isNaN(inD) || isNaN(outD)) return;
+            
             const diffDays = Math.ceil(Math.abs(outD - inD) / (1000 * 60 * 60 * 24));
-            const total = (diffDays > 0 ? diffDays : 1) * (window.activeRoomPrice || 1500);
+            const days = diffDays > 0 ? diffDays : 1;
+            const pricePerPerson = window.activeRoomPrice || 1500;
+
+            // Yetişkin sayısı
+            const adults = Number(document.getElementById('bookAdults').value) || 1;
+            
+            // Ücretli çocuk sayısını hesapla (7 yaş ve üzeri)
+            let paidChildrenCount = 0;
+            const childrenAgesInput = document.getElementById('bookChildrenAges').value.trim();
+            if(childrenAgesInput !== '') {
+                const ages = childrenAgesInput.split(',').map(a => Number(a.trim())).filter(a => !isNaN(a));
+                ages.forEach(age => {
+                    if (age >= 7) {
+                        paidChildrenCount++; // 7 yaş ve üstü ücrete tabi
+                    }
+                    // 7 yaşından küçükler (< 7) ücretsiz sayılır
+                });
+            }
+
+            const totalPersons = adults + paidChildrenCount;
+            const total = totalPersons * pricePerPerson * days;
+
             window.currentCalculatedTotal = total;
             document.getElementById('bookTotalPriceDisplay').textContent = `₺${total}`;
         }

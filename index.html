@@ -167,7 +167,7 @@
         </div>
     </section>
 
-    <!-- EKLENEN KISIM: Ziyaretçi Defteri (Yorumlar) Bölümü -->
+    <!-- Ziyaretçi Defteri (Yorumlar) Bölümü -->
     <section id="reviews" class="py-20 sm:py-28 bg-white border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6">
@@ -188,14 +188,11 @@
                 </div>
             </div>
             
-            <!-- Yorumlar Grid -->
             <div id="publicReviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                <!-- Javascript ile Doldurulacak -->
                 <div class="col-span-full text-center py-16 text-slate-400 font-medium">Yorumlar yükleniyor...</div>
             </div>
         </div>
     </section>
-    <!-- BİTİŞ: Ziyaretçi Defteri Bölümü -->
 
     <!-- ODA DETAY MODALI (ÜRÜN KARTI & GALERİ) -->
     <div id="roomDetailsModal" class="fixed inset-0 bg-slate-900/95 z-50 hidden flex-col justify-end md:justify-center items-center backdrop-blur-md p-0 md:p-6 transition-opacity duration-300">
@@ -226,7 +223,6 @@
                     </div>
                     
                     <div id="detailThumbnails" class="flex gap-2 p-4 bg-slate-900 overflow-x-auto hide-scrollbar border-t border-white/10">
-                        <!-- JS ile dolacak -->
                     </div>
                 </div>
 
@@ -299,7 +295,7 @@
     </div>
 
 
-    <!-- Online Rezervasyon Modalı (Adım 2) -->
+    <!-- Online Rezervasyon Modalı -->
     <div id="bookingModal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex-col justify-end sm:justify-center items-center backdrop-blur-sm p-0 sm:p-4 transition-opacity duration-300">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-2xl modal-enter overflow-hidden flex flex-col h-[95vh] sm:h-auto sm:max-h-[90vh]">
             <div class="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 shrink-0">
@@ -903,11 +899,14 @@
 
         const bookingForm = document.getElementById('publicBookingForm');
         if(bookingForm) {
+            // YENİ EKLENEN BUTON BULMA YÖNTEMİ
             bookingForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const btn = e.target.querySelector('button[type="submit"]');
-                const ogText = btn.innerHTML;
-                btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
+                
+                // Butonu formun dışında olabileceği ihtimaline karşı genel dokümanda arıyoruz
+                const btn = document.querySelector('button[form="publicBookingForm"]');
+                const ogText = btn ? btn.innerHTML : 'Talebi İlet';
+                if(btn) { btn.innerHTML = 'İletiliyor...'; btn.disabled = true; }
 
                 const roomId = document.getElementById('bookRoomId').value;
                 const name = document.getElementById('bookName').value;
@@ -919,7 +918,7 @@
 
                 if(total === 0) {
                     showToast("Geçersiz tarih aralığı.", "error");
-                    btn.innerHTML = ogText; btn.disabled = false;
+                    if(btn) { btn.innerHTML = ogText; btn.disabled = false; }
                     return;
                 }
 
@@ -950,7 +949,7 @@
                 } catch(err) {
                     showToast("Kayıt oluşturulurken bir hata oluştu.", "error");
                 } finally {
-                    btn.innerHTML = ogText; btn.disabled = false;
+                    if(btn) { btn.innerHTML = ogText; btn.disabled = false; }
                 }
             });
         }

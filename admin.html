@@ -280,6 +280,44 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- YENİ EKLENEN: SİTE İÇERİK AYARLARI -->
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 max-w-3xl mt-8">
+                    <div class="border-b border-gray-100 pb-5 mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                            <div class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="layout-template" class="w-6 h-6"></i></div>
+                            Ana Sayfa İçerik & İletişim Ayarları
+                        </h3>
+                        <p class="text-gray-500 mt-2">Müşterilerin sitenize girdiğinde göreceği resimleri, yazıları ve iletişim numaralarını buradan değiştirebilirsiniz. Resimler için doğrudan internetteki görsel linklerini yapıştırın.</p>
+                    </div>
+
+                    <form id="siteContentForm" class="space-y-6">
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-gray-800 text-lg border-b pb-2">Karşılama Ekranı (Hero)</h4>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Büyük Başlık</label><input type="text" id="set-heroTitle" placeholder="Örn: Ev Konforunda Lüks Konaklama" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Alt Açıklama</label><textarea id="set-heroSubtitle" rows="2" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800"></textarea></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Arka Plan Görseli (Link)</label><input type="text" id="set-heroBg" placeholder="https://..." class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800 text-sm"></div>
+                        </div>
+
+                        <div class="space-y-4 mt-6">
+                            <h4 class="font-bold text-gray-800 text-lg border-b pb-2">Hakkımızda Bölümü</h4>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Hakkımızda Başlığı</label><input type="text" id="set-aboutTitle" placeholder="Size Sadece Dinlenmek Kalır" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Hakkımızda Metni</label><textarea id="set-aboutText" rows="4" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800"></textarea></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Hakkımızda Görseli (Link)</label><input type="text" id="set-aboutBg" placeholder="https://..." class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800 text-sm"></div>
+                        </div>
+
+                        <div class="space-y-4 mt-6">
+                            <h4 class="font-bold text-gray-800 text-lg border-b pb-2">İletişim & WhatsApp</h4>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Açık Adres</label><input type="text" id="set-contactAddress" placeholder="Merkez Mah. No:1 Aydın" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">İletişim & WhatsApp Numarası</label><input type="text" id="set-contactPhone" placeholder="05551234567 (Boşluksuz yazın)" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">E-Posta Adresi</label><input type="email" id="set-contactEmail" placeholder="bilgi@sahra.com" class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:border-amber-500 text-gray-800"></div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-100">
+                            <button type="submit" id="btn-save-content" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-8 rounded-xl transition shadow-lg flex items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> Site İçeriğini Güncelle</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>
@@ -478,13 +516,53 @@
             }
         });
 
+        // Yeni Eklenen: İçerik Ayarlarını Oku
+        onSnapshot(doc(db, "settings", "homepage"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('set-heroTitle').value = data.heroTitle || '';
+                document.getElementById('set-heroSubtitle').value = data.heroSubtitle || '';
+                document.getElementById('set-heroBg').value = data.heroImage || '';
+                document.getElementById('set-aboutTitle').value = data.aboutTitle || '';
+                document.getElementById('set-aboutText').value = data.aboutText || '';
+                document.getElementById('set-aboutBg').value = data.aboutImage || '';
+                document.getElementById('set-contactAddress').value = data.contactAddress || '';
+                document.getElementById('set-contactPhone').value = data.contactPhone || '';
+                document.getElementById('set-contactEmail').value = data.contactEmail || '';
+            }
+        });
+
         // Form Gönderimleri
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault(); const btn = document.getElementById('btn-save-settings'); btn.disabled = true; btn.innerHTML = 'Kaydediliyor...';
             try {
                 await setDoc(doc(db, "settings", "payments"), { isHavaleActive: document.getElementById('set-havale').checked, isCreditCardActive: document.getElementById('set-cc').checked, isPayAtDeskActive: document.getElementById('set-desk').checked, bankName: document.getElementById('set-bankName').value, ibanNumber: document.getElementById('set-iban').value, updatedAt: serverTimestamp() }, { merge: true });
                 showToast("Ayarlar güncellendi!");
             } catch (error) { showToast("Hata oluştu.", "error"); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-5 h-5"></i> Değişiklikleri Kaydet'; lucide.createIcons(); }
+        });
+
+        // Yeni Eklenen: İçerik Form Gönderimi
+        document.getElementById('siteContentForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            const btn = document.getElementById('btn-save-content'); 
+            btn.disabled = true; btn.innerHTML = 'Kaydediliyor...';
+            try {
+                await setDoc(doc(db, "settings", "homepage"), { 
+                    heroTitle: document.getElementById('set-heroTitle').value,
+                    heroSubtitle: document.getElementById('set-heroSubtitle').value,
+                    heroImage: document.getElementById('set-heroBg').value,
+                    aboutTitle: document.getElementById('set-aboutTitle').value,
+                    aboutText: document.getElementById('set-aboutText').value,
+                    aboutImage: document.getElementById('set-aboutBg').value,
+                    contactAddress: document.getElementById('set-contactAddress').value,
+                    contactPhone: document.getElementById('set-contactPhone').value,
+                    contactEmail: document.getElementById('set-contactEmail').value,
+                    updatedAt: serverTimestamp() 
+                }, { merge: true });
+                showToast("Site içeriği güncellendi!");
+            } catch (error) { showToast("Hata oluştu.", "error"); } 
+            finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-5 h-5"></i> Site İçeriğini Güncelle'; lucide.createIcons(); }
         });
 
         document.getElementById('financeForm').addEventListener('submit', async (e) => {
@@ -494,19 +572,19 @@
             e.preventDefault(); try { await addDoc(collection(db, "apartments"), { name: document.getElementById('aptName').value, address: document.getElementById('aptAddress').value, createdAt: serverTimestamp() }); document.getElementById('apartmentForm').reset(); showToast("Kaydedildi."); } catch(err) { showToast("Hata.", "error"); }
         });
         document.getElementById('roomForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); try { await addDoc(collection(db, "rooms"), { apartmentId: document.getElementById('roomApartmentId').value, roomNumber: document.getElementById('roomNumber').value, type: document.getElementById('roomType').value, basePrice: Number(document.getElementById('roomPrice').value), status: 'AVAILABLE', createdAt: serverTimestamp() }); document.getElementById('roomForm').reset(); showToast("Kaydedildi."); } catch(err) { showToast("Hata.", "error"); }
-        });
-
-        // Personel Ekleme (staff Tablosu + Şifreli Kayıt)
-        document.getElementById('usersForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); const btn = e.target.querySelector('button'); const origTxt = btn.innerHTML; btn.innerHTML = 'Oluşturuluyor...'; btn.disabled = true;
-            const name = document.getElementById('usersName').value; const email = document.getElementById('usersEmail').value; const password = document.getElementById('usersPassword').value; const role = document.getElementById('usersRole').value;
+            e.preventDefault();
             try {
-                await createUserWithEmailAndPassword(secondaryAuth, email, password);
-                await signOut(secondaryAuth);
-                await addDoc(collection(db, "staff"), { name: name, email: email, role: role, createdAt: serverTimestamp() });
-                document.getElementById('usersForm').reset(); showToast("Şifreli hesap oluşturuldu!");
-            } catch(err) { console.log(err); showToast("E-posta kullanımda veya hata oluştu.", "error"); } finally { btn.innerHTML = origTxt; btn.disabled = false; }
+                await addDoc(collection(db, "rooms"), {
+                    apartmentId: document.getElementById('roomApartmentId').value,
+                    roomNumber: document.getElementById('roomNumber').value,
+                    type: document.getElementById('roomType').value,
+                    capacity: Number(document.getElementById('roomCapacity').value),
+                    basePrice: Number(document.getElementById('roomPrice').value),
+                    status: 'AVAILABLE',
+                    createdAt: serverTimestamp()
+                });
+                document.getElementById('roomForm').reset();
+                showToast("Oda başarıyla eklendi!");
         });
 
         window.deleteItem = async function(collectionName, id) { try { await deleteDoc(doc(db, collectionName, id)); showToast("Silindi!"); } catch(err) { showToast("Hata.", "error"); } };

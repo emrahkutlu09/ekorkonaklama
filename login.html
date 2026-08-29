@@ -76,8 +76,9 @@
 
         lucide.createIcons();
 
-        function showToast(msg) {
+        function showToast(msg, type = 'error') {
             const t = document.getElementById('toast');
+            t.className = `fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 transform -translate-y-4 text-white ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
             document.getElementById('toastMsg').textContent = msg;
             t.classList.remove('-translate-y-4', 'opacity-0', 'pointer-events-none');
             setTimeout(() => {
@@ -87,7 +88,7 @@
 
         window.handleLogin = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value;
             const btn = document.getElementById('submitBtn');
 
@@ -99,23 +100,30 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, pass);
                 const user = userCredential.user;
 
-                // 2. Firestore'daki 'users' koleksiyonundan personelin rolünü bul
-                const q = query(collection(db, "users"), where("email", "==", email));
-                const querySnapshot = await getDocs(q);
-
                 let userRole = 'RECEPTION'; // Varsayılan
-                if (!querySnapshot.empty) {
-                    userRole = querySnapshot.docs[0].data().role;
-                } else {
-                    // Eğer users tablosunda yoksa ama e-posta admin ise admin yapabiliriz
-                    userRole = 'ADMIN';
+
+                // 2. Eğer admin hesabı ise doğrudan admin.html'e gönder
+                if (email === 'admin@sahra.com') {
+                    showToast("Yönetici girişi başarılı, yönlendiriliyorsunuz...", "success");
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                    return;
                 }
 
-                // 3. Role göre doğru panele yönlendir
-                showToast("Giriş başarılı, yönlendiriliyorsunuz...");
+                // 3. Firestore'daki 'staff' koleksiyonundan personelin rolünü bul
+                const q = query(collection(db, "staff"), where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    userRole = querySnapshot.docs[0].data().role;
+                }
+
+                // 4. Role göre doğru panele yönlendir
+                showToast("Giriş başarılı, yönlendiriliyorsunuz...", "success");
                 setTimeout(() => {
                     if (userRole === 'HOUSEKEEPING') {
                         window.location.href = 'katgorevlisi.html';
+                    } else if (userRole === 'RECEPTION' || userRole === 'ADMIN') {
+                        window.location.href = 'resepsiyon.html';
                     } else {
                         window.location.href = 'resepsiyon.html';
                     }

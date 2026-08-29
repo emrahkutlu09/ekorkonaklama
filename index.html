@@ -381,10 +381,23 @@
                 <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-700 bg-slate-50 p-2 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <form id="reviewForm" class="p-5 sm:p-6 space-y-5">
+                
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Kayıtlı Telefon Numaranız *</label>
+                    <input type="tel" id="revPhone" required placeholder="Sistemde kayıtlı telefonunuz" class="w-full border-b-2 border-slate-200 bg-transparent py-2 text-sm font-medium focus:border-amber-500 outline-none transition-colors">
+                    <p class="text-[9px] text-amber-600 mt-1 font-medium">* Sadece konaklamasını tamamlamış misafirlerimiz yorum yapabilir.</p>
+                </div>
+
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Ad Soyad *</label>
                     <input type="text" id="revName" required class="w-full border-b-2 border-slate-200 bg-transparent py-2 text-sm font-medium focus:border-amber-500 outline-none transition-colors">
+                    
+                    <label class="flex items-center gap-2 mt-3 cursor-pointer group w-max">
+                        <input type="checkbox" id="revAnonymous" class="w-4 h-4 text-amber-500 rounded border-slate-300 accent-amber-500">
+                        <span class="text-xs font-medium text-slate-500 group-hover:text-slate-800 transition-colors">İsmim sitede gizli kalsın (Anonim)</span>
+                    </label>
                 </div>
+
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Konaklama Deneyiminiz *</label>
                     <select id="revRating" class="w-full border-b-2 border-slate-200 bg-transparent py-2 text-sm font-bold text-amber-600 focus:border-amber-500 outline-none transition-colors">
@@ -405,7 +418,7 @@
     <!-- Firebase SDK & Javascript Mantığı -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBL0xJ2-BS9o5QgG4AMb-s_xvt-Ai6nDm0",
@@ -431,7 +444,7 @@
             if (menu.classList.contains('hidden')) {
                 menu.classList.remove('hidden');
                 setTimeout(() => menu.classList.remove('opacity-0'), 10);
-                document.body.style.overflow = 'hidden'; // Arka planın kaymasını engelle
+                document.body.style.overflow = 'hidden'; 
             } else {
                 menu.classList.add('opacity-0');
                 setTimeout(() => {
@@ -466,7 +479,7 @@
         // 1. ODA LİSTELEME
         function checkAndRenderRooms() {
             const grid = document.getElementById('publicRoomsGrid');
-            if(!grid) return; // Güvenlik Kontrolü
+            if(!grid) return; 
 
             if(cachedApartments.length === 0 || cachedRooms.length === 0) {
                 grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400 font-medium">Sistemde kayıtlı oda bulunmuyor.</div>`;
@@ -566,7 +579,7 @@
             const elRoomType = document.getElementById('detailRoomType');
             const elCapacity = document.getElementById('detailCapacity');
             const elPrice = document.getElementById('detailPrice');
-            const elDesc = document.getElementById('detailDescription'); // Admin'den gelen açıklama
+            const elDesc = document.getElementById('detailDescription');
 
             if(elRoomName) elRoomName.textContent = `Oda ${room.roomNumber}`;
             if(elAptName) elAptName.textContent = aptName;
@@ -574,7 +587,6 @@
             if(elCapacity) elCapacity.textContent = `Maks. ${room.capacity || 2} Kişi`;
             if(elPrice) elPrice.textContent = `₺${roomPrice}`;
             
-            // Açıklama dinamik olarak güncelleniyor
             if(elDesc) {
                 elDesc.textContent = room.description || "Ev konforunu aratmayan mimarisi ve lüks detaylarıyla bu odamız, konaklamanızı eşsiz kılmak için özel olarak tasarlandı. Geniş yaşam alanı, 7 yaş altı çocuklar için ücretsiz konaklama imkanı ve birinci sınıf hizmet kalitesiyle sizleri ağırlamaktan mutluluk duyacağız.";
             }
@@ -623,7 +635,7 @@
             if(imgEl && detailImages.length > 0) {
                 imgEl.src = detailImages[detailImageIndex];
                 imgEl.classList.remove('fade-image');
-                void imgEl.offsetWidth; // Reflow
+                void imgEl.offsetWidth; 
                 imgEl.classList.add('fade-image');
             }
             if(indexEl) indexEl.textContent = detailImageIndex + 1;
@@ -647,7 +659,7 @@
 
         function renderThumbnails() {
             const container = document.getElementById('detailThumbnails');
-            if(!container) return; // Güvenlik kontrolü
+            if(!container) return; 
             if(detailImages.length <= 1) { container.innerHTML = ''; return; }
             
             let html = '';
@@ -679,7 +691,7 @@
         const qRev = query(collection(db, "reviews"), where("status", "==", "APPROVED"));
         onSnapshot(qRev, (snapshot) => {
             const container = document.getElementById('publicReviewsGrid');
-            if(!container) return; // Güvenlik Kontrolü
+            if(!container) return; 
 
             if(snapshot.empty) {
                 container.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-3xl border border-slate-100 text-slate-400 font-medium">Henüz misafir değerlendirmesi bulunmuyor.</div>`;
@@ -782,7 +794,6 @@
             if(childAgesWrapper) childAgesWrapper.classList.add('hidden');
         };
 
-        // Kişi Başı & Çocuk Yaş Hesaplaması (7 Yaş Altı Ücretsiz)
         window.calculatePublicPrice = function() {
             const inEl = document.getElementById('bookCheckIn');
             const outEl = document.getElementById('bookCheckOut');
@@ -791,7 +802,7 @@
             const adultEl = document.getElementById('bookAdults');
             const agesEl = document.getElementById('bookChildrenAges');
 
-            if(!inEl || !outEl || !priceDisplay) return; // Güvenlik
+            if(!inEl || !outEl || !priceDisplay) return; 
 
             const inD = new Date(inEl.value);
             const outD = new Date(outEl.value);
@@ -840,7 +851,7 @@
 
         function renderPaymentOptions(settings) {
             const container = document.getElementById('paymentMethodsContainer');
-            if(!container) return; // Güvenlik
+            if(!container) return; 
             
             let html = '';
             const baseClass = "flex items-center gap-3 p-3 sm:p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors";
@@ -868,7 +879,6 @@
             if(show) box.classList.remove('hidden'); else box.classList.add('hidden');
         };
 
-        // Form Submit
         const bookingForm = document.getElementById('publicBookingForm');
         if(bookingForm) {
             bookingForm.addEventListener('submit', async (e) => {
@@ -941,20 +951,48 @@
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
                 const ogText = btn.innerHTML;
-                btn.innerHTML = 'İletiliyor...'; btn.disabled = true;
+                btn.innerHTML = 'Kontrol Ediliyor...'; btn.disabled = true;
 
                 try {
+                    const phone = document.getElementById('revPhone').value.trim();
+                    const realName = document.getElementById('revName').value.trim();
+                    const isAnonymous = document.getElementById('revAnonymous').checked;
+
+                    // 1. Veritabanından Misafirin Çıkış Yapıp Yapmadığını Kontrol Et
+                    const q = query(
+                        collection(db, "reservations"), 
+                        where("phone", "==", phone),
+                        where("status", "==", "CHECKED_OUT")
+                    );
+                    
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (querySnapshot.empty) {
+                        showToast("Sadece konaklaması bitmiş misafirlerimiz yorum yapabilir! Lütfen telefon numaranızı kontrol edin.", "error");
+                        btn.innerHTML = ogText; btn.disabled = false;
+                        return; // Yorumu iptal et
+                    }
+
+                    // 2. Misafir Onaylandıysa Yorumu Kaydet
+                    btn.innerHTML = 'İletiliyor...';
+                    const displayCustomerName = isAnonymous ? "Gizli Misafir" : realName;
+
                     await addDoc(collection(db, "reviews"), {
-                        customerName: document.getElementById('revName').value,
+                        customerName: displayCustomerName,
+                        realCustomerName: realName,
+                        phone: phone, 
+                        isAnonymous: isAnonymous,
                         rating: Number(document.getElementById('revRating').value),
                         comment: document.getElementById('revComment').value,
                         status: 'PENDING', 
                         createdAt: serverTimestamp()
                     });
+                    
                     closeReviewModal();
-                    showToast("Yorumunuz değerlendirilmek üzere iletildi.");
+                    showToast("Yorumunuz değerlendirilmek üzere iletildi. Teşekkür ederiz!");
                 } catch(err) {
-                    showToast("Yorum gönderilemedi.", "error");
+                    showToast("Yorum gönderilirken bir hata oluştu.", "error");
+                    console.error(err);
                 } finally {
                     btn.innerHTML = ogText; btn.disabled = false;
                 }

@@ -96,21 +96,11 @@
             btn.disabled = true;
 
             try {
-                // Oturum kalıcılığını yerel hafızaya sabitle (Çıkış yapılana kadar unutulmaz)
                 await setPersistence(auth, browserLocalPersistence);
-
-                // Firebase Auth ile giriş yap
                 const userCredential = await signInWithEmailAndPassword(auth, email, pass);
                 const user = userCredential.user;
 
                 let userRole = 'RECEPTION';
-
-                // Yönetici kontrolü
-                if (email === 'admin@sahra.com') {
-                    showToast("Yönetici girişi başarılı, yönlendiriliyorsunuz...", "success");
-                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
-                    return;
-                }
 
                 // Firestore staff tablosundan rolü sorgula
                 const q = query(collection(db, "staff"), where("email", "==", email));
@@ -122,7 +112,9 @@
 
                 showToast("Giriş başarılı, yönlendiriliyorsunuz...", "success");
                 setTimeout(() => {
-                    if (userRole === 'HOUSEKEEPING') {
+                    if (userRole === 'ADMIN') {
+                        window.location.href = 'admin.html';
+                    } else if (userRole === 'HOUSEKEEPING') {
                         window.location.href = 'katgorevlisi.html';
                     } else {
                         window.location.href = 'resepsiyon.html';

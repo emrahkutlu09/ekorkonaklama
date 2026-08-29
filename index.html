@@ -59,33 +59,66 @@
 
     <!-- WhatsApp Yüzen Buton -->
     <a href="https://wa.me/902560000000" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] transition-transform duration-300 hover:scale-110 whatsapp-btn flex items-center justify-center group">
-        <i data-lucide="message-circle" class="w-7 h-7 sm:w-8 sm:h-8"></i>
+        <i data-lucide="message-circle" class="w-6 h-6 sm:w-8 sm:h-8"></i>
         <span class="absolute right-16 bg-slate-900 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-medium pointer-events-none shadow-lg hidden sm:block">Hemen Bize Yazın</span>
     </a>
 
     <!-- Navbar -->
     <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-24 flex items-center justify-between">
             <div class="flex items-center gap-2 sm:gap-3">
                 <span class="text-2xl sm:text-3xl font-serif-luxury font-bold tracking-tight text-slate-900">SAHRA</span>
                 <div class="hidden sm:block h-6 w-[1px] bg-amber-500/50"></div>
-                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-amber-600">Premium</span>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-amber-600 mt-1 sm:mt-0">Premium</span>
             </div>
+            
+            <!-- Masaüstü Menü -->
             <div class="hidden lg:flex items-center gap-10 font-medium text-slate-600 text-sm tracking-wide">
                 <a href="#rooms" class="hover:text-amber-600 transition-colors">İmza Odalarımız</a>
-                <a href="#about" class="hover:text-amber-600 transition-colors">Ayrıcalıklar</a>
                 <a href="#reviews" class="hover:text-amber-600 transition-colors">Misafir Defteri</a>
             </div>
+
             <div class="flex items-center gap-3 sm:gap-5">
+                <!-- Masaüstü Butonları -->
                 <a href="login.html" class="hidden sm:inline-flex items-center gap-2 text-slate-500 hover:text-amber-600 font-medium text-xs uppercase tracking-wider transition-colors">
-                    <i data-lucide="lock" class="w-3.5 h-3.5"></i> Personel
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i> Personel Girişi
                 </a>
-                <a href="#rooms" class="bg-slate-900 hover:bg-slate-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-slate-900/20 transition-all transform active:scale-95 whitespace-nowrap">
+                <a href="#rooms" class="hidden sm:inline-block bg-slate-900 hover:bg-slate-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-slate-900/20 transition-all transform active:scale-95 whitespace-nowrap">
                     Hızlı Rezervasyon
                 </a>
+                
+                <!-- Mobil Hamburger Menü Butonu -->
+                <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-slate-600 hover:text-amber-600 transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Mobil Açılır Menü (Tam Ekran) -->
+    <div id="mobileMenu" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-50 flex flex-col hidden opacity-0 transition-opacity duration-300">
+        <div class="flex justify-between items-center p-4 h-16 border-b border-slate-800/50">
+            <span class="text-2xl font-serif-luxury font-bold tracking-tight text-white">SAHRA</span>
+            <button onclick="toggleMobileMenu()" class="p-2 text-white hover:text-amber-500 transition-colors">
+                <i data-lucide="x" class="w-7 h-7"></i>
+            </button>
+        </div>
+        <div class="flex-1 flex flex-col items-center justify-center gap-8 p-6">
+            <a href="#rooms" onclick="toggleMobileMenu()" class="text-2xl font-serif-luxury text-white hover:text-amber-500 transition-colors">İmza Odalarımız</a>
+            <a href="#reviews" onclick="toggleMobileMenu()" class="text-2xl font-serif-luxury text-white hover:text-amber-500 transition-colors">Misafir Defteri</a>
+            
+            <div class="w-12 h-[1px] bg-slate-700 my-4"></div>
+            
+            <!-- Personel ve Yönetici Girişi (Mobil) -->
+            <a href="login.html" class="flex items-center gap-3 text-lg text-amber-500 font-medium border border-amber-500/30 px-6 py-3.5 rounded-full hover:bg-amber-500 hover:text-slate-900 transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                <i data-lucide="lock" class="w-5 h-5"></i> Personel & Yönetici Girişi
+            </a>
+            
+            <a href="#rooms" onclick="toggleMobileMenu()" class="bg-white text-slate-900 px-8 py-3.5 rounded-full font-bold text-sm uppercase tracking-widest mt-2">
+                Rezervasyon Yap
+            </a>
+        </div>
+    </div>
 
     <!-- Ana Vitrin (Hero Section) -->
     <header class="relative bg-slate-900 text-white py-24 sm:py-32 lg:py-48 overflow-hidden flex items-center justify-center min-h-[70vh]">
@@ -93,7 +126,7 @@
             <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=2000" alt="Otel Arka Plan" class="w-full h-full object-cover object-center opacity-50 transform scale-105 animate-[kenburns_20s_ease-out_forwards]">
             <div class="absolute inset-0 hero-overlay"></div>
         </div>
-        <div class="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-6 sm:space-y-8">
+        <div class="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-6 sm:space-y-8 mt-10 sm:mt-0">
             <span class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Konforun Yeni Adresi
             </span>
@@ -220,7 +253,8 @@
 
                         <div class="space-y-3 mb-6">
                             <h4 class="font-serif-luxury text-xl font-bold text-slate-900">Oda Hakkında</h4>
-                            <p class="text-sm text-slate-600 font-light leading-relaxed">
+                            <!-- Adminden gelen açıklama buraya yazılacak -->
+                            <p id="detailDescription" class="text-sm text-slate-600 font-light leading-relaxed">
                                 Ev konforunu aratmayan mimarisi ve lüks detaylarıyla bu odamız, konaklamanızı eşsiz kılmak için özel olarak tasarlandı. Geniş yaşam alanı, 7 yaş altı çocuklar için ücretsiz konaklama imkanı ve birinci sınıf hizmet kalitesiyle sizleri ağırlamaktan mutluluk duyacağız.
                             </p>
                         </div>
@@ -391,6 +425,22 @@
         let detailImages = [];
         let detailImageIndex = 0;
 
+        // Mobil Menü Aç/Kapat Fonksiyonu
+        window.toggleMobileMenu = () => {
+            const menu = document.getElementById('mobileMenu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => menu.classList.remove('opacity-0'), 10);
+                document.body.style.overflow = 'hidden'; // Arka planın kaymasını engelle
+            } else {
+                menu.classList.add('opacity-0');
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        };
+
         // Ayarları Oku
         onSnapshot(doc(db, "settings", "payments"), (docSnap) => {
             if(docSnap.exists()) {
@@ -516,12 +566,18 @@
             const elRoomType = document.getElementById('detailRoomType');
             const elCapacity = document.getElementById('detailCapacity');
             const elPrice = document.getElementById('detailPrice');
+            const elDesc = document.getElementById('detailDescription'); // Admin'den gelen açıklama
 
             if(elRoomName) elRoomName.textContent = `Oda ${room.roomNumber}`;
             if(elAptName) elAptName.textContent = aptName;
             if(elRoomType) elRoomType.textContent = room.type || 'Premium Süit';
             if(elCapacity) elCapacity.textContent = `Maks. ${room.capacity || 2} Kişi`;
             if(elPrice) elPrice.textContent = `₺${roomPrice}`;
+            
+            // Açıklama dinamik olarak güncelleniyor
+            if(elDesc) {
+                elDesc.textContent = room.description || "Ev konforunu aratmayan mimarisi ve lüks detaylarıyla bu odamız, konaklamanızı eşsiz kılmak için özel olarak tasarlandı. Geniş yaşam alanı, 7 yaş altı çocuklar için ücretsiz konaklama imkanı ve birinci sınıf hizmet kalitesiyle sizleri ağırlamaktan mutluluk duyacağız.";
+            }
 
             const fallbackImages = [
                 "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=800",

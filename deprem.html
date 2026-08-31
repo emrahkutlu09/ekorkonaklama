@@ -1,0 +1,1532 @@
+
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sismik Harita - Türkiye Deprem Takip Sistemi</title>
+    
+    <!-- Global error tracking — must be before any other scripts -->
+    <script>
+    window.onerror=function(m,s,l,c,e){try{navigator.sendBeacon('/error_log.php',JSON.stringify({type:'error',message:String(m),source:s,lineno:l,colno:c,stack:e?e.stack:null,url:location.href,userAgent:navigator.userAgent,timestamp:new Date().toISOString()}))}catch(x){}};
+    window.addEventListener('unhandledrejection',function(ev){try{navigator.sendBeacon('/error_log.php',JSON.stringify({type:'unhandledrejection',message:String(ev.reason),stack:ev.reason instanceof Error?ev.reason.stack:null,url:location.href,userAgent:navigator.userAgent,timestamp:new Date().toISOString()}))}catch(x){}});
+    (function () {
+        var c = window.Capacitor;
+        if (c && typeof c.isNativePlatform === 'function' && c.isNativePlatform() && c.getPlatform() === 'ios') {
+            document.documentElement.classList.add('is-capacitor-ios');
+        }
+    })();
+    </script>
+    <!-- Inlined because an external request can fail independently of the page, while every consumer assumes the global exists. -->
+<script>(function () {
+    'use strict';
+
+    function createArea(name) {
+        var memory = new Map();
+        var storage = null;
+        var persistent = false;
+        var probeKey = '__safe_storage_probe__' + Date.now() + Math.random();
+
+        try {
+            storage = window[name];
+            storage.setItem(probeKey, '1');
+            if (storage.getItem(probeKey) !== '1') throw new Error('Storage unavailable');
+            storage.removeItem(probeKey);
+            persistent = true;
+        } catch (e) {
+            try { if (storage) storage.removeItem(probeKey); } catch (ignore) {}
+        }
+
+        return {
+            persistent: persistent,
+            getItem: function (key) {
+                key = String(key);
+                try {
+                    if (persistent) return storage.getItem(key);
+                } catch (e) { persistent = false; }
+                return memory.has(key) ? memory.get(key) : null;
+            },
+            setItem: function (key, value) {
+                key = String(key);
+                value = String(value);
+                try {
+                    if (persistent) storage.setItem(key, value);
+                } catch (e) { persistent = false; }
+                memory.set(key, value);
+            },
+            removeItem: function (key) {
+                key = String(key);
+                try {
+                    if (persistent) storage.removeItem(key);
+                } catch (e) { persistent = false; }
+                memory.delete(key);
+            }
+        };
+    }
+
+    var local = createArea('localStorage');
+    var session = createArea('sessionStorage');
+
+    window.SafeStorage = {
+        persistent: local.persistent,
+        getItem: local.getItem,
+        setItem: local.setItem,
+        removeItem: local.removeItem,
+        session: session
+    };
+})();
+</script>
+    <style>html.is-capacitor-ios a[href="/api"]{display:none!important;}</style>
+
+    <!-- Prefetch earthquake data while CSS/JS load (saves ~1.5s on critical path) -->
+    <script>
+    (function(){
+                var h = 168;
+        var from = new Date(Date.now() - h*3600000).toISOString().split('T')[0];
+        var to = new Date().toISOString().split('T')[0];
+        window.__eqPrefetch = fetch('api.php?date_from='+from+'&date_to='+to+'&limit=5000')
+            .then(function(r){return r.json()})
+            .catch(function(){return null});
+            })();
+    </script>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1870B8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- RSS -->
+    <link rel="alternate" type="application/rss+xml" title="Sismik Harita — Son Depremler" href="/rss">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/sismik-logo-notext.png">
+    <link rel="apple-touch-icon" href="assets/images/sismik-logo-notext.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@SismikHarita">
+    <meta name="twitter:title" content="Sismik Harita — Türkiye Deprem İzleme">
+    <meta name="twitter:description" content="Türkiye ve çevresindeki depremleri gerçek zamanlı izleyin">
+
+    <!-- Resource hints — start TLS handshakes for third-party origins in
+         parallel with HTML parsing instead of waiting for the first request.
+         (Maptiler is served via same-origin /tiles/ proxy here, so no
+         preconnect needed for it on this page.) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://maxst.icons8.com" crossorigin>
+    <link rel="preconnect" href="https://browser.sentry-cdn.com" crossorigin>
+
+    <!-- MapLibre GL CSS -->
+    <link rel="stylesheet" href="/vendor/maplibre-gl.css">
+
+    <!-- Line Awesome Icons -->
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Early WebView Detection - Must run before CSS loads -->
+    <script>
+        (function() {
+            // Check if running in Android WebView
+            var isWebView = false;
+
+            // Try Android interface first
+            if (window.AndroidInterface && typeof window.AndroidInterface.isWebView === 'function') {
+                try {
+                    isWebView = window.AndroidInterface.isWebView();
+                } catch (e) {}
+            }
+
+            // Fallback to window flag (set by MainActivity in onPageStarted)
+            if (!isWebView && window.isWebview === true) {
+                isWebView = true;
+            }
+
+            // Add webview class to both html and body immediately
+            if (isWebView) {
+                document.documentElement.classList.add('webview');
+                // Body might not exist yet, so add it when ready
+                if (document.body) {
+                    document.body.classList.add('webview');
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.body.classList.add('webview');
+                    });
+                }
+            }
+        })();
+    </script>
+
+    <!-- Application Styles -->
+    <link rel="stylesheet" href="css/base.css?v=7eda42a">
+    <link rel="stylesheet" href="css/mobile.css?v=7eda42a">
+    <link rel="stylesheet" href="css/rotation-prompt.css?v=7eda42a">
+    <link rel="stylesheet" href="css/mobile-landscape.css?v=7eda42a">
+    <link rel="stylesheet" href="css/rasathane.css?v=7eda42a">
+</head>
+<body class="rasathane-map">
+    <div class="app-container">
+        <!-- Left Panel -->
+        <div class="left-panel" id="leftPanel">
+            <div class="panel-toggle left-toggle" onclick="toggleLeftPanel()">
+                <svg id="leftToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </div>
+            
+            <!-- Logo Section -->
+            <div class="rasathane-brand" style="padding: 15px 20px; border-bottom: 1px solid var(--glass-border);">
+                <img id="sismikLogo" src="assets/images/sismik-logo-white-text.png" alt="Sismik Harita Logo" style="height: auto; width: 100%; max-width: 280px; display: block; margin: 0 auto;">
+            </div>
+            
+            <!-- Sismik Aktivite — Türkiye seismic-activity status (links to /istatistik) -->
+            <a href="/istatistik" class="sismik-card" id="sismikAktivite" data-status="loading" aria-label="Sismik Aktivite durumu yükleniyor. İstatistikleri gör.">
+                <div class="sc-eyebrow">
+                    <span class="sc-dot" aria-hidden="true"></span>
+                    <span class="sc-title">Sismik Aktivite</span>
+                    <span class="tt source-group-tip sc-method-tip" tabindex="0" aria-label="Hesaplama yöntemi: Mevcut aktivite, geçmiş 5 yılın olağan aralığıyla karşılaştırılır." data-tip="Mevcut aktivite, geçmiş 5 yılın olağan aralığıyla karşılaştırılır.">?</span>
+                </div>
+                <div class="sc-status-text sc-skeleton" style="width:96px;">&nbsp;</div>
+                <div class="sc-context-row">
+                    <span class="sc-active-badge">Artçı dizisi</span>
+                    <span class="sc-context sc-skeleton" style="width:140px;">&nbsp;</span>
+                </div>
+                <div class="sc-local" hidden></div>
+                <div class="sc-affordance">İstatistikleri gör <i class="la la-angle-right" aria-hidden="true"></i></div>
+            </a>
+
+                        <section class="rasathane-ew-card" id="ewSensorCard" aria-labelledby="earlyWarningTitle">
+                <button type="button" class="rasathane-ew-card__close" id="ewSensorCardClose" aria-label="Kapat" title="30 gün gizle">&times;</button>
+                <div class="rasathane-ew-card__eyebrow">Erken Uyarı Ağı</div>
+                <h2 class="rasathane-ew-card__title" id="earlyWarningTitle">Telefonunuz bir sensör olsun.</h2>
+                <p class="rasathane-ew-card__copy">Uygulamayı kurun; ivmeölçeriniz erken uyarı ağını büyütsün.</p>
+                <div class="rasathane-ew-card__footer">
+                    <a class="rasathane-ew-card__button" href="/ozellikler#mobil-uygulamalar">Ağa Katıl</a>
+                    <span class="rasathane-ew-card__stat">Aktif sensör: 12.480</span>
+                </div>
+            </section>
+            <script>
+            (function () {
+                var card = document.getElementById('ewSensorCard');
+                if (!card) return;
+                var KEY = 'ewSensorCardDismissedUntil';
+                var SS = window.SafeStorage;
+                try {
+                    var until = SS ? parseInt(SS.getItem(KEY) || '0', 10) : 0;
+                    if (until && Date.now() < until) { card.style.display = 'none'; return; }
+                } catch (e) {}
+                var btn = document.getElementById('ewSensorCardClose');
+                if (btn) btn.addEventListener('click', function () {
+                    card.style.display = 'none';
+                    try { if (SS) SS.setItem(KEY, String(Date.now() + 30 * 24 * 60 * 60 * 1000)); } catch (e) {}
+                });
+            })();
+            </script>
+            
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Konum ara... (örn: İstanbul, Ankara)" id="searchInput" autocomplete="off">
+                    <button class="search-clear" id="searchClear" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 5px; display: none;">
+                        <i class="la la-times"></i>
+                    </button>
+                    <div class="search-autocomplete" id="searchAutocomplete"></div>
+                </div>
+                <label class="search-remember" id="searchRemember" style="display:none;">
+                    <input type="checkbox" id="searchRememberCb">
+                    <span>Yer tercihimi hat&#305;rla.</span>
+                </label>
+            </div>
+            
+            <!-- Accordion Area -->
+            <div class="accordion-area">
+
+                <!-- ═══ Accordion 1: Deprem Filtreleri ═══ -->
+                <div class="accordion-section" id="accordion-filters">
+                    <div class="accordion-header" onclick="toggleAccordion('accordion-filters')">
+                        <i class="la la-filter accordion-header-icon"></i>
+                        <span class="accordion-header-title">Deprem Filtreleri</span>
+                        <i class="la la-chevron-right accordion-header-chevron"></i>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <!-- Time presets (primary) -->
+                            <div class="filter-group">
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                                    <button class="preset-btn" data-preset="today">Bugün</button>
+                                    <button class="preset-btn" data-preset="yesterday">Dün</button>
+                                    <button class="preset-btn" data-preset="last-3-days">3 Gün</button>
+                                    <button class="preset-btn" data-preset="last-week">7 Gün</button>
+                                    <button class="preset-btn" data-preset="last-month">30 Gün</button>
+                                    <button class="preset-btn" data-preset="custom" id="customPresetBtn">Özel</button>
+                                </div>
+                                <div class="custom-date-body" id="customDateBody" style="display:none;">
+                                    <!-- Standard date picker (for live sources) -->
+                                    <div id="datePickerStandard">
+                                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                            <div style="flex: 1;">
+                                                <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 5px;">Başlangıç</label>
+                                                <input type="date" id="startDate" class="date-input"
+                                                       min="1000-01-01"
+                                                       max="2026-12-31"
+                                                       value="2025-07-15"
+                                                       placeholder="YYYY-MM-DD"
+                                                       title="Tarihi doğrudan yazabilir veya takvimden seçebilirsiniz">
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 5px;">Bitiş</label>
+                                                <input type="date" id="endDate" class="date-input"
+                                                       min="1000-01-01"
+                                                       max="2026-12-31"
+                                                       value="2025-08-15"
+                                                       placeholder="YYYY-MM-DD"
+                                                       title="Tarihi doğrudan yazabilir veya takvimden seçebilirsiniz">
+                                            </div>
+                                        </div>
+                                        <button id="applyDateRange" class="apply-btn" style="width: 100%;">
+                                            <i class="las la-search"></i> Tarih Aralığını Uygula
+                                        </button>
+                                    </div>
+                                    <!-- Year range slider (for archive sources with BC support) -->
+                                    <div id="datePickerYear" style="display:none;">
+                                        <div class="dual-slider-label">
+                                            <span id="yearSliderFrom">MÖ 2100</span>
+                                            <span id="yearSliderTo">1963</span>
+                                        </div>
+                                        <div class="dual-slider-track">
+                                            <div class="dual-slider-fill" id="yearSliderFill"></div>
+                                            <input type="range" class="dual-slider-input" id="yearRangeMin" min="0" max="100" value="0">
+                                            <input type="range" class="dual-slider-input" id="yearRangeMax" min="0" max="100" value="100">
+                                        </div>
+                                        <button id="applyYearRange" class="apply-btn" style="width: 100%; margin-top: 6px;">
+                                            <i class="las la-search"></i> Yıl Aralığını Uygula
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Magnitude dual slider -->
+                            <div class="filter-group">
+                                <label class="filter-label">Büyüklük</label>
+                                <div class="dual-slider-label">
+                                    <span id="magSliderFrom">0</span>
+                                    <span id="magSliderTo">9+</span>
+                                </div>
+                                <div class="dual-slider-track">
+                                    <div class="dual-slider-fill" id="magSliderFill"></div>
+                                    <input type="range" class="dual-slider-input" id="magRangeMin" min="0" max="90" step="5" value="0">
+                                    <input type="range" class="dual-slider-input" id="magRangeMax" min="0" max="90" step="5" value="90">
+                                </div>
+                            </div>
+
+                            <!-- Depth dual slider -->
+                            <div class="filter-group">
+                                <label class="filter-label">Derinlik</label>
+                                <div class="dual-slider-label">
+                                    <span id="depthSliderFrom">0 km</span>
+                                    <span id="depthSliderTo">Tümü</span>
+                                </div>
+                                <div class="dual-slider-track">
+                                    <div class="dual-slider-fill" id="depthSliderFill"></div>
+                                    <input type="range" class="dual-slider-input" id="depthRangeMin" min="0" max="8" step="1" value="0">
+                                    <input type="range" class="dual-slider-input" id="depthRangeMax" min="0" max="8" step="1" value="8">
+                                </div>
+                            </div>
+
+                            <!-- Data source toggle chips -->
+                            <div class="filter-group" id="sourceFilterSection">
+                                <!-- Source filters will be added here by JavaScript -->
+                            </div>
+
+                            <!-- Geography filter -->
+                            <fieldset class="filter-group geo-filter" id="geographyFilter">
+                                <legend class="filter-label">Coğrafya</legend>
+                                <div class="geo-mode-switch" role="radiogroup" aria-label="Coğrafya modu">
+                                    <input class="geo-mode-input" type="radio" name="geoMode" id="geoModeCountries" value="countries" checked>
+                                    <label class="geo-mode-option" for="geoModeCountries">Seçili Ülkeler</label>
+                                    <input class="geo-mode-input" type="radio" name="geoMode" id="geoModeWorld" value="world">
+                                    <label class="geo-mode-option" for="geoModeWorld">Tüm Dünya (4+)</label>
+                                </div>
+                                <div class="geo-country-group" id="geoCountryGroup" aria-label="Gösterilecek ülkeler" aria-describedby="geoFilterStatus">
+                                    <div class="geo-country-option">
+                                        <input type="checkbox" id="geoCountryTR" value="TR" checked>
+                                        <label for="geoCountryTR">Türkiye</label>
+                                    </div>
+                                    <div class="geo-country-option">
+                                        <input type="checkbox" id="geoCountryKKTC" value="KKTC">
+                                        <label for="geoCountryKKTC">Kuzey Kıbrıs (KKTC)</label>
+                                    </div>
+                                    <div class="geo-country-option">
+                                        <input type="checkbox" id="geoCountryAZ" value="AZ">
+                                        <label for="geoCountryAZ">Azerbaycan</label>
+                                    </div>
+                                    <div class="geo-country-option">
+                                        <input type="checkbox" id="geoCountryGR" value="GR">
+                                        <label for="geoCountryGR">Yunanistan</label>
+                                    </div>
+                                    <div class="geo-country-option">
+                                        <input type="checkbox" id="geoCountryCY" value="CY">
+                                        <label for="geoCountryCY">Güney Kıbrıs</label>
+                                    </div>
+                                </div>
+                                <span class="geo-filter-status" id="geoFilterStatus" aria-live="polite"></span>
+                            </fieldset>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Accordion 2: Harita & Katmanlar (default collapsed) ═══ -->
+                <div class="accordion-section" id="accordion-map">
+                    <div class="accordion-header" onclick="toggleAccordion('accordion-map')">
+                        <i class="la la-map accordion-header-icon"></i>
+                        <span class="accordion-header-title">Harita & Katmanlar</span>
+                        <i class="la la-chevron-right accordion-header-chevron"></i>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <!-- Basemap thumbnail grid -->
+                            <div class="filter-group">
+                                <label class="filter-label">Harita Stili</label>
+                                <div class="basemap-grid" id="basemapGrid">
+                                    <div class="basemap-thumb active" data-style="mt-rasathane-dark" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-rasathane-dark.png" alt="Rasathane Koyu">
+                                        <span class="basemap-thumb-label">Rasathane Koyu</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-rasathane" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-rasathane.png" alt="Rasathane">
+                                        <span class="basemap-thumb-label">Rasathane</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-streets-dark" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-streets-dark.png" alt="Sokak (Koyu)">
+                                        <span class="basemap-thumb-label">Sokak (Koyu)</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-streets" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-streets.png" alt="Sokak (Açık)">
+                                        <span class="basemap-thumb-label">Sokak (Açık)</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-satellite" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-satellite.png" alt="Uydu">
+                                        <span class="basemap-thumb-label">Uydu</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-hybrid" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-hybrid.png" alt="Uydu + Etiketler">
+                                        <span class="basemap-thumb-label">Uydu + Etiketler</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-topo" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-topo.png" alt="Topografik">
+                                        <span class="basemap-thumb-label">Topografik</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-bilimsel" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-bilimsel.png" alt="Bilimsel (Topo + Batimetri)">
+                                        <span class="basemap-thumb-label">Bilimsel</span>
+                                    </div>
+                                </div>
+                                <!-- Extra basemaps (lazy-loaded on "Tüm Stiller" click) -->
+                                <div class="basemap-grid basemap-extra" id="basemapExtra" style="margin-top: 6px;">
+                                    <div class="basemap-thumb" data-style="mt-outdoor" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-outdoor.png" alt="Outdoor">
+                                        <span class="basemap-thumb-label">Outdoor</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-basic-dark" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-basic-dark.png" alt="Temel (Koyu)">
+                                        <span class="basemap-thumb-label">Temel (Koyu)</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-basic" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-basic.png" alt="Temel (Açık)">
+                                        <span class="basemap-thumb-label">Temel (Açık)</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-bright" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-bright.png" alt="Parlak">
+                                        <span class="basemap-thumb-label">Parlak</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-dataviz-dark" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-dataviz-dark.png" alt="Veri Görsel (Koyu)">
+                                        <span class="basemap-thumb-label">Veri Görsel (Koyu)</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-dataviz" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-dataviz.png" alt="Veri Görsel (Açık)">
+                                        <span class="basemap-thumb-label">Veri Görsel (Açık)</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-toner" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-toner.png" alt="Toner">
+                                        <span class="basemap-thumb-label">Toner</span>
+                                    </div>
+                                    <div class="basemap-thumb" data-style="mt-ocean" onclick="selectBasemapThumb(this)">
+                                        <img data-src="assets/images/basemaps/mt-ocean.png" alt="Okyanus">
+                                        <span class="basemap-thumb-label">Okyanus</span>
+                                    </div>
+                                </div>
+                                <button class="basemap-more-toggle" id="basemapMoreBtn" onclick="toggleBasemapMore()">
+                                    <i class="la la-chevron-down"></i> Tüm Stiller
+                                </button>
+                            </div>
+
+                            <!-- Layer chips -->
+                            <div class="filter-group">
+                                <label class="filter-label">Harita Katmanları</label>
+                                <div class="layer-chips" style="margin-top: 6px;">
+                                    <div class="layer-chip" data-layer="volcanoes">
+                                        <i class="la la-fire"></i> Volkanlar
+                                    </div>
+                                    <div class="layer-chip" data-layer="faults" id="faultChip">
+                                        <i class="la la-slash"></i> Fay Hatları
+                                    </div>
+                                    <div class="layer-chip" data-layer="plates">
+                                        <i class="la la-globe-americas"></i> Levhalar
+                                    </div>
+                                    <div class="layer-chip" data-layer="stations">
+                                        <i class="la la-broadcast-tower"></i> İstasyonlar
+                                    </div>
+                                    <div class="layer-chip" data-layer="sensor-network">
+                                        <i class="la la-mobile"></i> Sismik Telefon Ağı
+                                    </div>
+                                    <div class="layer-chip" data-layer="graticule">
+                                        <i class="la la-th"></i> Koordinat Ağı
+                                    </div>
+                                    <div class="layer-chip" data-layer="marmara-bathy" title="Marmara Denizi yüksek çözünürlüklü batimetri — Bora Erkan ve Onur Tan (TÜBİTAK), Le Pichon et al. 2001 multibeam survey verisi">
+                                        <i class="la la-water"></i> Marmara Batimetrisi
+                                    </div>
+                                    <label class="layer-chip" id="layerShakemapChip">
+                                        <input type="checkbox" id="layerShakemap" onchange="toggleShakemapLayer(this.checked)" style="display:none;">
+                                        <i class="la la-map"></i> Şiddet Haritası
+                                    </label>
+                                </div>
+
+                                <!-- Fault line controls -->
+                                <div id="faultControls" style="display:none; margin-top: 10px;">
+                                    <div class="fault-ctrl-panel">
+                                        <div class="fault-ctrl-section">
+                                            <div class="fault-ctrl-label">Veri Kaynakları</div>
+                                            <label class="fault-ctrl-cb">
+                                                <input type="checkbox" id="faultMta" checked onchange="window.toggleFaultSource('mta', this.checked)">
+                                                <span class="fault-src-dot" id="faultDotMta" aria-hidden="true"></span>
+                                                <span>MTA Diri Fay Haritası <small>(14.554 fay)</small></span>
+                                            </label>
+                                            <label class="fault-ctrl-cb">
+                                                <input type="checkbox" id="faultGem" checked onchange="window.toggleFaultSource('gem', this.checked)">
+                                                <span class="fault-src-dot" id="faultDotGem" aria-hidden="true"></span>
+                                                <span>GEM Global Active Faults <small id="faultGemCount">(843 fay)</small></span>
+                                            </label>
+                                            <label class="fault-ctrl-cb">
+                                                <input type="checkbox" id="faultEfsm" onchange="window.toggleFaultSource('efsm', this.checked)">
+                                                <span class="fault-src-dot" id="faultDotEfsm" aria-hidden="true"></span>
+                                                <span>EFSM20 Avrupa Sismojenik Model <small>(259 fay)</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="fault-ctrl-section">
+                                            <div class="fault-ctrl-label">Saydamlık <span id="faultOpacityVal">75%</span></div>
+                                            <input type="range" id="faultOpacity" min="10" max="100" value="75" class="fault-opacity-slider"
+                                                   oninput="window.setFaultOpacity(this.value); document.getElementById('faultOpacityVal').textContent=this.value+'%'">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Graticule controls -->
+                                <div id="graticuleControls" style="display:none; margin-top: 10px;">
+                                    <div class="fault-ctrl-panel">
+                                        <div class="fault-ctrl-section">
+                                            <div class="fault-ctrl-label">Saydamlık <span id="graticuleOpacityVal">80%</span></div>
+                                            <input type="range" id="graticuleOpacity" min="10" max="100" value="80" class="fault-opacity-slider"
+                                                   oninput="window.setGraticuleOpacity(this.value); document.getElementById('graticuleOpacityVal').textContent=this.value+'%'; UserSettings.set('graticuleOpacity',this.value)">
+                                        </div>
+                                        <div class="fault-ctrl-section">
+                                            <div class="fault-ctrl-label">Çizgi Kalınlığı <span id="graticuleWeightVal">Orta</span></div>
+                                            <input type="range" id="graticuleWeight" min="1" max="3" step="1" value="2" class="fault-opacity-slider"
+                                                   oninput="window.setGraticuleWeight(parseInt(this.value)); var labels=['İnce','Orta','Kalın']; document.getElementById('graticuleWeightVal').textContent=labels[this.value-1]; UserSettings.set('graticuleWeight',this.value)">
+                                        </div>
+                                        <div class="fault-ctrl-section">
+                                            <label class="fault-ctrl-cb">
+                                                <input type="checkbox" id="graticuleLabels" checked onchange="window.toggleGraticuleLabels(this.checked); UserSettings.set('graticuleLabels',this.checked?'true':'false')">
+                                                <span>Koordinat Etiketleri</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Map language -->
+                            <div class="filter-group">
+                                <label class="filter-label">Harita Dili</label>
+                                <select id="mapLanguageSelect" onchange="setMapLanguage(this.value)" style="margin-top: 6px;">
+                                    <option value="auto">Otomatik (Tarayıcı Dili)</option>
+                                    <option value="tr">Türkçe</option>
+                                    <option value="en">English</option>
+                                    <option value="de">Deutsch</option>
+                                    <option value="fr">Français</option>
+                                    <option value="ar">العربية</option>
+                                    <option value="ru">Русский</option>
+                                </select>
+                                <script>
+                                    (function() {
+                                        var saved = SafeStorage.getItem('mapLanguage') || 'auto';
+                                        var sel = document.getElementById('mapLanguageSelect');
+                                        if (sel) sel.value = saved;
+                                    })();
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Accordion 3: Eğitim & Tarihi Olaylar (default collapsed) ═══ -->
+                <div class="accordion-section" id="accordion-education">
+                    <div class="accordion-header" onclick="toggleAccordion('accordion-education')">
+                        <i class="la la-graduation-cap accordion-header-icon"></i>
+                        <span class="accordion-header-title">Eğitim & Tarihi Olaylar</span>
+                        <i class="la la-chevron-right accordion-header-chevron"></i>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <div class="filter-group">
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <a href="/anadolu-sekansi" target="_blank" rel="noopener"
+                                       class="preset-btn event-preset-btn"
+                                       style="text-decoration: none;"
+                                       title="Kuzey Anadolu Fayı boyunca 100 yıllık sekans ve Marmara boşluğu — sinematik anlatım (yeni sekmede açılır)">
+                                        <strong><i class="la la-play-circle" style="color: var(--hazard-strong);"></i> Büyük İstanbul Depremi <i class="la la-external-link-alt" style="font-size: 11px; color: var(--text-secondary); margin-left: 4px;"></i></strong>
+                                        <span class="event-subtitle">Sinematik anlatım · Kuzey Anadolu Fayı sekansı</span>
+                                    </a>
+                                    <button class="preset-btn event-preset-btn" data-event-preset="kahramanmaras2023"
+                                            data-event-from="2023-02-03" data-event-to="2023-03-08"
+                                            title="3 Şubat – 8 Mart 2023 arası (ana şok öncesi 3 gün + sonraki 30 gün)">
+                                        <strong><i class="la la-fire" style="color: var(--hazard-strong);"></i> 6 Şubat 2023</strong>
+                                        <span class="event-subtitle">Kahramanmaraş · Mw 7.8 + 7.5</span>
+                                    </button>
+                                    <button class="preset-btn event-preset-btn" data-event-preset="marmara1999"
+                                            data-event-from="1999-08-14" data-event-to="1999-09-16"
+                                            title="14 Ağustos – 16 Eylül 1999 arası (ana şok öncesi 3 gün + sonraki 30 gün)">
+                                        <strong><i class="la la-fire" style="color: var(--hazard-strong);"></i> 17 Ağustos 1999</strong>
+                                        <span class="event-subtitle">Marmara (Gölcük) · Mw 7.6</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Accordion 4: Gelişmiş Araçlar (default collapsed) ═══ -->
+                <div class="accordion-section" id="accordion-advanced">
+                    <div class="accordion-header" onclick="toggleAccordion('accordion-advanced')">
+                        <i class="la la-cog accordion-header-icon"></i>
+                        <span class="accordion-header-title">Gelişmiş Araçlar</span>
+                        <i class="la la-chevron-right accordion-header-chevron"></i>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <!-- 3D Toggles -->
+                            <div class="filter-group">
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <label class="layer-chip">
+                                        <input type="checkbox" id="layerTerrain3d" onchange="toggle3DLayer(this.checked)">
+                                        <span>3D Arazi</span>
+                                    </label>
+                                    <label class="layer-chip">
+                                        <input type="checkbox" id="layerSatellite3d" onchange="toggleSatellite3D(this.checked)">
+                                        <span>3D Uydu</span>
+                                    </label>
+                                </div>
+
+                                <div id="terrainExaggerationControl" style="display:none; margin-top: 12px;">
+                                    <label style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+                                        Yükseklik: <span id="exaggerationValue" style="min-width: 28px; text-align: center; color: var(--text-primary); font-weight: 600;">1.2</span>
+                                    </label>
+                                    <input type="range" id="terrainExaggeration" min="0.5" max="10" step="0.1" value="1.2"
+                                        oninput="setTerrainExaggeration(parseFloat(this.value))"
+                                        style="width: 100%; margin-top: 4px; accent-color: var(--accent-primary);">
+                                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted);">
+                                        <span>Düz</span><span>Abartılı</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Animation toggle -->
+                            <div class="filter-group">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="animationToggle" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Son Deprem Animasyonu</span>
+                                </label>
+                            </div>
+
+                            <!-- Compass control -->
+                            <div class="filter-group">
+                                <label class="filter-label">Pusula Kontrolü</label>
+                                <!-- Display mode -->
+                                <div style="display: flex; gap: 4px; margin-bottom: 10px;">
+                                    <button class="preset-btn compass-mode-btn" data-compass-mode="simple">Basit</button>
+                                    <button class="preset-btn compass-mode-btn active" data-compass-mode="adaptive">Adaptif</button>
+                                    <button class="preset-btn compass-mode-btn" data-compass-mode="full">Tam</button>
+                                </div>
+                                <!-- Tilt ratio slider -->
+                                <label style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+                                    Eğim Oranı: <span id="compassTiltValue" style="min-width: 28px; text-align: center; color: var(--text-primary); font-weight: 600;">1.0</span>
+                                </label>
+                                <input type="range" id="compassTiltRatio" min="0" max="1.5" step="0.1" value="1.0"
+                                    style="width: 100%; margin-top: 4px; accent-color: var(--accent-primary);">
+                                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted);">
+                                    <span>Sabit</span><span>Eşleşik</span>
+                                </div>
+                            </div>
+
+                            <!-- Reset all settings -->
+                            <div class="filter-group" style="border-top: 1px solid var(--glass-border); padding-top: 12px;">
+                                <button onclick="resetAllSettings()" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--hazard-strong) 30%, var(--rule)); background: color-mix(in srgb, var(--hazard-strong) 8%, var(--surface)); color: var(--hazard-strong); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                                    <i class="la la-undo"></i> Filtreleri S&#305;f&#305;rla
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+            </div>
+            <!-- End of accordion-area -->
+
+            <!-- Stats Strip (compact, pinned above quick links) -->
+            <div class="stats-strip" id="statsStrip" onclick="toggleStatsStrip()">
+                <span class="stats-strip-text" id="statsStripText">0 deprem · Bugün: 0 · Max: 0.0</span>
+                <i class="la la-chevron-up stats-strip-chevron"></i>
+            </div>
+
+            <!-- Expandable Stats Grid -->
+            <div class="stats-expandable" id="statsExpandable">
+                <div class="stats-section">
+                    <div class="stats-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0 5px; margin-bottom: 8px;">
+                        <span id="statsTitle" style="font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Filtre Sonuçları</span>
+                        <div style="display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="event.stopPropagation(); toggleStatsMode()">
+                            <span style="font-size: 9px; color: var(--text-secondary);" id="statsModeLabel">Filtre</span>
+                            <div id="statsModeToggle" style="width: 28px; height: 14px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 7px; position: relative; transition: all 0.3s ease;">
+                                <div id="statsModeSlider" style="width: 10px; height: 10px; background: var(--text-secondary); border-radius: 50%; position: absolute; top: 1px; left: 1px; transition: all 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalCount">0</div>
+                            <div class="stat-label">Toplam Deprem</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="todayCount">0</div>
+                            <div class="stat-label">Bugün</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avgMagnitude">0.0</div>
+                            <div class="stat-label">Ort. Büyüklük</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="maxMagnitude">0.0</div>
+                            <div class="stat-label">Max Büyüklük</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="panel-links">
+                <a href="/istatistik" class="panel-link panel-link--stats"><i class="la la-chart-bar"></i><span>İstatistik</span></a>
+                <a href="/sensor-agi" class="panel-link panel-link--sensor"><i class="la la-broadcast-tower"></i><span>Sensör Ağı</span></a>
+                <a href="/uyarilar" class="panel-link panel-link--alerts"><i class="la la-bell"></i><span>Uyarılar</span></a>
+                <a href="/ozellikler" class="panel-link panel-link--features"><i class="la la-rocket"></i><span>Özellikler</span></a>
+                <a href="/yenilikler" class="panel-link panel-link--changelog"><i class="la la-history"></i><span>Yenilikler</span></a>
+                <a href="/indir" class="panel-link panel-link--app" onclick="panelInstallApp(event); return false;"><i class="la la-mobile-alt"></i><span>Mobil Uygulama</span></a>
+                <a href="/api" class="panel-link panel-link--api"><i class="la la-code"></i><span>API</span></a>
+                <a href="/rss" class="panel-link panel-link--rss"><i class="la la-rss"></i><span>RSS</span></a>
+                <a href="/kaynaklar" class="panel-link panel-link--kaynaklar"><i class="la la-book"></i><span>Kaynaklar</span></a>
+                <a href="/gizlilik" class="panel-link panel-link--privacy"><i class="la la-shield-alt"></i><span>Gizlilik</span></a>
+            </div>
+        </div>
+        <!-- End of left-panel -->
+        
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+
+            <!-- Live Status Indicator -->
+            <div class="live-status-indicator" id="liveStatusIndicator">
+                <span class="status-dot"></span>
+                <span>Canlı veri • 30 saniyede bir güncellenir</span>
+                <div class="status-sources">
+                    <span class="source-tag source-tag-kandilli">Kandilli</span>
+                    <span class="source-tag source-tag-afad">AFAD</span>
+                    <span class="source-tag source-tag-usgs">USGS</span>
+                    <span class="source-tag source-tag-emsc">EMSC</span>
+                    <span class="source-tag source-tag-gfz">GFZ</span>
+                    <span class="source-tag source-tag-noa">NOA</span>
+                </div>
+            </div>
+            
+            <!-- Top Controls -->
+            <div class="top-controls">
+                <!-- Push notification + PWA install (prominent) -->
+                <button class="control-btn push-cta" id="pushSubscribeBtn" onclick="togglePushNotification()" style="display:none;">
+                    <i class="la la-bell" id="pushBellIcon"></i><span id="pushBtnLabel">Bildirim Al</span>
+                </button>
+
+                <!-- Deprem Oldu! — standalone felt report -->
+                <button class="control-btn deprem-oldu-btn" id="depremOlduBtn" onclick="openDepremOldu()" title="Deprem Oldu!">
+                    <i class="la la-exclamation-circle"></i><span class="deprem-oldu-label">Deprem Oldu!</span>
+                </button>
+
+                <!-- Toolbox buttons -->
+                <div class="toolbox-group" style="display: flex; gap: 4px; margin: 0 4px;">
+                    <button class="control-btn" id="measureTool" onclick="toggleMeasureTool()" title="Mesafe Ölçüm">
+                        <i class="la la-ruler"></i>
+                    </button>
+                    <button class="control-btn" id="graphTool" onclick="toggleGraphTool()" title="Grafik Oluştur">
+                        <i class="la la-chart-line"></i>
+                    </button>
+                    <button class="control-btn" id="coordinateTool" onclick="toggleCoordinateTool()" title="Koordinat Oku">
+                        <i class="la la-map-pin"></i>
+                    </button>
+                    <button class="control-btn" onclick="clearMeasurements()" title="Ölçümleri Temizle">
+                        <i class="la la-trash"></i>
+                    </button>
+                    <button class="control-btn" onclick="openScreenshotModal()" title="Ekran Görüntüsü Al">
+                        <i class="la la-camera"></i>
+                    </button>
+                    <button class="control-btn" id="replayTool" onclick="toggleReplayMode()" title="Zaman Oynatıcı">
+                        <i class="la la-play-circle"></i>
+                    </button>
+                    <button class="control-btn" id="compareTool" onclick="openCompareModal()" title="Deprem Karşılaştır">
+                        <i class="la la-columns"></i>
+                    </button>
+                    <button class="control-btn" id="locateBtn" onclick="locateUser()" title="Konumumu Bul">
+                        <i class="la la-crosshairs"></i>
+                    </button>
+                    <button class="control-btn" id="autoFocusBtn" onclick="toggleAutoFocus()" title="Yeni Depremi Takip Et">
+                        <i class="la la-location-arrow"></i>
+                    </button>
+                </div>
+
+                <!-- Theme Toggle -->
+                <div class="theme-toggle">
+                    <svg id="darkIcon" class="theme-icon active" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <div class="theme-toggle-switch" id="themeToggle" onclick="typeof toggleTheme==='function'&&toggleTheme()">
+                        <div class="theme-toggle-slider"></div>
+                    </div>
+                    <svg id="lightIcon" class="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                </div>
+                <button class="control-btn ios-install-toolbar" id="iosInstallToolbar" onclick="showIOSInstallGuide()" title="Sismik Haritayı İndir" style="display:none;">
+                    <i class="la la-download"></i>
+                </button>
+
+                <!-- User Auth (pushed to right edge) -->
+                <div class="topbar-auth-group">
+                                            <a href="/giris" class="control-btn topbar-auth-btn" title="Giriş Yap / Kayıt Ol">
+                            <i class="la la-user-circle"></i>
+                        </a>
+                                    </div>
+            </div>
+
+            <!-- Legend Box -->
+            <div class="legend-box collapsed" id="legendBox">
+                <button class="legend-collapse-btn" onclick="toggleLegend()" title="Lejant">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </button>
+                <div class="legend-header" onclick="toggleLegend()">
+                    <span>Lejant</span>
+                    <div class="legend-toggle">
+                        <svg class="legend-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                </div>
+                <div class="legend-content">
+                    <div class="legend-grid">
+                        <div class="legend-section">
+                            <div class="legend-subtitle">Derinlik (km)</div>
+                            <div class="depth-scale">
+                                <div class="depth-item"><div class="depth-bar" style="background:#FA766A;"></div><span>0-5</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#FBAB57;"></div><span>5-10</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#FCE15B;"></div><span>10-15</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#B0E1F5;"></div><span>15-20</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#66C2F2;"></div><span>20-25</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#3199E8;"></div><span>25-50</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#2172E1;"></div><span>50-100</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#EB59C4;"></div><span>100+</span></div>
+                            </div>
+                        </div>
+                        <div class="legend-section">
+                            <div class="legend-subtitle">Büyüklük</div>
+                            <div class="magnitude-scale">
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:4px;height:4px;"></div><span>M1</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:6px;height:6px;"></div><span>M2</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:14px;height:14px;"></div><span>M3</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:20px;height:20px;"></div><span>M4</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:28px;height:28px;"></div><span>M5</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:36px;height:36px;"></div><span>M6</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:42px;height:42px;"></div><span>M7</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:50px;height:50px;"></div><span>M8</span></div>
+                                <div class="magnitude-item"><div class="magnitude-circle" style="width:58px;height:58px;"></div><span>M9+</span></div>
+                            </div>
+                        </div>
+                        <div class="legend-section" id="sensorNetworkLegend" style="display:none;">
+                            <div class="legend-subtitle">Sismik Telefon Ağı</div>
+                            <div class="fault-scale sensor-network-scale">
+                                <div class="fault-item"><div class="sensor-network-swatch sensor-network-swatch--android"></div><span>Android</span></div>
+                                <div class="fault-item"><div class="sensor-network-swatch sensor-network-swatch--ios"></div><span>iPhone</span></div>
+                                <div class="fault-item"><div class="sensor-network-swatch sensor-network-swatch--listening"></div><span>Dinlemede</span></div>
+                                <div class="fault-item"><div class="sensor-network-swatch sensor-network-swatch--idle"></div><span>Beklemede</span></div>
+                            </div>
+                        </div>
+                        <div class="legend-section" id="faultLegend" style="display:none;">
+                            <div class="legend-subtitle">MTA Diri Fay Haritası</div>
+                            <div class="fault-scale">
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Deprem Yüzey Kırığı</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Holosen Fayı</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Kuvaterner Fayı</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);background-image:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,0.6) 5px,rgba(255,255,255,0.6) 8px);"></div><span>Olası Kuvaterner Fayı</span></div>
+                            </div>
+                            <div class="legend-subtitle" style="margin-top:12px;">GEM / EFSM Fay Çeşitleri</div>
+                            <div class="fault-scale">
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Sağ yanal</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Sol yanal</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Normal fay</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);background-image:repeating-linear-gradient(90deg,transparent,transparent 5px,#fff 5px,#fff 8px);"></div><span>Ters/Bindirme</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Oblik</span></div>
+                                <div class="fault-item"><div class="fault-line" style="background:var(--fault-overlay-color);"></div><span>Diğer</span></div>
+                            </div>
+                        </div>
+                        <div class="legend-section" id="shakemapLegendSection" style="display:none;">
+                            <div class="legend-subtitle">Şiddet (MMI)</div>
+                            <div class="depth-scale">
+                                <div class="depth-item"><div class="depth-bar" style="background:#60A5FA;"></div><span>III</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#3B82F6;"></div><span>IV</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#22C55E;"></div><span>V</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#EAB308;"></div><span>VI</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#F59E0B;"></div><span>VII</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#EA580C;"></div><span>VIII</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#DC2626;"></div><span>IX</span></div>
+                                <div class="depth-item"><div class="depth-bar" style="background:#8B0000;"></div><span>X+</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Replay Panel -->
+            <div class="replay-panel" id="replayPanel" style="display:none;">
+                <div class="replay-topline">
+                    <span class="replay-title">Zaman Oynatıcı</span>
+                    <span class="replay-hint">Başka bir zaman dilimi için filtre tercihlerinizi değiştirin.</span>
+                    <button class="replay-close" onclick="toggleReplayMode()" title="Kapat" aria-label="Zaman oynatıcıyı kapat">&times;</button>
+                </div>
+                <div class="replay-controls">
+                    <button class="replay-btn" id="replayPlayBtn" onclick="replayTogglePlay()" title="Oynat / Duraklat" aria-label="Oynat veya duraklat">
+                        <i class="la la-play" id="replayPlayIcon"></i>
+                    </button>
+                    <input type="range" class="replay-slider" id="replaySlider" min="0" max="1000" value="0" aria-label="Zaman çizelgesi">
+                    <span class="replay-time" id="replayTimeDisplay">--</span>
+                    <span class="replay-divider" aria-hidden="true"></span>
+                    <div class="replay-speed" role="group" aria-label="Oynatma hızı">
+                        <button class="replay-speed-btn" onclick="setReplaySpeed(0.5)">0.5x</button>
+                        <button class="replay-speed-btn active" onclick="setReplaySpeed(1)">1x</button>
+                        <button class="replay-speed-btn" onclick="setReplaySpeed(2)">2x</button>
+                        <button class="replay-speed-btn" onclick="setReplaySpeed(5)">5x</button>
+                    </div>
+                    <button class="replay-record" id="replayRecordBtn" onclick="openRecordModal()" title="Haritayı video olarak kaydet">
+                        <i class="la la-video"></i><span>Video</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Comparison Overlay -->
+            <div class="compare-overlay" id="compareOverlay" style="display:none;">
+                <div class="compare-modal">
+                    <div class="compare-modal-header">
+                        <h2>Deprem Karşılaştırma</h2>
+                        <button onclick="closeCompareModal()" class="compare-modal-close">&times;</button>
+                    </div>
+                    <div class="compare-modal-body">
+                        <!-- Two selector columns -->
+                        <div class="compare-selectors">
+                            <div class="compare-selector" id="compareSelectorA">
+                                <div class="compare-selector-label">Deprem #1</div>
+                                <input type="text" class="compare-search" id="compareSearchA" placeholder="Deprem ara... (konum, büyüklük)" autocomplete="off">
+                                <div class="compare-dropdown" id="compareDropdownA"></div>
+                                <div class="compare-selected" id="compareSelectedA"></div>
+                            </div>
+                            <div class="compare-vs">VS</div>
+                            <div class="compare-selector" id="compareSelectorB">
+                                <div class="compare-selector-label">Deprem #2</div>
+                                <input type="text" class="compare-search" id="compareSearchB" placeholder="Deprem ara... (konum, büyüklük)" autocomplete="off">
+                                <div class="compare-dropdown" id="compareDropdownB"></div>
+                                <div class="compare-selected" id="compareSelectedB"></div>
+                            </div>
+                        </div>
+                        <!-- Comparison results (shown after both selected) -->
+                        <div class="compare-results" id="compareResults" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End of map-container -->
+
+        <!-- Right Panel -->
+        <div class="right-panel" id="rightPanel">
+            <div class="panel-toggle right-toggle" onclick="toggleRightPanel()">
+                <svg id="rightToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+            
+            <div class="panel-header">
+                <div class="header-top">
+                    <h2 class="header-title">Son Depremler</h2>
+                    <div class="header-auth">
+                                                    <a href="/giris" class="auth-btn-pill" title="Giriş Yap"><i class="la la-sign-in-alt"></i><span class="btn-label">Giriş</span></a>
+                            <a href="/kayit" class="auth-btn-pill primary" title="Kayıt Ol"><i class="la la-user-plus"></i><span class="btn-label">Kayıt</span></a>
+                                            </div>
+                </div>
+                <div class="header-status">
+                    <div class="status-live" id="freshnessStatus" data-freshness="live" role="img" aria-label="Durum: Canlı">
+                        <span class="live-dot" aria-hidden="true"></span>
+                        <span class="live-label" aria-hidden="true"></span>
+                        <span class="live-divider" aria-hidden="true">&bull;</span>
+                        <span id="lastUpdate" class="live-time" aria-hidden="true">Güncelleniyor...</span>
+                    </div>
+                    <div class="status-count">
+                        <span id="eqCount">&mdash;</span> <span class="count-label">deprem</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="earthquake-list" id="earthquakeList">
+                <!-- Earthquake items will be populated here -->
+            </div>
+        </div>
+        <!-- End of right-panel -->
+
+        <!-- Mobile Floating Action Buttons (Landscape Mode) -->
+        <button class="mobile-fab-left" id="mobileFabLeft" onclick="toggleMobilePanel('left')" style="display: none;">
+            <i class="la la-filter"></i>
+        </button>
+        <button class="mobile-fab-right" id="mobileFabRight" onclick="toggleMobilePanel('right')" style="display: none;">
+            <i class="la la-list"></i>
+        </button>
+
+        <!-- Mobile Legend Button (Landscape) -->
+        <button class="mobile-legend-btn" id="mobileLegendBtn" onclick="toggleMobileLegend()" style="display: none;">
+            <i class="la la-map"></i>
+            <span>Lejant</span>
+        </button>
+
+        <!-- Mobile Menu FAB (Landscape) -->
+        <button class="mobile-fab-menu" id="mobileFabMenu" onclick="toggleMobileMenu()" style="display: none;">
+            <i class="la la-bars"></i>
+        </button>
+
+        <!-- Mobile Bottom Navigation (Portrait Mode) -->
+        <div class="mobile-bottom-nav" id="mobileBottomNav" style="display: none;">
+            <button class="bottom-nav-btn" id="bottomNavLeft" onclick="toggleMobilePanel('left')">
+                <i class="la la-filter"></i>
+                <span>Filtreler</span>
+            </button>
+            <button class="bottom-nav-btn" id="bottomNavLegend" onclick="toggleMobileLegend()">
+                <i class="la la-map"></i>
+                <span>Lejant</span>
+            </button>
+            <button class="bottom-nav-btn" id="bottomNavTools" onclick="toggleMobileTools()">
+                <i class="la la-toolbox"></i>
+                <span>Araçlar</span>
+            </button>
+            <button class="bottom-nav-btn" id="bottomNavRight" onclick="toggleMobilePanel('right')">
+                <i class="la la-list"></i>
+                <span>Depremler</span>
+            </button>
+            <button class="bottom-nav-btn" id="bottomNavMenu" onclick="toggleMobileMenu()">
+                <i class="la la-bars"></i>
+                <span>Menü</span>
+            </button>
+        </div>
+
+        <!-- Mobile Tools Sheet (Portrait Mode) -->
+        <div class="mobile-tools-sheet" id="mobileToolsSheet" style="display:none;">
+            <div class="tools-sheet-header">
+                <span>Araçlar</span>
+                <button onclick="toggleMobileTools()" class="tools-sheet-close">&times;</button>
+            </div>
+            <div class="tools-sheet-grid">
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();toggleMeasureTool()">
+                    <i class="la la-ruler"></i><span>Mesafe Ölç</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();toggleGraphTool()">
+                    <i class="la la-chart-line"></i><span>Grafik</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();openScreenshotModal()">
+                    <i class="la la-camera"></i><span>Ekran Görüntüsü</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();toggleReplayMode()">
+                    <i class="la la-play-circle"></i><span>Zaman Oynatıcı</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();openCompareModal()">
+                    <i class="la la-columns"></i><span>Karşılaştır</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();locateUser()">
+                    <i class="la la-crosshairs"></i><span>Konumum</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();toggleCoordinateTool()">
+                    <i class="la la-map-pin"></i><span>Koordinat Oku</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();clearMeasurements()">
+                    <i class="la la-trash"></i><span>Ölçüm Temizle</span>
+                </button>
+                <button class="tools-sheet-btn" id="autoFocusMobileBtn" onclick="toggleMobileTools();toggleAutoFocus()">
+                    <i class="la la-location-arrow"></i><span>Otomatik Odak</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();toggle3DLayer(!document.getElementById('layerTerrain3d').checked)">
+                    <i class="la la-mountain"></i><span>3D Arazi</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();var t=document.getElementById('themeToggle');if(t)t.click();">
+                    <i class="la la-adjust"></i><span>Tema Değiştir</span>
+                </button>
+                <button class="tools-sheet-btn" onclick="toggleMobileTools();openDepremOldu()" style="background:color-mix(in srgb, var(--hazard-strong) 15%, var(--surface));border-color:color-mix(in srgb, var(--hazard-strong) 30%, var(--rule));">
+                    <i class="la la-exclamation-circle" style="color:var(--hazard-strong);"></i><span>Deprem Oldu!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Sheet -->
+        <div class="mobile-menu-sheet" id="mobileMenuSheet" style="display:none;">
+            <div class="menu-sheet-header">
+                <span>Menü</span>
+                <button onclick="toggleMobileMenu()" class="tools-sheet-close">&times;</button>
+            </div>
+            <div class="menu-sheet-body">
+                <!-- Pages Section -->
+                <div class="menu-sheet-section">
+                    <div class="menu-sheet-section-title">Sayfalar</div>
+                    <div class="menu-sheet-links-grid">
+                        <a href="/istatistik" class="menu-sheet-link"><i class="la la-chart-bar"></i><span>İstatistik</span></a>
+                        <a href="/sensor-agi" class="menu-sheet-link"><i class="la la-broadcast-tower"></i><span>Sensör Ağı</span></a>
+                        <a href="/uyarilar" class="menu-sheet-link"><i class="la la-bell"></i><span>Uyarılar</span></a>
+                        <a href="/ozellikler" class="menu-sheet-link"><i class="la la-rocket"></i><span>Özellikler</span></a>
+                        <a href="/yenilikler" class="menu-sheet-link"><i class="la la-history"></i><span>Yenilikler</span></a>
+                        <a href="/anadolu-sekansi" class="menu-sheet-link"><i class="la la-route"></i><span>Anadolu Sekansı</span></a>
+                        <a href="/api" class="menu-sheet-link"><i class="la la-code"></i><span>API</span></a>
+                        <a href="/rss" class="menu-sheet-link"><i class="la la-rss"></i><span>RSS</span></a>
+                        <a href="/gizlilik" class="menu-sheet-link"><i class="la la-shield-alt"></i><span>Gizlilik</span></a>
+                    </div>
+                </div>
+                <!-- Download Section (hidden in app modes) -->
+                <div class="menu-sheet-section" id="menuDownloadSection">
+                    <button class="menu-sheet-download" id="menuDownloadBtn" onclick="handleSmartDownload()">
+                        <i class="la la-download"></i>
+                        <span id="menuDownloadLabel">Uygulamayı İndir</span>
+                    </button>
+                </div>
+                            </div>
+        </div>
+
+        <!-- Panel Backdrop (Mobile) -->
+        <div class="panel-backdrop" id="panelBackdrop" onclick="closeMobilePanels()"></div>
+
+    </div>
+    <!-- End of app-container -->
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <img src="/assets/images/icon-512.png" alt="" class="loading-logo">
+        <div id="loadingMessage" style="color:var(--text);margin-top:16px;font-size:14px;opacity:0.8;text-align:center"></div>
+        <div id="loadingSubMessage" style="color:var(--muted);margin-top:8px;font-size:12px;opacity:0;text-align:center;transition:opacity 0.3s"></div>
+    </div>
+
+    <!-- Rotation Prompt Overlay -->
+    <div class="rotation-overlay" id="rotationOverlay" style="display: none;">
+        <div class="rotation-logo-bg">
+            <img src="assets/images/sismik-logo-notext.png" alt="">
+        </div>
+        <div class="rotation-content">
+            <div class="phone-animation">
+                <div class="phone-device">📱</div>
+            </div>
+            <h2>Lütfen cihazınızı döndürün.</h2>
+            <p class="rotation-message">
+                <strong style="font-size: 16px;">Türkiye geniş bir ülke!</strong><br>
+                <span style="font-size: 14px;">Sismik Harita'yı en iyi şekilde deneyimlemek için haritayı yatay görüntüleyin.</span>
+            </p>
+            <div class="rotation-buttons">
+                <button class="rotation-btn rotation-btn-secondary" onclick="window.orientationHandler && window.orientationHandler.dismissRotationPrompt()">
+                    Dikine devam et!
+                </button>
+            </div>
+        </div>
+        <div class="rotation-logo-bottom">
+            <img src="assets/images/sismik-logo-white-text.png" alt="Sismik Harita">
+        </div>
+    </div>
+
+    <!-- Rotation Reminder Banner -->
+    <div class="rotation-banner" id="rotationBanner" style="display: none;">
+        <div class="rotation-banner-content">
+            <span class="rotation-banner-icon">
+                <span class="phone-rotate">📱</span>
+            </span>
+            <span class="rotation-banner-text">Yatay modu deneyin 🌍</span>
+            <button class="ios-install-inline" id="iosInstallBanner" onclick="showIOSInstallGuide()" style="display:none;">
+                <i class="la la-download"></i> İndir
+            </button>
+            <button class="ios-install-inline" id="pwaInstallBanner" onclick="installPWA()" style="display:none;">
+                <i class="la la-download"></i> Yükle
+            </button>
+            <button class="rotation-banner-close" onclick="window.orientationHandler && window.orientationHandler.dismissRotationBanner()" aria-label="Kapat">
+                <i class="la la-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- GlitchTip (self-hosted Sentry) — Layer 2 crash reporting -->
+    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+    if (window.Sentry) {
+        Sentry.init({
+            dsn: "https://b9535ffdfff7436da310965f1b8ab35f@glitchtip.sismikharita.com/1",
+            release: "7eda42a",
+            environment: "production",
+            sampleRate: 1.0,
+            tracesSampleRate: 0.1,
+            ignoreErrors: [
+                /ResizeObserver/,
+                /^AbortError/i,
+                /^Failed to fetch$/,
+                /^Load failed$/,
+                /^Script error\.?$/,
+                /Could not create a WebGL context/,
+                /Failed to initialize WebGL/,
+                /webglcontextcreationerror/i,
+                /Access is denied.*localStorage/i,
+                /Failed to read the 'localStorage' property/i,
+                /Error retrieving push subscription/i,
+                /Error invoking postEvent.*Method not found/i,
+                /Error invoking post.*Method not found/i,
+                /Cannot assign to read only property 'tron'/i,
+                /window\.webkit\.messageHandlers/i,
+                /globalThis is not defined/i,
+                /Can't find variable: CONFIG/i,
+                /Can't find variable: currentInset/i,
+                /Unexpected token \./,
+                /Failed to connect to MetaMask/i,
+                /Cannot redefine property: (?:ethereum|web3|solana)/i,
+                /Cannot assign to read only property '(?:ethereum|web3|solana)'/i
+            ],
+            denyUrls: [
+                /\/beacon\.min\.js(?:\/|$)/,
+                /^chrome-extension:\/\//,
+                /^moz-extension:\/\//,
+                /^safari-extension:\/\//,
+                /^safari-web-extension:\/\//
+            ]
+        });
+    }
+    </script>
+
+    <!-- MapLibre GL JS — defer'd so the 800 KB bundle stops blocking parsing.
+         Both scripts run after parse-done in document order, so map-compat
+         (depends on maplibregl global) still loads after the vendor bundle. -->
+    <script src="/vendor/maplibre-gl.js" defer></script>
+    <script src="js/map-compat.js?v=7eda42a" defer></script>
+    
+
+
+    <!-- Service Worker Registration -->
+    <script>
+    window.__isLoggedIn = false;
+    window.__userId = null;
+    window.__isAdmin = false;
+    // Inlined so push subscribe() can run synchronously inside the user gesture —
+    // an async fetch for this key drops user-activation on Safari/iOS-PWA and the
+    // permission prompt silently fails. Public key; safe to expose in the page.
+    window.__vapidPublicKey = "BMFiz9bi5UFdqdJ03ks2L9lTRKHQFzh8k4XMPfKbVAQhySO7Wnsp3xChd1VdSvP10UGrIP5qdLUoX0HgsRv_uc4";
+    // Detect saved custom filters early — prevents prefetch from rendering default data
+    if (window.__userSettings) {
+        var _s = window.__userSettings;
+        var _validTF = ['today','yesterday','last-3-days','last-month'];
+        if ((_s.customDateRange && !_s.timeFilter) || (_s.timeFilter && _validTF.indexOf(_s.timeFilter) !== -1)) {
+            window.__settingsWillRestoreFilters = true;
+            // Show loading overlay immediately with restore message
+            var _ov = document.getElementById('loadingOverlay');
+            var _msg = document.getElementById('loadingMessage');
+            if (_ov) _ov.style.display = 'flex';
+            if (_msg) _msg.textContent = 'En son kullandığınız filtreleriniz yükleniyor...';
+        }
+    }
+    </script>
+    <script src="js/app-settings.js?v=7eda42a" defer></script>
+    <script>
+    if ('serviceWorker' in navigator && !(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) {
+        navigator.serviceWorker.register('/service-worker.js').catch(function() {});
+    }
+
+    // --- Installed App Detection (must be before any code that uses it) ---
+    window.isInstalledApp = function() {
+        // TWA (Trusted Web Activity)
+        if (document.referrer && document.referrer.includes('android-app://')) return true;
+        // PWA standalone mode
+        if (window.matchMedia('(display-mode: standalone)').matches) return true;
+        if (window.matchMedia('(display-mode: fullscreen)').matches) return true;
+        // iOS standalone (added to home screen)
+        if (window.navigator.standalone === true) return true;
+        // Capacitor native app
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) return true;
+        if (window.CapBridge && window.CapBridge.isNative) return true;
+        // Android WebView (TWA or native app)
+        if (document.documentElement.classList.contains('webview') || (document.body && document.body.classList.contains('webview'))) return true;
+        return false;
+    };
+
+    window.getDownloadPlatform = function() {
+        var ua = navigator.userAgent || '';
+        if (/android/i.test(ua)) return 'android';
+        if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
+        return 'desktop';
+    };
+
+    // PWA install prompt
+    var deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        if (isInstalledApp()) return;
+        deferredPrompt = e;
+        // Show install banner if not dismissed before
+        if (!SafeStorage.getItem('pwa-dismissed')) {
+            showInstallBanner();
+        }
+    });
+
+    function showInstallBanner() {
+        if (document.getElementById('pwaDesktopBtn')) return;
+        var isDesktop = window.innerWidth >= 768;
+
+        if (isDesktop) {
+            // Desktop: add a nice button to the top controls toolbar
+            var toolbox = document.querySelector('.top-controls .theme-toggle');
+            if (!toolbox) return;
+            var btn = document.createElement('button');
+            btn.id = 'pwaDesktopBtn';
+            btn.className = 'pwa-desktop-btn';
+            btn.onclick = installPWA;
+            btn.innerHTML = '<i class="la la-download"></i> Uygulamayı İndir';
+            toolbox.parentElement.insertBefore(btn, toolbox);
+        } else {
+            // Mobile: show the Yükle button in the rotation banner
+            var pwaBtn = document.getElementById('pwaInstallBanner');
+            if (pwaBtn) pwaBtn.style.display = 'inline-flex';
+        }
+    }
+
+    window.installPWA = function() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function() {
+            deferredPrompt = null;
+            var b = document.getElementById('pwaInstallBanner');
+            if (b) b.style.display = 'none';
+            var d = document.getElementById('pwaDesktopBtn');
+            if (d) d.remove();
+        });
+    };
+
+    window.dismissPWA = function() {
+        SafeStorage.setItem('pwa-dismissed', '1');
+        var b = document.getElementById('pwaInstallBanner');
+        if (b) b.style.display = 'none';
+    };
+
+    // iOS PWA install guide — only show on actual iOS devices
+    (function() {
+        if (isInstalledApp()) return;
+
+        // Detect iOS: iPad, iPhone, iPod — Safari doesn't support beforeinstallprompt
+        var ua = navigator.userAgent || '';
+        var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (!isIOS) return; // Android/Chrome handles install natively
+
+        var isMobile = window.innerWidth < 1024;
+        if (isMobile) {
+            var bannerBtn = document.getElementById('iosInstallBanner');
+            if (bannerBtn) bannerBtn.style.display = 'inline-flex';
+            var toolbarBtn = document.getElementById('iosInstallToolbar');
+            if (toolbarBtn) toolbarBtn.style.display = '';
+        }
+    })();
+
+    window.showIOSInstallGuide = function() {
+        if (window.CapBridge && window.CapBridge.isNative) return;
+        var existing = document.getElementById('iosGuideModal');
+        if (existing) existing.remove();
+
+        var modal = document.createElement('div');
+        modal.id = 'iosGuideModal';
+        modal.innerHTML =
+            '<div class="ios-overlay" onclick="closeIOSGuide()"></div>' +
+            '<div class="ios-dialog">' +
+                '<div class="ios-header">' +
+                    '<h3>Sismik Haritayı Ana Ekrana Ekle</h3>' +
+                    '<button class="ios-close" onclick="closeIOSGuide()">&times;</button>' +
+                '</div>' +
+                '<div class="ios-body">' +
+                    '<div class="ios-step">' +
+                        '<div class="ios-step-num">1</div>' +
+                        '<div class="ios-step-text">' +
+                            'Bu sayfayı <strong>Safari</strong> tarayıcısında açın' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="ios-step">' +
+                        '<div class="ios-step-num">2</div>' +
+                        '<div class="ios-step-text">' +
+                            'Alttaki <strong>paylaş</strong> butonuna tıklayın' +
+                            '<div class="ios-step-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="ios-step">' +
+                        '<div class="ios-step-num">3</div>' +
+                        '<div class="ios-step-text">' +
+                            '<strong>"Ana Ekrana Ekle"</strong> seçeneğini bulun ve <strong>"Ekle"</strong>\'ye dokunun' +
+                            '<div class="ios-step-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="ios-note">' +
+                        'Uygulama ana ekranınıza eklenecek ve deprem bildirimleri alabileceksiniz.' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(modal);
+    };
+
+    window.closeIOSGuide = function() {
+        var m = document.getElementById('iosGuideModal');
+        if (m) m.remove();
+    };
+
+    // --- Mobile Menu Sheet ---
+    window.toggleMobileMenu = function() {
+        var sheet = document.getElementById('mobileMenuSheet');
+        if (!sheet) return;
+        var isOpen = sheet.style.display !== 'none';
+        sheet.style.display = isOpen ? 'none' : 'block';
+        var btn = document.getElementById('bottomNavMenu');
+        if (btn) btn.classList.toggle('active', !isOpen);
+        // Close tools sheet if open
+        if (!isOpen) {
+            var tools = document.getElementById('mobileToolsSheet');
+            if (tools) tools.style.display = 'none';
+            var toolsBtn = document.getElementById('bottomNavTools');
+            if (toolsBtn) toolsBtn.classList.remove('active');
+        }
+    };
+
+    // --- Smart Download ---
+    window.handleSmartDownload = function() {
+        toggleMobileMenu();
+        window.location.href = '/indir';
+    };
+
+    // Used by the left-panel "Mobil Uygulama" chip, which lives outside the
+    // mobile bottom-sheet.
+    window.panelInstallApp = function(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        window.location.href = '/indir';
+    };
+
+    // --- Initialize download section & label ---
+    (function() {
+        function initDownloadSection() {
+            // Hide download if running as installed app
+            if (isInstalledApp()) {
+                var sec = document.getElementById('menuDownloadSection');
+                if (sec) sec.style.display = 'none';
+                // Also hide existing desktop/banner install buttons
+                var desktopBtn = document.getElementById('pwaDesktopBtn');
+                if (desktopBtn) desktopBtn.style.display = 'none';
+                var iosToolbar = document.getElementById('iosInstallToolbar');
+                if (iosToolbar) iosToolbar.style.display = 'none';
+                var iosBanner = document.getElementById('iosInstallBanner');
+                if (iosBanner) iosBanner.style.display = 'none';
+                var pwaBanner = document.getElementById('pwaInstallBanner');
+                if (pwaBanner) pwaBanner.style.display = 'none';
+                return;
+            }
+            // Set label based on platform
+            var label = document.getElementById('menuDownloadLabel');
+            if (!label) return;
+            var platform = getDownloadPlatform();
+            if (platform === 'android') {
+                label.textContent = 'Google Play\'den İndir';
+            } else if (platform === 'ios') {
+                label.textContent = 'App Store\'dan İndir';
+            } else {
+                label.textContent = 'Uygulamayı Yükle';
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDownloadSection);
+        } else {
+            initDownloadSection();
+        }
+    })();
+    </script>
+
+    <!-- All app scripts use `defer`: they download in parallel during HTML
+         parse without blocking it, then execute in document order before
+         DOMContentLoaded. Order still matters (orientation-handler ->
+         capacitor-bridge -> app-state -> ... -> app-telemetry), and `defer`
+         preserves it. -->
+
+    <!-- Orientation Handler (must load before app modules) -->
+    <script src="js/orientation-handler.js?v=7eda42a" defer></script>
+
+    <!-- Mobile Panels Handler -->
+    <script src="js/mobile-panels.js?v=7eda42a" defer></script>
+
+    <!-- Capacitor Bridge (must load before app scripts) -->
+    <script src="js/capacitor-bridge.js?v=7eda42a" defer></script>
+    <!-- Install-mode beacon — fires once per session to record install surface -->
+    <script src="js/install-mode-beacon.js?v=7eda42a" defer></script>
+
+    <!-- Application JavaScript (modular) -->
+    <script src="js/app-state.js?v=7eda42a" defer></script>
+    <script src="js/app-utils.js?v=7eda42a" defer></script>
+    <script src="js/app-eq-layer.js?v=7eda42a" defer></script>
+    <script src="js/app-map.js?v=7eda42a" defer></script>
+    <script src="js/app-animation.js?v=7eda42a" defer></script>
+    <script src="js/app-layers.js?v=7eda42a" defer></script>
+    <script src="js/beachball.js?v=7eda42a" defer></script>
+    <script src="js/app-admin-layers.js?v=7eda42a" defer></script>
+    <script src="js/app-shakemap.js?v=7eda42a" defer></script>
+    <script src="js/app-data.js?v=7eda42a" defer></script>
+    <script src="js/app-filters.js?v=7eda42a" defer></script>
+    <script src="js/app-tools.js?v=7eda42a" defer></script>
+    <script src="js/app-location.js?v=7eda42a" defer></script>
+    <script src="js/app-ui.js?v=7eda42a" defer></script>
+    <script src="js/app-compass.js?v=7eda42a" defer></script>
+    <script src="js/hissettim.js?v=7eda42a" defer></script>
+    <script src="js/app-social.js?v=7eda42a" defer></script>
+    <script src="js/sismik-aktivite.js?v=7eda42a" defer></script>
+    <script src="js/tooltip.js?v=7eda42a" defer></script>
+    <script src="js/app-features.js?v=7eda42a" defer></script>
+    <script src="js/coulomb-stress.js?v=7eda42a" defer></script>
+    <script src="js/app-coulomb.js?v=7eda42a" defer></script>
+    <script src="js/app-telemetry.js?v=7eda42a" defer></script>
+    <script>
+    window.__serverTime = 1788193949;
+    window.__assetVersion = '7eda42a';
+    </script>
+
+    <!-- Graph Modal -->
+    <div class="graph-modal-overlay" id="graphModalOverlay" onclick="closeGraphModal()"></div>
+    <div class="graph-modal" id="graphModal">
+        <div class="graph-modal-header">
+            <div>
+                <h3 class="graph-modal-title" id="graphTitle">Deprem Büyüklük-Zaman Grafiği</h3>
+                <div class="graph-modal-subtitle" id="graphSubtitle"></div>
+            </div>
+            <button class="graph-modal-close" onclick="closeGraphModal()">
+                <i class="la la-times"></i>
+            </button>
+        </div>
+        <div class="graph-container">
+            <canvas class="graph-canvas" id="graphCanvas"></canvas>
+        </div>
+    </div>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3d52b47920f24c319d37e2661827c42b1787588026925" integrity="sha512-d9sL6GJLXn6fInD1+TVXhTcQOsmxeHfmHAvwGDIxp5TO+uo1fiWW7mHomMj4MLRlCsJDTqXzWLHJFFlPCEIj/A==" data-cf-beacon='{"version":"2024.11.0","token":"f0ccf33f31b54cdd84a6e604a18cace0","r":1}' crossorigin="anonymous"></script>
+</body>
+</html>
